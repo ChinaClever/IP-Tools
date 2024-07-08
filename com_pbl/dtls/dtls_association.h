@@ -5,12 +5,14 @@
 #include <QtCore>
 #include "print.h"
 
+#define   DTLS_PORT   15603
+
 class Dtls_Association : public QObject
 {
     Q_OBJECT
 
 public:
-    Dtls_Association(const QString &address, quint16 port=15601);
+    Dtls_Association(const QString &address, quint16 port=DTLS_PORT);
     ~Dtls_Association();
 
     bool startHandshake();

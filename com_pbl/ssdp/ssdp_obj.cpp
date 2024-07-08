@@ -8,7 +8,7 @@
 
 Ssdp_Obj::Ssdp_Obj(QObject *parent) : QObject(parent)
 {
-    mPort = 9126;
+    mPort = 9123;
     mUdp = new Net_Udp(this);
     mSocket = new QUdpSocket(this);
     qRegisterMetaType<sSdpIt>("sSdpIt");

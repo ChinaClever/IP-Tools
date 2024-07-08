@@ -13,7 +13,7 @@ public:
     ~Dtls_Service();
 
     QHostAddress clientHost() {return mClientHost;}
-    bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 15601);
+    bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = DTLS_PORT);
     bool isListening() const;
     void close();
 

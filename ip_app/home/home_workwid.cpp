@@ -133,7 +133,7 @@ bool Home_WorkWid::startZip()
     if(str.size()) {
         QString fn = dir+".zip"; QString fmd = "%1_%2_%3.zip";  emit msgSig(str);
         QString name = fmd.arg(ui->usrEdit->text()).arg(ui->versionEdit->text())
-                .arg(QDate::currentDate().toString("yyMMdd"));
+                           .arg(QDate::currentDate().toString("yyMMdd"));
         int index = dir.lastIndexOf("/");
         int size = dir.size() - index;
         dir.remove(index, size);
@@ -153,6 +153,7 @@ bool Home_WorkWid::workDown()
     QStringList fs = File::entryList(dir+"/app");
     fs << File::entryList(dir+"/outlet");
     fs << File::entryList(dir+"/rootfs");
+    fs << File::entryList(dir+"/bin");
     fs.removeOne(CFG_APP); packing(cfg, fs);
     if(fs.size()) emit downSig(dir);
     return fs.size();

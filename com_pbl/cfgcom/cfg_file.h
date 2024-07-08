@@ -3,7 +3,7 @@
 #include "cfg_obj.h"
 
 struct sOtaFile {
-    sOtaFile():fc(1), path("/usr/data/upload/"), size(0){}
+    sOtaFile():fc(1), path("/upload/"), size(0){}
     ushort fc;
     QString dev;
     QString path;
