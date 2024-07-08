@@ -22,8 +22,8 @@ Cfg_Obj::~Cfg_Obj()
   * 获取程序数据目录
   */
 QString Cfg_Obj::pathOfCfg(const QString& name)
-{    
-#if (QT_VERSION > QT_VERSION_CHECK(5,13,0))
+{
+#if (QT_VERSION > QT_VERSION_CHECK(5,15,0))
     QDir dataDir(QDir::home());  // QCoreApplication::applicationDirPath()
     QString dirName = "." + QCoreApplication::organizationName();
     if(!dataDir.exists(dirName)) {dataDir.mkdir(dirName);} dataDir.cd(dirName);
@@ -31,7 +31,7 @@ QString Cfg_Obj::pathOfCfg(const QString& name)
     dirName = QCoreApplication::applicationName();
     if(!dataDir.exists(dirName)) {dataDir.mkdir(dirName);} dataDir.cd(dirName);
 #else
-    QDir dataDir("/usr/data/pdu/"); QString dirName = "cfg";
+    QDir dataDir("/appconfigs/pdu/"); QString dirName = "cfg";
     if(!dataDir.exists(dirName)) {dataDir.mkdir(dirName);} dataDir.cd(dirName);
 #endif
     return dataDir.absoluteFilePath(name);

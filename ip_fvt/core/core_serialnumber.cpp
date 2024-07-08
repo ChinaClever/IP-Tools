@@ -13,7 +13,7 @@ Core_Object::Core_Object(QObject *parent)
 
 void Core_Object::writeMac(const QByteArray &mac)
 {
-    QFile file("usr/data/pdu/cfg/mac.conf");
+    QFile file("appconfigs/pdu/cfg/mac.conf");
     if(file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         file.write(mac); file.close();
     } wirteCfgMac();
@@ -59,7 +59,7 @@ QString Core_Object::updateMacAddr(int step)
 }
 QString Core_Object::createSn()
 {
-    QString cmd = "2I3"; mCurrentNum +=1;
+    QString cmd = "3I2"; mCurrentNum +=1;
     int m = QDate::currentDate().month();
     int y = QDate::currentDate().year() - 2000;
     for(int i=0; i<3; ++i) cmd += "%" + QString::number(i+1);

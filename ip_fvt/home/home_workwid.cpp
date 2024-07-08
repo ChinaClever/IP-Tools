@@ -42,8 +42,10 @@ void Home_WorkWid::initLayout()
 void Home_WorkWid::initFunSlot()
 {
     initLayout(); isStart = false;
-    QString dir = "usr/data/pdu/cfg";
-    FileMgr::build().mkpath(dir);
+    QString dir = "appconfigs/pdu/cfg"; FileMgr::build().mkpath(dir);
+    dir = "appconfigs/pdu/doc"; FileMgr::build().mkpath(dir);
+    dir = "customer/pdu/"; FileMgr::build().mkpath(dir);
+
     timer = new QTimer(this); //timer->start(500);
     connect(timer, SIGNAL(timeout()), this, SLOT(timeoutDone()));
     connect(mCoreThread, &Core_Thread::finshSig, this, &Home_WorkWid::finishSlot);
@@ -280,7 +282,7 @@ bool Home_WorkWid::initWid()
 
 void Home_WorkWid::writeSnMac(const QString &sn, const QString &mac)
 {
-    QString dir = "usr/data/pdu/cfg/"; QFile file(dir + "mac.conf");
+    QString dir = "appconfigs/pdu/cfg/"; QFile file(dir + "mac.conf");
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         file.write(mac.toLatin1());
     } file.close();
@@ -294,7 +296,7 @@ void Home_WorkWid::writeSnMac(const QString &sn, const QString &mac)
 
 bool Home_WorkWid::updateWid()
 {
-    QString dir = "usr/data/pdu";
+    QString dir = "appconfigs/pdu";
     Cfg_App cfg(dir, this); sAppVerIt it;
     bool ret = cfg.app_unpack(it);
     if(!ret || it.sn.isEmpty()) MsgBox::critical(this, tr("版本信息读取错误"));
@@ -378,7 +380,7 @@ void Home_WorkWid::on_downBtn_clicked()
     QString str = tr("请确认下载设备的配置文件?");
     if(MsgBox::question(this, str)) {
         if(!inputCheck() || !initHost()) return;
-        FileMgr::build().delFileOrDir("usr/data/pdu");
+        FileMgr::build().delFileOrDir("appconfigs/pdu");
         QStringList fs = mCoreThread->getFs(); emit startSig();
         cm_mdelay(10); fs.removeLast(); fs.removeLast();
         Core_Http::bulid(this)->downFile(fs);
