@@ -64,7 +64,7 @@ void Core_Http::uploadFile(const QStringList &fs)
     foreach (const auto &fn, fs) {
         if(QFile::exists(fn)) {
             if(File::fileSize(fn) > 3)
-            http_upload("upload", fn, m_ip, m_port);
+                http_upload("upload", fn, m_ip, m_port);
         } else qDebug() << fn;
         cm_mdelay(350); //qDebug() << fn;
     }
@@ -93,11 +93,9 @@ auto Core_Http::sslConfig()
     QSslConfiguration SSLConfig;
     SSLConfig = QSslConfiguration::defaultConfiguration();
     SSLConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
-    //SSLConfig.setProtocol(QSsl::TlsV1_2OrLater);
+    SSLConfig.setProtocol(QSsl::TlsV1_2OrLater);
     return SSLConfig;
 }
-
-
 
 
 void Core_Http::http_get(const QString &method, QJsonObject &json, const QString &ip, int port)
@@ -107,15 +105,15 @@ void Core_Http::http_get(const QString &method, QJsonObject &json, const QString
     http.clearConnectionCache();
     QString url = "https://%1:%2/%3";
     http.get(url.arg(ip).arg(port).arg(method))
-            .header("content-type", "application/json")
-            .onSuccess([&](QString result) {emit httpSig(result);})
-    .onFailed([&](QString error) {emit httpSig(error); })
-    .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
-    .sslConfiguration(sslConfig())
-            .timeout(1000) // 1s超时
-            .body(json)
-            .block()
-            .exec();
+        .header("content-type", "application/json")
+        .onSuccess([&](QString result) {emit httpSig(result);})
+        .onFailed([&](QString error) {emit httpSig(error); })
+        .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
+        .sslConfiguration(sslConfig())
+        .timeout(1000) // 1s超时
+        .body(json)
+        .block()
+        .exec();
 }
 
 
@@ -126,15 +124,15 @@ void Core_Http::http_post(const QString &method, QJsonObject &json, const QStrin
     http.clearConnectionCache();
     QString url = "https://%1:%2/%3";
     http.post(url.arg(ip).arg(port).arg(method))
-            .header("content-type", "application/json")
-            .onSuccess([&](QString result) {emit httpSig(result);})
-    .onFailed([&](QString error) {emit httpSig(error); })
-    .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
-    .sslConfiguration(sslConfig())
-            .timeout(1000) // 1s超时
-            .body(json)
-            .block()
-            .exec();
+        .header("content-type", "application/json")
+        .onSuccess([&](QString result) {emit httpSig(result);})
+        .onFailed([&](QString error) {emit httpSig(error); })
+        .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
+        .sslConfiguration(sslConfig())
+        .timeout(1000) // 1s超时
+        .body(json)
+        .block()
+        .exec();
 }
 
 
@@ -145,15 +143,15 @@ void Core_Http::http_put(const QString &method, QJsonObject &json, const QString
     http.clearConnectionCache();
     QString url = "https://%1:%2/%3";
     http.put(url.arg(ip).arg(port).arg(method))
-            .header("content-type", "application/json")
-            .onSuccess([&](QString result) {emit httpSig(result);})
-    .onFailed([&](QString error) {emit httpSig(error); })
-    .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
-    .sslConfiguration(sslConfig())
-            .timeout(1000) // 1s超时
-            .body(json)
-            .block()
-            .exec();
+        .header("content-type", "application/json")
+        .onSuccess([&](QString result) {emit httpSig(result);})
+        .onFailed([&](QString error) {emit httpSig(error); })
+        .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
+        .sslConfiguration(sslConfig())
+        .timeout(1000) // 1s超时
+        .body(json)
+        .block()
+        .exec();
 }
 
 
@@ -164,15 +162,15 @@ bool Core_Http::http_down(const QString &method, QJsonObject &json, const QStrin
     http.clearConnectionCache();
     QString url = "https://%1:%2/%3"; bool ret = true;
     http.get(url.arg(ip).arg(port).arg(method))
-            .header("content-type", "application/json")
-            .sslConfiguration(sslConfig())
-            .download(file)  // 启用自动设置文件名字
-            .onDownloadFileSuccess([&](QString fileName) { emit httpSig("Download completed: "+fileName);})
-    .onDownloadFileFailed([&](QString error) { emit httpSig("Download failed: "+error+": "+file); ret = false;})
-    .timeout(2500) // 1s超时
-            .body(json)
-            .block()
-            .exec();
+        .onDownloadFileSuccess([&](QString fileName) { emit httpSig("Download completed: "+fileName);})
+        .onDownloadFileFailed([&](QString error) { emit httpSig("Download failed: "+error+": "+file); ret = false;})
+        .header("content-type", "application/json")
+        .sslConfiguration(sslConfig())
+        .download(file)  // 启用自动设置文件名字
+        .timeout(800) // 1s超时
+        .body(json)
+        .block()
+        .exec();
     return ret;
 }
 
@@ -183,10 +181,10 @@ void Core_Http::http_upload(const QString &method, const QString &file, const QS
     http.clearConnectionCache();
     QString url = "https://%1:%2/%3";
     http.post(url.arg(ip).arg(port).arg(method)).body(file, file)
-            .onSuccess([&](QString result) {emit httpSig("Upload completed: "+result);})
-    .onFailed([&](QString error) {emit httpSig("Upload failed: "+file+error);})
-    .sslConfiguration(sslConfig())
-            .timeout(1000) // 1s超时
-            .block()
-            .exec();
+        .onSuccess([&](QString result) {emit httpSig("Upload completed: "+result);})
+        .onFailed([&](QString error) {emit httpSig("Upload failed: "+file+error);})
+        .sslConfiguration(sslConfig())
+        .timeout(1000) // 1s超时
+        .block()
+        .exec();
 }

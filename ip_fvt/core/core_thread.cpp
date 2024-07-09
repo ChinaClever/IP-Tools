@@ -16,12 +16,14 @@ Core_Thread::Core_Thread(QObject *parent)
 
 QStringList Core_Thread::getFs()
 {
-    FileMgr::build().mkpath("appconfigs/pdu/doc/");
-    QString dir = "appconfigs/pdu/cfg/"; FileMgr::build().mkpath(dir);
+    QString dir = "customer/pdu/"; FileMgr::build().mkpath(dir);
+    dir = "appconfigs/pdu/doc"; FileMgr::build().mkpath(dir);
+    dir = "appconfigs/pdu/cfg/"; FileMgr::build().mkpath(dir);
+
     QStringList fs; fs << "customer/pdu/ver.ini" << "appconfigs/pdu/doc/modbus.xlsx";
-    fs << dir+"alarm.conf" << dir+"devParam.ini" << dir+"cfg.ini" << dir+"inet.ini";
-    fs << dir+"alarm.cfg" << dir+"snmpd.conf" << dir+"logo.png" << dir+"mac.conf";
-    fs << dir + "sn.conf";
+    fs << dir+"alarm.conf" << dir+"snmpd.conf" << dir+"devParam.ini" << dir+"inet.ini" ;
+    fs << dir+"alarm.cfg" << dir+"logo.png" << dir+"cfg.ini" ;
+    fs << dir+"mac.conf" << dir+"sn.conf" ;
     return fs;
 }
 
