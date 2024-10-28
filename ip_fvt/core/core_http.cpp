@@ -32,6 +32,13 @@ void Core_Http::execute(const QString cmd)
     http_put("execute", json, m_ip, m_port);
 }
 
+void Core_Http::calibration()
+{
+    QJsonObject json;
+    json.insert("cmd", "start");
+    http_put("calibration", json, m_ip, m_port);
+}
+
 void Core_Http::setting(const sDataItem &it)
 {
     QJsonObject json, obj;

@@ -147,6 +147,12 @@ bool Core_Thread::workDown(const QString &ip)
     return res;
 }
 
+void Core_Thread::startCalibration()
+{
+
+}
+
+
 void Core_Thread::run()
 {
     bool ret = searchDev();

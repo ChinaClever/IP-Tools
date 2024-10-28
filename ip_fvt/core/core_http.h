@@ -20,6 +20,7 @@ public:
     void setting(const sDataItem &it);
     void setting(const sCfgItem &it, const QVariant &value);
     void execute(const QString cmd);
+    void calibration();
 
 signals:
     void httpSig(const QString &msg);

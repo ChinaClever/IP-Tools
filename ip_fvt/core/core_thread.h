@@ -25,6 +25,7 @@ public slots:
 protected:
     void timeSync();
     void enModbusRtu();
+    void startCalibration();
     bool downVer(const QString &ip);
     bool workDown(const QString &ip);
     void writeSnMac(const QString &sn, const QString &mac);
