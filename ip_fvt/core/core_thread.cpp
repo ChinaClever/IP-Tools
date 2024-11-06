@@ -85,9 +85,9 @@ void Core_Thread::enModbusRtu()
     //Core_Http::bulid(this)->setting(it, 1);
     //emit msgSig(tr("设备模式：已开启设备级联功能"), true);
 
-    it.type = 13; it.fc = 9;
-    Core_Http::bulid(this)->setting(it, 1);
-    emit msgSig(tr("启用扩展口：已开启传感器盒子功能"), true);
+    //it.type = 13; it.fc = 9;
+    //Core_Http::bulid(this)->setting(it, 1);
+    //emit msgSig(tr("启用扩展口：已开启传感器盒子功能"), true);
 }
 
 void Core_Thread::writeSnMac(const QString &sn, const QString &mac)
@@ -140,6 +140,7 @@ bool Core_Thread::workDown(const QString &ip)
     }
 
     if(res) {
+        enModbusRtu(); cm_mdelay(150);
         emit msgSig(tr("设备重启，设备有响声"), true);        
         http->execute("sync"); cm_mdelay(1000);
         http->execute("reboot"); // killall cores
@@ -161,7 +162,6 @@ void Core_Thread::run()
             emit msgSig(tr("目标设备:")+ip, true);
             ret = downVer(ip); timeSync();
             if(ret) ret = workDown(ip);
-            if(ret) enModbusRtu(); cm_mdelay(150);
             emit finshSig(ret, ip+" ");
 #if 0
             cm_mdelay(2000);
