@@ -140,9 +140,8 @@ bool Core_Thread::workDown(const QString &ip)
     }
 
     if(res) {
-        enModbusRtu(); cm_mdelay(150);
         emit msgSig(tr("设备重启，设备有响声"), true);        
-        http->execute("sync"); cm_mdelay(1000);
+        http->execute("sync"); //cm_mdelay(1000);
         http->execute("reboot"); // killall cores
     }
     return res;
@@ -162,6 +161,8 @@ void Core_Thread::run()
             emit msgSig(tr("目标设备:")+ip, true);
             ret = downVer(ip); timeSync();
             if(ret) ret = workDown(ip);
+
+            if(ret) enModbusRtu(); //cm_mdelay(150);
             emit finshSig(ret, ip+" ");
 #if 0
             cm_mdelay(2000);
