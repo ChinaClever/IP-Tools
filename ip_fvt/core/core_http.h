@@ -21,6 +21,13 @@ public:
     void setting(const sCfgItem &it, const QVariant &value);
     void execute(const QString cmd);
     void calibration();
+    void initListen(const QString &ip="192.168.1.163", int port= 21907);
+    QString backListenValue();
+    void readJson(int addr=0);
+
+private slots:
+    void newConnectSlot();      //建立连接的槽函数
+    void tcpSocketSlot();       //读取数据的槽函数
 
 signals:
     void httpSig(const QString &msg);
@@ -36,6 +43,9 @@ private:
 private:
     //AeaQt::HttpClient mHttp;
     QString m_ip; int m_port;
+    QString str;
+    QTcpServer *m_tcpServer;
+    QTcpSocket *m_tcpSocket;
 };
 
 #endif // CORE_HTTP_H

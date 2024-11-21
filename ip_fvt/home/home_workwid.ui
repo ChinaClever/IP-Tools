@@ -284,12 +284,12 @@
      </property>
      <widget class="QPushButton" name="startBtn">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>60</x>
-        <y>120</y>
+        <x>40</x>
+        <y>80</y>
         <width>151</width>
         <height>60</height>
        </rect>
@@ -516,6 +516,99 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>目标：</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QPushButton" name="downBtn">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>下 载</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="findBtn">
+        <property name="text">
+         <string>搜索</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="adCheckBox">
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>自动发现</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_38">
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>数量：</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="userEdit">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="cursorMoveStyle">
+         <enum>Qt::LogicalMoveStyle</enum>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_13">
         <property name="minimumSize">
@@ -560,47 +653,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="userEdit">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="frame">
-         <bool>false</bool>
-        </property>
-        <property name="cursorMoveStyle">
-         <enum>Qt::LogicalMoveStyle</enum>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_38">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>20</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
-        </property>
-        <property name="text">
-         <string>数量：</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="1" colspan="2">
        <widget class="QSpinBox" name="cntSpin">
         <property name="minimumSize">
@@ -632,22 +684,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="minimumSize">
-         <size>
-          <width>45</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>目标：</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1" colspan="2">
        <widget class="QLineEdit" name="ipEdit">
         <property name="enabled">
@@ -655,42 +691,6 @@
         </property>
         <property name="text">
          <string>192.168.1.163</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="adCheckBox">
-        <property name="maximumSize">
-         <size>
-          <width>80</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>自动发现</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="2">
-       <widget class="QPushButton" name="findBtn">
-        <property name="text">
-         <string>搜索</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QPushButton" name="downBtn">
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>下 载</string>
         </property>
        </widget>
       </item>

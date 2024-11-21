@@ -35,6 +35,7 @@ public:
     int transmit(uchar *sent, int len, uchar *recv, int msecs=1);
 
     qint32 baudRate();
+    void setTs(int ts=3) {mTs=ts;}
     bool setBaudRate(qint32 baudRate);
     bool loopTest();
 
@@ -47,6 +48,7 @@ private slots:
 
 private:
     bool isOpen;
+    int mCount, mTs;
     QTimer *timer;
     QSerialPort  *mSerial;
     QReadWriteLock  mRwLock;

@@ -15,9 +15,10 @@ Home_WorkWid::Home_WorkWid(QWidget *parent) :
     ui->setupUi(this);
     Ssdp_Core::bulid(this);
     mCoreThread = new Core_Thread(this);
+    Yc = Yc_Obj::bulid(this);
     mPro=sDataPacket::bulid();
     QTimer::singleShot(450,this,SLOT(initFunSlot()));
-    //Core_Http::bulid(this)->initHost("192.168.1.89");
+    Core_Http::bulid(this)->initHost("192.168.1.32");
     //Core_Http::bulid(this)->execute("killall cores");
 }
 
@@ -51,6 +52,8 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::finshSig, this, &Home_WorkWid::finishSlot);
     connect(mCoreThread, &Core_Thread::overSig, this, &Home_WorkWid::updateResult);
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
+
+    connect(Yc, &Yc_Obj::msgSig, this, &Home_WorkWid::insertTextSlot);
     connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
 
 }
@@ -112,6 +115,7 @@ void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
     mPro->getPro()->itemName<<msg;
     mPro->getPro()->uploadPass<<pass;
 }
+
 
 void Home_WorkWid::updateCntSlot()
 {
@@ -260,7 +264,8 @@ void Home_WorkWid::initData()
 bool Home_WorkWid::initWid()
 {
     mPro->init();
-    bool ret = initMac();
+    bool ret = true;
+    // bool ret = initMac();
     if(ret) ret = initUser();
     if(ret) ret = inputCheck();
     //if(ret) ret = updateWid();
@@ -396,3 +401,4 @@ void Home_WorkWid::on_userEdit_selectionChanged()
 {
     ui->userEdit->setClearButtonEnabled(1);
 }
+

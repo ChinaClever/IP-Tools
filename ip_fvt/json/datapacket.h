@@ -9,6 +9,7 @@
 #define DEV_NUM 3
 #define ARRAY_SIZE 255 //一包数据最长
 #define PACK_ARRAY_SIZE LINE_NUM
+#define OpSize  6
 
 // 倍率定义
 #define COM_RATE_VOL	1.0    // 电压
@@ -34,7 +35,6 @@ struct sDataUnit
     uchar alarm[PACK_ARRAY_SIZE]; // 报警值 0表示未报警  1表示已报警 2表示已记录
     uchar status[PACK_ARRAY_SIZE];
 };
-
 
 
 /**
@@ -80,6 +80,53 @@ struct sEnvData
     sDataUnit hum; // 湿度
 };
 
+struct sUnitCfg
+{
+    uchar en;
+    uchar id;
+    float min; // 最小值
+    float max; // 最大值
+
+    float crMin; // 最小值
+    float crMax; // 最大值
+};
+
+struct sObjCfg
+{
+    sUnitCfg vol; // 电压
+    sUnitCfg cur; // 电流
+    sUnitCfg output; // 电流
+    sUnitCfg opCur[OpSize]; // 输出位电流
+
+    sUnitCfg tem; // 温度
+    sUnitCfg hum; // 湿度
+    sUnitCfg fantem;
+    sUnitCfg pwm;
+    sUnitCfg loopcur;
+};
+
+struct sTypeCfg
+{
+    uchar ip_bytepassword;
+    uchar ip_ac;
+    uchar ip_lcd;
+    uchar ip_lines;
+    uchar ip_language;
+    uchar ip_modbus;
+    uchar ip_standard;
+    uchar ip_version;
+    uchar ip_type;
+    // 1:IP-PDUV1 3:IP-PDUV3 4:IP-PDUV3-C3
+    // 5:IP-PDUV3-EATON 6:IP-PDUV6 7:IP-PDUV6-HUAWEI
+    // 9:IP_PDUV1_HUADA// IPV1华大 10:IP_PDUV3_BYTE 11:IP_PDUV3_SHATE 12:
+    uchar security;
+    uchar log_en;
+    sObjCfg ip_cfg;
+    QString ip_inFirst;
+    QString ip_inSecond;
+    QString ip_outFirst;
+    QString ip_outSecond;
+};
 
 struct sDevType
 {
@@ -116,7 +163,7 @@ struct sDevData
     sDevType devType; //设备类型
     uchar offLine; //离线标志 > 0在线
 
-    sObjData line; // 相数据
+    sObjData data; // 相数据
     sEnvData env; // 环境数据
 
     uchar hz; // 电压频率
@@ -186,11 +233,12 @@ public:
     static sDataPacket *bulid();
 
     void init();
+    sDevData *getDev() {return dev;}
     sProgress *getPro() {return pro;}
     bool delay(int s=1);
 
 protected:
-
+    sDevData *dev;
     sProgress *pro;
 };
 

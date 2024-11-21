@@ -8,6 +8,8 @@ struct sCfgComIt
     sSerial coms;
     int logCount;
     uchar pcNum;
+    ushort vol;
+    ushort volErr, curErr, powErr; // 电流误差
 };
 
 class CfgCom : public CfgSerial
@@ -17,9 +19,11 @@ public:
     static CfgCom* bulid(const QString& fn=CFG_FN, QObject *parent = nullptr);
     sCfgComIt *item;
     void writeCfgCom();
+    void writeErrData();
 
 private:
     void initCfgCom();
+    void initErrData();
 };
 
 #endif // CFGCOM_H

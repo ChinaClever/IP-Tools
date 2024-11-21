@@ -10,6 +10,8 @@ Core_Http::Core_Http(QObject *parent)
     : QObject{parent}
 {
     initHost();
+    m_tcpServer = new QTcpServer(this);
+    m_tcpSocket = new QTcpSocket(this);
 }
 
 Core_Http *Core_Http::bulid(QObject *parent)
@@ -17,6 +19,32 @@ Core_Http *Core_Http::bulid(QObject *parent)
     static Core_Http* sington = nullptr;
     if(!sington) sington = new Core_Http(parent);
     return sington;
+}
+
+void Core_Http::initListen(const QString &ip, int port)
+{
+    m_tcpServer->listen(QHostAddress(ip),port);    //建立监听
+    connect(m_tcpServer,SIGNAL(newConnection()),this,SLOT(newConnectSlot()));
+}
+
+void Core_Http::newConnectSlot()
+{
+    m_tcpSocket = m_tcpServer->nextPendingConnection();
+    connect(m_tcpSocket,SIGNAL(readyRead()),this,SLOT(tcpSocketSlot()));
+}
+
+void Core_Http::tcpSocketSlot()
+{
+    QByteArray ary;
+    ary = m_tcpSocket->readAll();
+    str += QString(ary) + ";";
+
+    qDebug() << ary ;
+}
+
+QString Core_Http::backListenValue()
+{
+    return str;
 }
 
 void Core_Http::initHost(const QString &ip, int port)
@@ -30,6 +58,14 @@ void Core_Http::execute(const QString cmd)
     QJsonObject json;
     json.insert("cmd", cmd);
     http_put("execute", json, m_ip, m_port);
+}
+
+void Core_Http::readJson(int addr)
+{
+    QJsonObject json;
+    json.insert("dc", 3);
+    json.insert("addr", addr);
+    http_get("pduMetaData", json, m_ip, m_port);
 }
 
 void Core_Http::calibration()
@@ -152,7 +188,7 @@ void Core_Http::http_put(const QString &method, QJsonObject &json, const QString
     http.put(url.arg(ip).arg(port).arg(method))
         .header("content-type", "application/json")
         .onSuccess([&](QString result) {emit httpSig(result);})
-        .onFailed([&](QString error) {emit httpSig(error); })
+        .onFailed([&](QString error) {emit httpSig(error);})
         .onTimeout([&](QNetworkReply *) {emit httpSig("timeout"); }) // 超时处理
         .sslConfiguration(sslConfig())
         .timeout(1000) // 1s超时

@@ -7,6 +7,7 @@
 
 sDataPacket::sDataPacket()
 {
+    dev = new sDevData;
     pro = new sProgress();
 }
 
@@ -35,6 +36,8 @@ void sDataPacket::init()
     pro->uploadPass.clear();
     pro->pn.clear();
     pro->uploadPassResult = 0;
+
+    memset(&(dev->data),0,sizeof(sObjData));
 }
 
 

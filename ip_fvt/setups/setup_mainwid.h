@@ -18,13 +18,15 @@ public:
     ~Setup_MainWid();
 
 protected:
-    //void initSerial();
+    void initSerial();
     void initMac();
     void updateMac();
     void initLogCount();
     void writeLogCount();
     void initCfgMac();
     void wirteCfgMac();
+    void initErrData();
+    void updateErrData();
 
 protected slots:
     void initFunSlot();
@@ -33,7 +35,7 @@ protected slots:
     void on_verBtn_clicked();
     void updateSlot(int,int);
     void timeoutDone();
-    //void on_saveBtn_clicked();
+    void on_saveBtn_clicked();
 
 private:
     Ui::Setup_MainWid *ui;
@@ -41,7 +43,7 @@ private:
     sCfgComIt *mItem;
     QTimer *timer;
     //SerialStatusWid *mComWid;
-    //SerialStatusWid *mSourceWid;
+    SerialStatusWid *mSourceWid;
 };
 
 #endif // SETUP_MAINWID_H

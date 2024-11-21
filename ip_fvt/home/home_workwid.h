@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "logmainwid.h"
 #include "core_thread.h"
+#include "yc_obj.h"
 #include "datapacket.h"
 #include "json_pack.h"
 
@@ -62,6 +63,7 @@ private slots:
 
     void on_userEdit_selectionChanged();
 
+
 private:
     Ui::Home_WorkWid *ui;
     Core_Thread *mCoreThread;
@@ -72,6 +74,7 @@ private:
     sCount mCnt;
     int mId=1;
     sDataPacket *mPro;
+    Yc_Obj *Yc;
 };
 
 #endif // HOME_WORKWID_H

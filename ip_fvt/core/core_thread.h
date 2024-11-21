@@ -3,6 +3,7 @@
 
 #include "core_serialnumber.h"
 #include "json_pack.h"
+#include "yc_obj.h"
 
 class Core_Thread : public Core_Object
 {
@@ -13,6 +14,7 @@ public:
     QString m_mac, m_sn;
     QStringList getFs();
     void run();
+    bool initFun();
 
 signals:
     void msgSig(const QString &msg, bool pass);
@@ -25,15 +27,30 @@ public slots:
 protected:
     void timeSync();
     void enModbusRtu();
-    void startCalibration();
+    bool startCalibration();
+    bool startCheck();
     bool downVer(const QString &ip);
     bool workDown(const QString &ip);
     void writeSnMac(const QString &sn, const QString &mac);
 
+    bool eachCurEnter(int exValue);
+    bool eachCurCheck(int k, int exValue, bool res);
+    void readMetaData();
+
+    bool curRangeByID(int i, int exValue, int cnt, bool flag);
+    bool powRangeByID(int i, int exValue, int cnt, bool flag);
+    bool curErrRange(int exValue, int cur);
+    bool powErrRange(int exValue, int cur);
 private:
     bool searchDev();
     bool fsCheck();
     sProgress *mPro;
+    sDevData *mDev;
+    sObjData *mData;
+    Yc_Obj *mYc;
+    YC_StandSource *mSource;
+    sCfgComIt *mItem;
+    Core_Http *http;
 
 private:
     QStringList m_ips;
