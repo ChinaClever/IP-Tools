@@ -74,7 +74,7 @@ private:
     sCount mCnt;
     int mId=1;
     sDataPacket *mPro;
-    Yc_Obj *Yc;
+    //Yc_Obj *Yc;
 };
 
 #endif // HOME_WORKWID_H

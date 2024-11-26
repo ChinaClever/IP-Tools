@@ -11,10 +11,11 @@ CfgCom::CfgCom(const QString &fn, QObject *parent)  : CfgSerial(fn, parent)
     item = new sCfgComIt();
     initCfgCom();
     initErrData();
-    item->vol = 250;
     item->coms.ser = nullptr;
     item->coms.sp = nullptr;
     item->coms.src = nullptr;
+    item->vol = 250;
+
 }
 
 CfgCom *CfgCom::bulid(const QString& fn, QObject *parent)

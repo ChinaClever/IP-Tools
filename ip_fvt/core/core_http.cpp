@@ -10,8 +10,6 @@ Core_Http::Core_Http(QObject *parent)
     : QObject{parent}
 {
     initHost();
-    m_tcpServer = new QTcpServer(this);
-    m_tcpSocket = new QTcpSocket(this);
 }
 
 Core_Http *Core_Http::bulid(QObject *parent)
@@ -21,31 +19,6 @@ Core_Http *Core_Http::bulid(QObject *parent)
     return sington;
 }
 
-void Core_Http::initListen(const QString &ip, int port)
-{
-    m_tcpServer->listen(QHostAddress(ip),port);    //建立监听
-    connect(m_tcpServer,SIGNAL(newConnection()),this,SLOT(newConnectSlot()));
-}
-
-void Core_Http::newConnectSlot()
-{
-    m_tcpSocket = m_tcpServer->nextPendingConnection();
-    connect(m_tcpSocket,SIGNAL(readyRead()),this,SLOT(tcpSocketSlot()));
-}
-
-void Core_Http::tcpSocketSlot()
-{
-    QByteArray ary;
-    ary = m_tcpSocket->readAll();
-    str += QString(ary) + ";";
-
-    qDebug() << ary ;
-}
-
-QString Core_Http::backListenValue()
-{
-    return str;
-}
 
 void Core_Http::initHost(const QString &ip, int port)
 {

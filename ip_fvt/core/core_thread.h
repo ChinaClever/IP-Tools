@@ -20,6 +20,7 @@ signals:
     void msgSig(const QString &msg, bool pass);
     void finshSig(bool pass, const QString &msg);
     void overSig(); void startSig();
+    void msgSigYC(const QString &msg, bool pass);
 
 public slots:
     void startSlot() {run();}
@@ -39,8 +40,14 @@ protected:
 
     bool curRangeByID(int i, int exValue, int cnt, bool flag);
     bool powRangeByID(int i, int exValue, int cnt, bool flag);
+    bool volErrRangeByID(int i, bool flag);
+    bool volErrRange();
     bool curErrRange(int exValue, int cur);
     bool powErrRange(int exValue, int cur);
+
+    bool noLoadCurFun();
+    bool noLoadCurCheck(int cnt);
+
 private:
     bool searchDev();
     bool fsCheck();
@@ -51,6 +58,7 @@ private:
     YC_StandSource *mSource;
     sCfgComIt *mItem;
     Core_Http *http;
+    Core_RecvWid *mSocket;
 
 private:
     QStringList m_ips;

@@ -3,7 +3,7 @@
 
 BaseObject::BaseObject()
 {
-    mModbus = nullptr;
+    // mModbus = nullptr;
     mPacket = sDataPacket::bulid();
     mItem = CfgCom::bulid()->item;
     mPro = mPacket->getPro();
@@ -29,11 +29,11 @@ BaseThread::~BaseThread()
 
 void BaseThread::initFunSlot()
 {
-    mModbus = Rtu_Modbus::bulid(this)->get();
-    if(!mModbus) {
-        int t = 100+rand()%50;
-        QTimer::singleShot(t,this,SLOT(initFunSlot()));
-    }
+    // mModbus = Rtu_Modbus::bulid(this)->get();
+    // if(!mModbus) {
+    //     int t = 100+rand()%50;
+    //     QTimer::singleShot(t,this,SLOT(initFunSlot()));
+    // }
 }
 
 bool BaseThread::updatePro(const QString &str, bool pass, int sec)

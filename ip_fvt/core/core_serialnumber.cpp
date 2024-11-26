@@ -166,6 +166,8 @@ QJsonArray Core_Object::getArray(const QJsonObject &object, const QString &key)
 
 bool Core_Object::jsonAnalysis()
 {
+    qDebug()<<"it->lineNum";
+
     QJsonObject obj; sCoreItem *it = &coreItem;
     QByteArray msg = it->jsonPacket.toLatin1();
     bool ret = checkInput(msg, obj);
@@ -209,6 +211,8 @@ void Core_Object::getParameter(const QJsonObject &object)
     it->language = getData(obj, "language");
     it->isBreaker = getData(obj, "breaker");
     it->vh = getData(obj, "vh");
+
+    qDebug()<<"it->lineNum"<<it->lineNum<<it->loopNum;
 
 }
 

@@ -206,8 +206,9 @@ int SerialPort::read(QByteArray &array, int secs)
     if(isOpen) {
         for(int i=0; i<10*secs; ++i) {
             int rtn = mSerialData.size();
-            if(rtn && i) {
-                if(rtn>5)msleep(375);
+            if(rtn) {
+                // if(rtn>0)
+                msleep(380);
                 QWriteLocker locker(&mRwLock);
                 array += mSerialData;
                 mSerialData.clear();
@@ -252,6 +253,7 @@ int SerialPort::transmit(const QByteArray &witeArray, QByteArray &readArray, int
 {
     int ret = write(witeArray);
     if(ret > 0) {
+        msleep(75);
         ret = read(readArray, msecs);
         if((ret < 0) || (ret > SERIAL_LEN)) {
             qDebug() << "SerialPort transmit read err"  << ret;

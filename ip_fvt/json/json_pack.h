@@ -4,6 +4,7 @@
 #include "datapacket.h"
 #include "http/httpclient.h"
 #include "core_serialnumber.h"
+
 class Json_Pack:public QObject
 {
     Q_OBJECT

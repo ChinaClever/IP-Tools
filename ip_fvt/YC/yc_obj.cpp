@@ -19,8 +19,6 @@ YC_StandSource *Yc_Obj::get()
 {
     YC_StandSource *yc = mAc;
 
-    yc = mDc;
-
 
     return yc;
 }
@@ -36,8 +34,6 @@ bool Yc_Obj::powerOn(int v)
     }
     if(ret) str += tr("成功"); else str += tr("失败");
     emit msgSig(str, ret);
-
-
 
     str = tr("标准源上电");
     if(ret) ret = yc->powerOn(v);

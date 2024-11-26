@@ -15,10 +15,10 @@ Home_WorkWid::Home_WorkWid(QWidget *parent) :
     ui->setupUi(this);
     Ssdp_Core::bulid(this);
     mCoreThread = new Core_Thread(this);
-    Yc = Yc_Obj::bulid(this);
+    //Yc = Yc_Obj::bulid(this);
     mPro=sDataPacket::bulid();
     QTimer::singleShot(450,this,SLOT(initFunSlot()));
-    Core_Http::bulid(this)->initHost("192.168.1.32");
+    // Core_Http::bulid(this)->initHost("192.168.1.32");
     //Core_Http::bulid(this)->execute("killall cores");
 }
 
@@ -53,7 +53,7 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::overSig, this, &Home_WorkWid::updateResult);
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
 
-    connect(Yc, &Yc_Obj::msgSig, this, &Home_WorkWid::insertTextSlot);
+    connect(mCoreThread, &Core_Thread::msgSigYC, this, &Home_WorkWid::insertTextSlot);
     connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
 
 }
@@ -266,8 +266,8 @@ bool Home_WorkWid::initWid()
     mPro->init();
     bool ret = true;
     // bool ret = initMac();
-    if(ret) ret = initUser();
-    if(ret) ret = inputCheck();
+    // if(ret) ret = initUser();
+    // if(ret) ret = inputCheck();
     //if(ret) ret = updateWid();
     if(ret) {
         initData();
@@ -346,13 +346,13 @@ void Home_WorkWid::timeoutDone()
 
 void Home_WorkWid::on_startBtn_clicked()
 {
-    mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    // mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     if(isStart == false) {
         if(initWid()) {
             timer->start(500);
             //mCoreThread->run();
-            //mCoreThread->start();
-            emit mCoreThread->startSig();
+            mCoreThread->start();
+            // emit mCoreThread->startSig();
         }
     } else {
         bool ret = MsgBox::question(this, tr("确定需要提前结束？"));
