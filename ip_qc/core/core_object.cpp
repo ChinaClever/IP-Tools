@@ -148,6 +148,7 @@ void Core_Object::getOutputVol(const QJsonObject &object)
     //cout << coreItem.actual.rate.outputVols.size() << coreItem.actual.rate.outputVols;
 
     QJsonObject obj = getObject(object, "uut_info");
+    coreItem.uuid = getValue(obj, "uuid").toString();
     coreItem.actual.ver.devType = getValue(obj, "pdu_type").toString();
 }
 

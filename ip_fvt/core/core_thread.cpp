@@ -5,6 +5,8 @@
  */
 #include "core_thread.h"
 #define AD_CUR_RATE 100
+#include "dbmacs.h"
+
 
 Core_Thread::Core_Thread(QObject *parent)
     : Core_Object{parent}
@@ -140,6 +142,12 @@ bool Core_Thread::downVer(const QString &ip)
         str = "SN：" + m_sn + "   MAC：" + m_mac;
     } else str =  tr("版本信息读取错误");
     emit msgSig(str, ret);
+
+    if(ret) {
+        int rtn = DbMacs::bulid()->contains(m_mac, it.sn);
+        if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库已存在").arg(m_mac), ret); }
+    }
+
     return ret;
 }
 

@@ -13,6 +13,7 @@ public:
     static DbLogs* bulid();
     QString tableName(){return "logs";}
     bool insertItem(const sLogItem& item);
+    int contains(const QString &mac, const QString &sn);
 
 protected:
     void createTable();

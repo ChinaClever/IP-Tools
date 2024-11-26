@@ -95,7 +95,6 @@ void Home_WorkWid::setTextColor(bool pass)
 
 void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
 {
-
     // mPro->init();
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(pass); ui->textEdit->insertPlainText(str);
