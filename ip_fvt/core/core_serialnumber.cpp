@@ -59,13 +59,14 @@ QString Core_Object::updateMacAddr(int step)
 }
 QString Core_Object::createSn()
 {
+    int pn=CfgCom::bulid()->item->pcNum;
     QString cmd = "3I5"; mCurrentNum +=1;
     int m = QDate::currentDate().month();
     int y = QDate::currentDate().year() - 2000;
-    for(int i=0; i<3; ++i) cmd += "%" + QString::number(i+1);
+    for(int i=0; i<4; ++i) cmd += "%" + QString::number(i+1);
     QString sn  = QString(cmd).arg(y,2,10,QLatin1Char('0'))
-                     .arg(m, 2, 10,QLatin1Char('0'))
-                     .arg(mCurrentNum, 5, 10, QLatin1Char('0'));
+                     .arg(m, 2, 10,QLatin1Char('0')).arg(pn)
+                     .arg(mCurrentNum, 4, 10, QLatin1Char('0'));
     this->setCurrentNum();
     return sn.toUpper();
 }

@@ -70,7 +70,7 @@ struct sCoreItem
     sCoreUnit actual; // 实际
     QString jsonPacket;
     QString datetime;
-    QString mac,sn;
+    QString mac,sn, uuid;
     QVariantList mcutemp;
     int alarm;
 };

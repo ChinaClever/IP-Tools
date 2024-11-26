@@ -15,9 +15,9 @@ public:
     static DbMacs* bulid();
     QString tableName(){return "macs";}
 
-    int contains(const QString &mac);
     bool insertItem(sMacItem& item);
     bool updateItem(const sMacItem& item);
+    int contains(const QString &mac, const QString &sn);
 
     sMacItem selItemByMac(const QString& mac);
     void removeMac(const QString& mac);

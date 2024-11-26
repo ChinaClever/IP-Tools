@@ -6,6 +6,7 @@
 #include "core_thread.h"
 #include <QImage>
 #include <QPixmap>
+#include "dbmacs.h"
 
 Core_Thread::Core_Thread(QObject *parent)
     : Core_Object{parent}
@@ -60,7 +61,16 @@ bool Core_Thread::snCheck()
     QString str = tr("序列号，");
     if(sn.contains("2I3")) {str += sn; ret = true;}
     else {str += tr("错误：sn=%1").arg(sn);}
-    emit msgSig(str, ret);
+
+    QString uuid = coreItem.uuid;
+    emit msgSig(str, ret); if(ret) {
+        if(mHashSn.contains(sn)) {
+            if(mHashSn.value(sn) != uuid) {
+                ret = false; emit msgSig(tr("SN：%1已被分配给UUID:%2")
+                                .arg(sn, uuid), ret);
+            }
+        } else mHashSn[sn] = uuid;
+    }
     return ret;
 }
 
@@ -86,7 +96,21 @@ bool Core_Thread::macCheck()
     QString str = tr("MAC地址，");
     if(v.contains("2C:26:")) {str += v; ret = true;}
     else {str += tr("错误：mac=%1").arg(v);}
-    emit msgSig(str, ret);
+
+    QString sn = coreItem.sn;
+    QString uuid = coreItem.uuid;
+    emit msgSig(str, ret); if(ret) {
+        if(mHashMac.contains(v)) {
+            if(mHashMac.value(v) != uuid) {
+                ret = false; emit msgSig(tr("MAC：%1已被分配给UUID:%2")
+                                .arg(v, uuid), ret);
+            }
+        } else {
+            mHashMac[v] = uuid; int rtn = DbMacs::bulid()->contains(v, sn);
+            if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库有"), ret); }
+        }
+    }
+
     return ret;
 }
 

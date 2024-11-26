@@ -42,6 +42,7 @@ private:
 private:
     QString mLogo;
     QStringList m_ips;
+    QHash<QString, QString> mHashMac, mHashSn;
 };
 
 #endif // CORE_THREAD_H
