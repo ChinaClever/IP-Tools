@@ -47,12 +47,13 @@ bool DbMacs::insertItem(sMacItem &item)
     return ret;
 }
 
-int DbMacs::contains(const QString &mac)
+int DbMacs::contains(const QString &mac, const QString &sn)
 {
-    QString condition = QString("where mac=\'%1\'").arg(mac);
+    QString condition = QString("where mac=\'%1\' AND sn!='%2'").arg(mac, sn);
 
-    return count("mac", condition);
+    return count("id", condition);
 }
+
 
 bool DbMacs::updateItem(const sMacItem &item)
 {

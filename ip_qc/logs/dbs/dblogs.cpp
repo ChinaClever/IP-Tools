@@ -69,3 +69,11 @@ bool DbLogs::modifyItem(const sLogItem &item, const QString &cmd)
     if(!ret) throwError(query.lastError());
     return ret;
 }
+
+
+int DbLogs::contains(const QString &mac, const QString &sn)
+{
+    QString condition = QString("where mac=\'%1\' AND sn!='%2'").arg(mac, sn);
+
+    return count("id", condition);
+}

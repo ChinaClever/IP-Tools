@@ -102,8 +102,8 @@ bool Core_Thread::macCheck()
     emit msgSig(str, ret); if(ret) {
         if(mHashMac.contains(v)) {
             if(mHashMac.value(v) != uuid) {
-                ret = false; emit msgSig(tr("MAC：%1已被分配给UUID:%2")
-                                .arg(v, uuid), ret);
+                ret = false; emit msgSig(tr("MAC：%1已被分配给SN:%3 UUID:%2")
+                                .arg(v, uuid, mHashMac.value(v)), ret);
             }
         } else {
             mHashMac[v] = uuid; int rtn = DbMacs::bulid()->contains(v, sn);
