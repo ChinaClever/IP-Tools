@@ -61,6 +61,13 @@ void Home_WorkWid::logWrite()
     logIt.sn = ui->snLab->text();
     if(mResult) logIt.result = tr("通过");
     else logIt.result = tr("失败");
+    if(logIt.mac.contains("---")) {
+        cm_mdelay(850);
+        logIt.sw = ui->fwLab->text();
+        logIt.sn = ui->snLab->text();
+        logIt.mac = ui->macLab->text();
+    } if(logIt.mac.contains("---")) cout << logIt.mac;
+
     DbLogs::bulid()->insertItem(logIt);
 }
 
