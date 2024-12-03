@@ -81,8 +81,8 @@ void Home_WorkWid::logWrite()
 
 void Home_WorkWid::finishSlot(bool pass, const QString &msg)
 {
-    QString str = msg + tr(" 配置文件上传");;
-    if(pass) {
+    QString str = msg + tr(" 配置");;
+    if(pass && mId>10) {
         mCnt.ok += 1;
         str += tr("成功！");
         mPro->getPro()->uploadPassResult = 1;
@@ -256,7 +256,7 @@ void Home_WorkWid::initData()
     mId = 1; mResult = true;
     if(!ui->adCheckBox->isChecked()) {
         ips << ui->ipEdit->text();
-        //mCoreThread->setIps(ips);
+        mCoreThread->setIps(ips);
     }
 }
 
@@ -264,11 +264,11 @@ void Home_WorkWid::initData()
 bool Home_WorkWid::initWid()
 {
     mPro->init();
-    bool ret = true;
-    // bool ret = initMac();
-    // if(ret) ret = initUser();
-    // if(ret) ret = inputCheck();
-    //if(ret) ret = updateWid();
+    // bool ret = true;
+    bool ret = initMac();
+    if(ret) ret = initUser();
+    if(ret) ret = inputCheck();
+    if(ret) ret = updateWid();
     if(ret) {
         initData();
         setWidEnabled(false);

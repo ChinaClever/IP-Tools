@@ -47,6 +47,7 @@ protected:
 
     bool noLoadCurFun();
     bool noLoadCurCheck(int cnt);
+    bool waitForRest();
 
 private:
     bool searchDev();

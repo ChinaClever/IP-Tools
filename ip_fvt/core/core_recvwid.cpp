@@ -17,17 +17,17 @@ Core_RecvWid *Core_RecvWid::bulid(QObject *parent)
 
 void Core_RecvWid::udpRecvSlot()
 {
-    qDebug()<<"udpRecvSlot";
     QByteArray datagram; QHostAddress host;
     while(udpSocket->hasPendingDatagrams()) {
         datagram.resize(int(udpSocket->pendingDatagramSize()));
         int ret = udpSocket->readDatagram(datagram.data(), datagram.size(), &host);
-        if(ret > 0) { qDebug()<<"QString(datagram)"<<QString(datagram); data += QString(datagram) + ";";}
+        if(ret > 0) {data += QString(datagram) + ";";}
         else qCritical() << udpSocket->errorString();
     }
+
 }
 
-QString Core_RecvWid::Send_Recv()
+QString Core_RecvWid::return_Recv()
 {
     return data;
 }

@@ -56,7 +56,8 @@ void Home_MainWid::setTextColor(const QString &str)
 
 
 void Home_MainWid::onMsg(const QString &msg)
-{    
+{
+    if(msg.size() > 2048) Core_Object::coreItem.jsonPacket = msg;
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(str); //ui->textEdit->moveCursor(QTextCursor::Start);
     ui->textEdit->insertPlainText(str);

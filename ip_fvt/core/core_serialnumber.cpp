@@ -167,13 +167,11 @@ QJsonArray Core_Object::getArray(const QJsonObject &object, const QString &key)
 
 bool Core_Object::jsonAnalysis()
 {
-    qDebug()<<"it->lineNum";
-
     QJsonObject obj; sCoreItem *it = &coreItem;
     QByteArray msg = it->jsonPacket.toLatin1();
     bool ret = checkInput(msg, obj);
     if(ret) {
-        getSn(obj); getMac(obj);
+        // getSn(obj); getMac(obj);
         getParameter(obj);
         it->datetime = getValue(obj, "datetime").toString();
         obj = getObject(obj, "pdu_data");
@@ -206,15 +204,11 @@ void Core_Object::getParameter(const QJsonObject &object)
     QJsonObject obj = getObject(object, "pdu_info");
     it->sensorBoxEn = getData(obj, "sensor_box");
     it->standNeutral = getData(obj, "stand_neutral");
-    it->supplyVol = getData(obj, "supply_vol");
     it->lineNum = getData(obj, "line_num");
     it->loopNum = getData(obj, "loop_num");
     it->language = getData(obj, "language");
     it->isBreaker = getData(obj, "breaker");
     it->vh = getData(obj, "vh");
-
-    qDebug()<<"it->lineNum"<<it->lineNum<<it->loopNum;
-
 }
 
 void Core_Object::getTgData(const QJsonObject &object)
@@ -241,7 +235,7 @@ void Core_Object::getThreshold(const QJsonObject &object)
     int line = (int)it->lineNum;
     int loop = (int)it->loopNum;
 
-    if(!loop)
+    if(loop)
     {
         QJsonObject obj = getObject(object, "loop_item_list");
         for(int i=0;i<loop;i++)
@@ -255,8 +249,8 @@ void Core_Object::getThreshold(const QJsonObject &object)
         for(int i=0;i<line;i++)
         {
             item->lineVol[i] = getActualValue(obj, "vol", i);
-            item->lineVol[i] = getActualValue(obj, "cur", i);
-            item->lineVol[i] = getActualValue(obj, "pow", i);
+            item->lineCur[i] = getActualValue(obj, "cur", i);
+            item->linePow[i] = getActualValue(obj, "pow", i);
         }
     }
 }

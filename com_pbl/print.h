@@ -12,6 +12,5 @@ QString cm_ByteArrayToHexStr(uchar *buf, int len);
 QString cm_ByteArrayToHexStr(const QByteArray &array);
 QString cm_ByteArrayToUcharStr(const QByteArray &array);
 
-#define cout qDebug() << "[" << __FILE__ << ":" << Q_FUNC_INFO << ":" << __LINE__ << "]"
-
+#define cout qDebug() << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") << "[" << __FILE__ << ":" << Q_FUNC_INFO << ":" << __LINE__ << "]"
 #endif // COMMON_H

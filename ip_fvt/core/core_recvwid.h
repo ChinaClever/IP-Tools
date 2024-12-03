@@ -11,7 +11,10 @@ class Core_RecvWid: public QObject
 public:
     static Core_RecvWid *bulid(QObject *parent = nullptr);
     explicit Core_RecvWid(QObject *parent = nullptr);
-    QString Send_Recv();
+    QString return_Recv();
+
+signals:
+    void msgSig(const QString &msg, bool pass);
 
 private slots:
     void udpRecvSlot();
