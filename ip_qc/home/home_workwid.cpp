@@ -53,12 +53,11 @@ void Home_WorkWid::initFunSlot()
 
 void Home_WorkWid::logWrite()
 {
-    sLogItem logIt;
-    logIt.dev = "MPro";
-    logIt.mac = ui->macLab->text();
+    sLogItem logIt; logIt.dev = "IP";
+    sCoreItem *it = &Core_Thread::bulid()->coreItem;
+    logIt.mac = it->mac; logIt.sn = it->sn;
     logIt.user = ui->userEdit->text();
-    logIt.sw = ui->fwLab->text();
-    logIt.sn = ui->snLab->text();
+    logIt.sw = it->actual.ver.fwVer;
     if(mResult) logIt.result = tr("通过");
     else logIt.result = tr("失败");
     DbLogs::bulid()->insertItem(logIt);
