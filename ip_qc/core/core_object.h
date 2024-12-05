@@ -4,6 +4,9 @@
 #include "core_http.h"
 #include "cfgcom.h"
 
+#define LOOP_NUM 9
+#define LINE_NUM 3
+
 struct sParameter {
     uint devSpec; // 设备规格 A\B\C\D
     uint language; // 0 中文 1 英文
@@ -12,26 +15,35 @@ struct sParameter {
     uint vh; // 0:垂直 1:水平
     uint standNeutral; // 0-标准,1-中性
     uint webBackground; // 网页背景颜色
-    uint supplyVol;
 
     uint lineNum; //设备单三相
-    uint boardNum;   //　执行板数量
     uint loopNum; // 回路数量
-    uint outputNum;   //　输出位数量
+    double cpuTem;
+};
+
+struct sPdudata
+{
+    QVariantList lineVol;
+    QVariantList lineCur;
+    QVariantList linePow;
+
+    QVariantList loopVol;
+    QVariantList loopCur;
+    QVariantList loopPow;
+
 };
 
 struct sThreshold
 {
-    double lineVol;
-    double lineCur;
-    double linePow;
+    QVariantList lineVol;
+    QVariantList lineCur;
+    QVariantList linePow;
 
-    double loopVol;
-    double loopCur;
-    double loopPow;
+    QVariantList loopVol;
+    QVariantList loopCur;
+    QVariantList loopPow;
+
     double volValue; //电压参考值
-    QVariantList ops; //输出位电流额定值
-    QVariantList outputVols;
 };
 
 struct sMonitorData
@@ -45,9 +57,6 @@ struct sMonitorData
 
 struct sVersion
 {
-    QVariantList opSn; // 执行板序列号
-    QVariantList opVers; // 每块执行板软件版本
-    QVariantList loopOutlets; // 每个回路输出位爆裂
     QString devType; // 设备类型
     QString fwVer; //软件版本号
 };
@@ -57,7 +66,12 @@ struct sCoreUnit
     sVersion ver;
     sParameter param;
     sThreshold rate;
+    sPdudata value;
     sMonitorData data;
+    QString datetime;
+    QString mac,sn, uuid;
+    // QVariantList mcutemp;
+    int alarm;
 };
 
 
@@ -69,10 +83,6 @@ struct sCoreItem
     sCoreUnit desire; // 期望
     sCoreUnit actual; // 实际
     QString jsonPacket;
-    QString datetime;
-    QString mac,sn, uuid;
-    QVariantList mcutemp;
-    int alarm;
 };
 
 
@@ -96,17 +106,32 @@ public:
     void irqCheck();
     void setRunTime();
     bool jsonAnalysis();
+    bool jsonAnalysisRefer();
 
 private:
     void getSn(const QJsonObject &object);
     void getMac(const QJsonObject &object);
     void getTgData(const QJsonObject &object);
     void getEnvData(const QJsonObject &object);
-    void getOutputVol(const QJsonObject &object);
     void getParameter(const QJsonObject &object);
     void getThreshold(const QJsonObject &object);
     void getAlarmStatus(const QJsonObject &object);
-    double getRating(const QJsonObject &object, const QString &key, const QString &suffix="rated");
+    void getPduData(const QJsonObject &object);
+    void getDevType(const QJsonObject &object);
+    void getDevTypeRefer(const QJsonObject &object);
+
+    void getSnRefer(const QJsonObject &object);
+    void getMacRefer(const QJsonObject &object);
+    void getTgDataRefer(const QJsonObject &object);
+    void getEnvDataRefer(const QJsonObject &object);
+    void getParameterRefer(const QJsonObject &object);
+    void getThresholdRefer(const QJsonObject &object);
+    void getAlarmStatusRefer(const QJsonObject &object);
+    void getPduDataRefer(const QJsonObject &object);
+
+    double getRating(const QJsonObject &object, const QString &key,  int value, const QString &suffix="rated");
+    double getActualValue(const QJsonObject &object, const QString &key, int value, const QString &suffix="value");
+
 
     bool checkInput(const QByteArray &msg, QJsonObject &obj);
     double getData(const QJsonObject &object, const QString &key);

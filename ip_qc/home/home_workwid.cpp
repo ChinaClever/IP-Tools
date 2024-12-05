@@ -55,7 +55,7 @@ void Home_WorkWid::logWrite()
 {
     sLogItem logIt; logIt.dev = "IP";
     sCoreItem *it = &Core_Thread::bulid()->coreItem;
-    logIt.mac = it->mac; logIt.sn = it->sn;
+    logIt.mac = it->actual.mac; logIt.sn = it->actual.sn;
     logIt.user = ui->userEdit->text();
     logIt.sw = it->actual.ver.fwVer;
     if(mResult) logIt.result = tr("通过");
@@ -208,25 +208,25 @@ void Home_WorkWid::initData()
 {
     QStringList ips;
     mId = 1; mResult = true;
-    //if(!ui->auCheckBox->isChecked()) {
-    //    ips << ui->ipEdit->text();
-    //} mCoreThread->setIps(ips);
+    if(!ui->auCheckBox->isChecked()) {
+        ips << ui->ipEdit->text();
+        mCoreThread->setIps(ips);
+    }
 
     sCoreItem *it = &(Core_Object::coreItem);
     it->jsonPacket.clear();
-    it->datetime.clear();
+    it->actual.datetime.clear();
     //it->ip = ips.first();
-    it->mac.clear();
-    it->sn.clear();
+    it->actual.mac.clear();
+    it->actual.sn.clear();
 
     memset(&(it->actual.param), 0, sizeof(sParameter));
-    it->actual.rate.lineVol = 0;
-    it->actual.rate.lineCur = 0;
-    it->actual.rate.linePow = 0;
-    it->actual.rate.loopVol = 0;
-    it->actual.rate.loopCur = 0;
-    it->actual.rate.loopPow = 0;
-    it->actual.rate.ops.clear();
+    // it->actual.rate.lineVol = 0;
+    // it->actual.rate.lineCur = 0;
+    // it->actual.rate.linePow = 0;
+    // it->actual.rate.loopVol = 0;
+    // it->actual.rate.loopCur = 0;
+    // it->actual.rate.loopPow = 0;
 }
 
 
@@ -261,7 +261,7 @@ bool Home_WorkWid::updateWid()
 {
     sCoreItem *it = &Core_Object::coreItem;
 
-    QString str = it->sn;
+    QString str = it->actual.sn;
     if(str.isEmpty()) str = "--- ---";
     ui->snLab->setText(str);
     mPro->getPro()->productSN = str;
@@ -271,7 +271,7 @@ bool Home_WorkWid::updateWid()
     ui->fwLab->setText(str);
     mPro->getPro()->softwareVersion = str;
 
-    str = it->mac;
+    str = it->actual.mac;
     if(str.isEmpty()) str = "--- ---";
     ui->macLab->setText(str);
     mPro->getPro()->macAddress = str;
@@ -287,12 +287,12 @@ void Home_WorkWid::timeoutDone()
 
 void Home_WorkWid::on_startBtn_clicked()
 {
-    mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    // mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     if(isStart == false) {
         if(initWid()) {
-
             timer->start(500);
             //mCoreThread->run();
+
             mCoreThread->start();
         }
     } else {

@@ -23,13 +23,10 @@ public slots:
 
 private:
     void updateParams();
-    void updateOutlets();
     void updateThresholds();
-    QList<QCheckBox *> checkBoxFound();
 
 
 private slots:
-    void on_uncheckBtn_clicked();
     void on_eleClearBtn_clicked();
     void on_factoryBtn_clicked();
     void on_lineVolBox_valueChanged(int arg1);

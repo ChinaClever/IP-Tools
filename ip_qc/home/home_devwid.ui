@@ -20,428 +20,199 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="4" column="0">
-    <widget class="QGroupBox" name="groupBox_4">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_1">
      <property name="title">
-      <string>输出位额定电流值配置</string>
+      <string>常用操作</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <property name="topMargin">
-       <number>0</number>
+     <widget class="QPushButton" name="logBtn">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>60</y>
+        <width>100</width>
+        <height>31</height>
+       </rect>
       </property>
-      <property name="rightMargin">
-       <number>0</number>
+      <property name="text">
+       <string>清除日志</string>
       </property>
-      <property name="bottomMargin">
-       <number>0</number>
+     </widget>
+     <widget class="QPushButton" name="eleClearBtn">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>60</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
       </property>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label_16">
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>输出位16A额定值</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" rowspan="4">
-       <widget class="QWidget" name="checkWid" native="true">
-        <property name="font">
-         <font>
-          <family>微软雅黑</family>
-          <pointsize>11</pointsize>
-          <bold>true</bold>
-         </font>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="op_2">
-           <property name="text">
-            <string>2</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QCheckBox" name="op_34">
-           <property name="text">
-            <string>34</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="14">
-          <widget class="QCheckBox" name="op_14">
-           <property name="text">
-            <string>14</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="5">
-          <widget class="QCheckBox" name="op_22">
-           <property name="text">
-            <string>22</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="16">
-          <widget class="QCheckBox" name="op_48">
-           <property name="text">
-            <string>48</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="14">
-          <widget class="QCheckBox" name="op_30">
-           <property name="text">
-            <string>30</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="6">
-          <widget class="QCheckBox" name="op_7">
-           <property name="text">
-            <string>7</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="10">
-          <widget class="QCheckBox" name="op_10">
-           <property name="text">
-            <string>10</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="op_17">
-           <property name="text">
-            <string>17</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QCheckBox" name="op_19">
-           <property name="text">
-            <string>19</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="15">
-          <widget class="QCheckBox" name="op_47">
-           <property name="text">
-            <string>47</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="12">
-          <widget class="QCheckBox" name="op_28">
-           <property name="text">
-            <string>28</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="15">
-          <widget class="QCheckBox" name="op_31">
-           <property name="text">
-            <string>31</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="op_33">
-           <property name="text">
-            <string>33</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="7">
-          <widget class="QCheckBox" name="op_24">
-           <property name="text">
-            <string>24</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="16">
-          <widget class="QCheckBox" name="op_32">
-           <property name="text">
-            <string>32</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="7">
-          <widget class="QCheckBox" name="op_8">
-           <property name="text">
-            <string>8</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="9">
-          <widget class="QCheckBox" name="op_25">
-           <property name="text">
-            <string>25</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="14">
-          <widget class="QCheckBox" name="op_46">
-           <property name="text">
-            <string>46</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="9">
-          <widget class="QCheckBox" name="op_9">
-           <property name="text">
-            <string>9</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QCheckBox" name="op_36">
-           <property name="text">
-            <string>36</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="10">
-          <widget class="QCheckBox" name="op_42">
-           <property name="text">
-            <string>42</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="4">
-          <widget class="QCheckBox" name="op_37">
-           <property name="text">
-            <string>37</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="4">
-          <widget class="QCheckBox" name="op_21">
-           <property name="text">
-            <string>21</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="6">
-          <widget class="QCheckBox" name="op_39">
-           <property name="text">
-            <string>39</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="5">
-          <widget class="QCheckBox" name="op_6">
-           <property name="text">
-            <string>6</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="op_18">
-           <property name="text">
-            <string>18</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="12">
-          <widget class="QCheckBox" name="op_12">
-           <property name="text">
-            <string>12</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QCheckBox" name="op_20">
-           <property name="text">
-            <string>20</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="12">
-          <widget class="QCheckBox" name="op_44">
-           <property name="text">
-            <string>44</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="16">
-          <widget class="QCheckBox" name="op_16">
-           <property name="text">
-            <string>16</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="11">
-          <widget class="QCheckBox" name="op_27">
-           <property name="text">
-            <string>27</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="15">
-          <widget class="QCheckBox" name="op_15">
-           <property name="text">
-            <string>15</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QCheckBox" name="op_4">
-           <property name="text">
-            <string>4</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QCheckBox" name="op_35">
-           <property name="text">
-            <string>35</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="5">
-          <widget class="QCheckBox" name="op_38">
-           <property name="text">
-            <string>38</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="7">
-          <widget class="QCheckBox" name="op_40">
-           <property name="text">
-            <string>40</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="11">
-          <widget class="QCheckBox" name="op_43">
-           <property name="text">
-            <string>43</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QCheckBox" name="op_3">
-           <property name="text">
-            <string>3</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="11">
-          <widget class="QCheckBox" name="op_11">
-           <property name="text">
-            <string>11</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="10">
-          <widget class="QCheckBox" name="op_26">
-           <property name="text">
-            <string>26</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="9">
-          <widget class="QCheckBox" name="op_41">
-           <property name="text">
-            <string>41</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="6">
-          <widget class="QCheckBox" name="op_23">
-           <property name="text">
-            <string>23</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="13">
-          <widget class="QCheckBox" name="op_13">
-           <property name="text">
-            <string>13</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="13">
-          <widget class="QCheckBox" name="op_29">
-           <property name="text">
-            <string>29</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="op_1">
-           <property name="text">
-            <string>1</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="13">
-          <widget class="QCheckBox" name="op_45">
-           <property name="text">
-            <string>45</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QCheckBox" name="op_5">
-           <property name="text">
-            <string>5</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="8">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="uncheckBtn">
-        <property name="maximumSize">
-         <size>
-          <width>180</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>全部取消勾选</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+      <property name="text">
+       <string>电能清除</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="factoryBtn">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>110</y>
+        <width>101</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>恢复出厂</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cascadeBtn">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>110</y>
+        <width>100</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>开启级联</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="closeAllBtn">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>110</y>
+        <width>101</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>全 关</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="enDelayBtn">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>60</y>
+        <width>100</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>开关延时1S</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="disDelayBtn">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>110</y>
+        <width>100</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>清除延时0S</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="openAllBtn">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>60</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>全 开</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_21">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>60</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>ModbusRtu</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_22">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>110</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>传感器盒子</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="rtuEnBtn">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>60</y>
+        <width>75</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>开启</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="rtuDisenBtn">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>60</y>
+        <width>75</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>关闭</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="boxDisenBtn">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>110</y>
+        <width>75</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>关闭</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bosEnBtn">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>110</y>
+        <width>75</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>开启</string>
+      </property>
+     </widget>
     </widget>
    </item>
    <item row="1" column="0">
@@ -449,7 +220,7 @@
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>140</height>
+       <height>200</height>
       </size>
      </property>
      <property name="title">
@@ -650,201 +421,6 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox_1">
-     <property name="title">
-      <string>常用操作</string>
-     </property>
-     <widget class="QPushButton" name="logBtn">
-      <property name="geometry">
-       <rect>
-        <x>730</x>
-        <y>60</y>
-        <width>100</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>清除日志</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="eleClearBtn">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>60</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>电能清除</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="factoryBtn">
-      <property name="geometry">
-       <rect>
-        <x>850</x>
-        <y>110</y>
-        <width>101</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>恢复出厂</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="cascadeBtn">
-      <property name="geometry">
-       <rect>
-        <x>730</x>
-        <y>110</y>
-        <width>100</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开启级联</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="closeAllBtn">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>110</y>
-        <width>101</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>全 关</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="enDelayBtn">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>60</y>
-        <width>100</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开关延时1S</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="disDelayBtn">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>110</y>
-        <width>100</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>清除延时0S</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="openAllBtn">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>60</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>全 开</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_21">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>60</y>
-        <width>101</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>ModbusRtu</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_22">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>110</y>
-        <width>101</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>传感器盒子</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="rtuEnBtn">
-      <property name="geometry">
-       <rect>
-        <x>490</x>
-        <y>60</y>
-        <width>75</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开启</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="rtuDisenBtn">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>60</y>
-        <width>75</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>关闭</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="boxDisenBtn">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>110</y>
-        <width>75</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>关闭</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="bosEnBtn">
-      <property name="geometry">
-       <rect>
-        <x>490</x>
-        <y>110</y>
-        <width>75</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>开启</string>
-      </property>
-     </widget>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="font">
@@ -869,6 +445,77 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_24">
+          <property name="text">
+           <string>软件版本号</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="fwEdit">
+          <property name="maximumSize">
+           <size>
+            <width>138</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_23">
+          <property name="text">
+           <string>设备类型</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="typeEdit">
+          <property name="maximumSize">
+           <size>
+            <width>138</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>MPDU-Pro</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>传感器盒子</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="sensorBox">
+          <item>
+           <property name="text">
+            <string>没有</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>存在</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
@@ -883,6 +530,12 @@
         </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="devSpecBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="currentIndex">
            <number>3</number>
           </property>
@@ -1007,23 +660,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>执行板数量</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="boardNumBox">
-          <property name="value">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>断路器</string>
@@ -1073,196 +709,6 @@
            </property>
           </item>
          </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>输出位数量：</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="outputNumBox">
-          <property name="value">
-           <number>24</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_24">
-          <property name="text">
-           <string>软件版本号</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="fwEdit">
-          <property name="maximumSize">
-           <size>
-            <width>138</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_23">
-          <property name="text">
-           <string>设备类型</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="typeEdit">
-          <property name="maximumSize">
-           <size>
-            <width>138</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>MPDU-Pro</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_19">
-          <property name="text">
-           <string>传感器盒子</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="sensorBox">
-          <item>
-           <property name="text">
-            <string>没有</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>存在</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="3" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_25">
-          <property name="minimumSize">
-           <size>
-            <width>180</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>每个回路的输出位数量:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_1">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="value">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_2">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="value">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_3">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="value">
-           <number>8</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_4">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_5">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="opBox_6">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>185</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>

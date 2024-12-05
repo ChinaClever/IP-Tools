@@ -15,6 +15,8 @@ Core_Thread::Core_Thread(QObject *parent)
     mLogo = "usr/data/pdu/cfg/logo.png";
     QString dir = "usr/data/pdu/cfg";
     FileMgr::build().mkpath(dir);
+    mItem = CfgCom::bulid()->item;
+    http = Core_Http::bulid(this);
 }
 
 Core_Thread *Core_Thread::bulid(QObject *parent)
@@ -35,6 +37,15 @@ bool Core_Thread::searchDev()
         if(ips.size()) str = tr("已找到%1个设备").arg(ips.size());
         else {ret = false;} m_ips = ips;
         emit msgSig(str, ret); //cout << ips;
+    }else {
+        QString ip = m_ips.first();
+        for(int i=0; i<5; ++i) {
+            ret = cm_pingNet(ip);
+            if(ret == true) {
+                emit msgSig(tr("设备连接成功"), true);
+                break;
+            } else cm_mdelay(1*1000);
+        }
     }
     return ret;
 }
@@ -45,11 +56,11 @@ bool Core_Thread::timeCheck()
     bool ret = false;
     QString str = tr("设备时间，");
     QString fmd = "yyyy-MM-dd hh:mm:ss";
-    QDateTime dt = QDateTime::fromString(coreItem.datetime, fmd);
+    QDateTime dt = QDateTime::fromString(coreItem.actual.datetime, fmd);
     QDateTime time = QDateTime::currentDateTime();
     int secs = qAbs(time.secsTo(dt));
     if(secs > 10) str += tr("相差过大："); else ret = true;
-    str += coreItem.datetime;
+    str += coreItem.actual.datetime;
     emit msgSig(str, ret);
     return ret;
 }
@@ -57,12 +68,12 @@ bool Core_Thread::timeCheck()
 bool Core_Thread::snCheck()
 {
     bool ret = false;
-    QString sn = coreItem.sn;
-    QString str = tr("序列号，");
-    if(sn.contains("2I3")) {str += sn; ret = true;}
+    QString sn = coreItem.actual.sn;
+    QString str = tr("序列号：");
+    if(sn.contains("3I5")) {str += sn; ret = true;}
     else {str += tr("错误：sn=%1").arg(sn);}
 
-    QString uuid = coreItem.uuid;
+    QString uuid = coreItem.actual.uuid;
     emit msgSig(str, ret); if(ret) {
         if(mHashSn.contains(sn)) {
             if(mHashSn.value(sn) != uuid) {
@@ -74,31 +85,16 @@ bool Core_Thread::snCheck()
     return ret;
 }
 
-bool Core_Thread::mcuTempCheck()
-{
-    bool res = true;
-    int cnt = coreItem.actual.param.boardNum;
-    QVariantList list = coreItem.mcutemp;
-    for(int i=0; i<cnt && i<list.size(); ++i) {
-        int temp = list.at(i).toInt(); bool ret = true;
-        QString str = tr("第%1块执行板温度%2°c").arg(i+1).arg(temp);
-        if(temp > 65 || temp < 5){ res = ret = false; str += tr("错误");}
-        emit msgSig(str, ret); //cout << str;
-    }
-
-    return res;
-}
-
 bool Core_Thread::macCheck()
 {
     bool ret = false;
-    QString v = coreItem.mac;
-    QString str = tr("MAC地址，");
+    QString v = coreItem.actual.mac;
+    QString str = tr("MAC地址：");
     if(v.contains("2C:26:")) {str += v; ret = true;}
     else {str += tr("错误：mac=%1").arg(v);}
 
-    QString sn = coreItem.sn;
-    QString uuid = coreItem.uuid;
+    QString sn = coreItem.actual.sn;
+    QString uuid = coreItem.actual.uuid;
     emit msgSig(str, ret); if(ret) {
         if(mHashMac.contains(v)) {
             if(mHashMac.value(v) != uuid) {
@@ -115,25 +111,12 @@ bool Core_Thread::macCheck()
     return ret;
 }
 
-bool Core_Thread::supplyVolCheck()
-{
-    sParameter *actual = &coreItem.actual.param;
-    bool ret = true; uint vol = actual->supplyVol;
-    QString str = tr("12电源检查：vol = %1V").arg(vol / 1000.0);
-    if(vol < 11*1000 || vol > 13*1000) {
-        str += tr("异常"); ret = false;
-    } emit msgSig(str, ret);
-
-    return ret;
-}
-
 bool Core_Thread::downLogo(const QString &ip)
 {
     QString str = tr("Logo图片下载：");
     QStringList fs; fs << mLogo;
 
     QFile::remove(mLogo);
-    Core_Http *http = Core_Http::bulid(this);
     http->initHost(ip); http->downFile(fs);
     for(int i=0; i<1000; i+= 100) {
         if(QFile::exists(mLogo)) break; else cm_mdelay(100);
@@ -206,53 +189,23 @@ bool Core_Thread::parameterCheck()
 {
     sParameter *desire = &coreItem.desire.param;
     sParameter *actual = &coreItem.actual.param;
-    QString str = tr("规格："); bool ret=true, res=true;
-    if(desire->devSpec == actual->devSpec) {
-        str += tr("%1系列").arg((char)(desire->devSpec+'A'-1));
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                .arg(desire->devSpec).arg(actual->devSpec);
-    } emit msgSig(str, ret);
+    QString str; bool ret=true, res=true;
 
-    str = tr("语言："); ret = true;
-    if(desire->language == actual->language) {
-        if(desire->language) str += tr("英文"); else str += tr("中文");
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->language).arg(actual->language);
-    } emit msgSig(str, ret);
+    str = tr("语言期望值：%1，实际值：%2 ").arg(desire->language?tr("英文"):tr("中文"))
+                                        .arg(actual->language?tr("英文"):tr("中文"));
+    if(desire->language == actual->language) ret=true;
+    else {res = ret = false;}emit msgSig(str, ret);
 
-    str = tr("断路器："); ret = true;
-    if(desire->isBreaker == actual->isBreaker) {
-        if(desire->isBreaker) str += tr("存在"); else str += tr("没有");
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->isBreaker).arg(actual->isBreaker);
-    } emit msgSig(str, ret);
+    str = tr("屏幕期望值：%1，实际值：%2 ").arg(desire->vh?tr("水平"):tr("垂直"))
+                                        .arg(actual->vh?tr("水平"):tr("垂直"));
+    if(desire->vh == actual->vh) ret=true;
+    else {res = ret = false;}emit msgSig(str, ret);
 
-    str = tr("屏幕："); ret = true;
-    if(desire->vh == actual->vh) {
-        if(desire->vh) str += tr("水平"); else str += tr("垂直");
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->vh).arg(actual->vh);
-    } emit msgSig(str, ret);
+    str = tr("中性期望值：%1，实际值：%2 ").arg(desire->standNeutral?tr("水平"):tr("垂直"))
+                                        .arg(actual->standNeutral?tr("水平"):tr("垂直"));
 
-    str = tr("中性："); ret = true;
-    if(desire->standNeutral == actual->standNeutral) {
-        if(desire->standNeutral) str += tr("中性"); else str += tr("标准");
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->standNeutral).arg(actual->standNeutral);
-    } emit msgSig(str, ret);
-
-//    str = tr("传感器盒子："); ret = true;
-//    if(desire->sensorBoxEn == actual->sensorBoxEn) {
-//        if(desire->sensorBoxEn) str += tr("存在"); else str += tr("不带");
-//    } else {
-//        res = ret = false; str += tr("期望值%1,实际值%2")
-//                   .arg(desire->sensorBoxEn).arg(actual->sensorBoxEn);
-//    } emit msgSig(str, ret);
+    if(desire->standNeutral == actual->standNeutral) ret=true;
+    else {res = ret = false;}emit msgSig(str, ret);
 
     return res;
 }
@@ -261,39 +214,16 @@ bool Core_Thread::devNumCheck()
 {
     sParameter *desire = &coreItem.desire.param;
     sParameter *actual = &coreItem.actual.param;
-    QString str = tr("设备相数：");
-    bool ret=true, res=true;
+    QString str ; bool ret=true, res=true;
 
-    if(desire->lineNum == actual->lineNum) {
-        if(1==desire->lineNum) str += tr("单相"); else str += tr("三相");
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->lineNum).arg(actual->lineNum);
-    } emit msgSig(str, ret);
+    str = tr("相数：期望值%1，实际值%2 ").arg(desire->lineNum ==1?tr("单相"):tr("三相"))
+                                        .arg(actual->lineNum ==1?tr("单相"):tr("三相"));
+    if(desire->lineNum == actual->lineNum) res=true;
+    else {res = ret = false;  emit msgSig(str, ret);}
 
-    str = tr("执行板数量："); ret = true;
-    if(desire->boardNum == actual->boardNum) {
-        str += QString::number(desire->boardNum);
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->boardNum).arg(actual->boardNum);
-    } emit msgSig(str, ret);
-
-    str = tr("回路数量："); ret = true;
-    if(desire->loopNum == actual->loopNum) {
-        str += QString::number(desire->loopNum);
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->loopNum).arg(actual->loopNum);
-    } emit msgSig(str, ret);
-
-    str = tr("输出位数量："); ret = true;
-    if(desire->outputNum == actual->outputNum) {
-        str += QString::number(desire->outputNum);
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->outputNum).arg(actual->outputNum);
-    } emit msgSig(str, ret);
+    str = tr("回路数量：期望值%1，实际值%2 ").arg(desire->loopNum).arg(actual->loopNum);
+    if(desire->loopNum == actual->loopNum) ret = true;
+    else {res = ret = false;  emit msgSig(str, ret);}
 
     return res;
 }
@@ -308,7 +238,7 @@ bool Core_Thread::fwCheck()
     if(desire->fwVer == actual->fwVer) {
         str += desire->fwVer;
     } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
+        res = ret = false; str += tr("期望值%1，实际值%2")
                    .arg(desire->fwVer, actual->fwVer);
     } emit msgSig(str, ret);
 
@@ -316,164 +246,230 @@ bool Core_Thread::fwCheck()
         if(desire->devType == actual->devType) {
         str += desire->devType;
     } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
+        res = ret = false; str += tr("期望值%1，实际值%2")
                    .arg(desire->devType, actual->devType);
     } emit msgSig(str, ret);
 
-    int num = coreItem.actual.param.loopNum;
-    for(int i=0; i<num; ++i) {
-        str = tr("第%1回路的输出位数量: "); ret = true;
-        int a = desire->loopOutlets.at(i).toInt();
-        int b = actual->loopOutlets.at(i).toInt();
-        if(a == b) {
-            str += QString::number(b);
-        } else {
-            res = ret = false;
-            str += tr("期望值%1,实际值%2") .arg(a).arg(b);
-        } emit msgSig(str.arg(i+1), ret);
+    return res;
+}
+
+bool Core_Thread::checkErrRange(int exValue, int value, int err)
+{
+    bool ret = false;
+    int min = exValue - err;
+    int max = exValue + err;
+    if((value>=min) && (value<=max) && value) {
+        ret =  true;
+    } else {
+        qDebug() << "value Err Range" << value << exValue << err;
     }
+
+    return ret;
+}
+
+bool Core_Thread::volErrRange(int i, bool flag)
+{
+    bool ret = true; int value  = 0; int exValue = 0;
+    sPdudata *actual = &coreItem.actual.value;
+    sPdudata *desire = &coreItem.desire.value;
+    if(flag) {value = actual->loopVol.at(i).toDouble(); exValue = desire->loopVol.at(i).toDouble();}
+    else {value = actual->lineVol.at(i).toDouble(); exValue = desire->lineVol.at(i).toDouble();}
+    int err = mItem->volErr;
+
+    for(int k=0; k<5; ++k) {
+        ret = checkErrRange(exValue, value, err);
+        if(ret) break; {cm_mdelay(200); readDev();}
+    }
+
+    QString str = tr("电压 L%1：期望值=%2V，实测值=%3V ").arg(i+1).arg(exValue).arg(value);
+    if(ret) str += tr("正常"); else {str += tr("错误");}
+
+    emit msgSig(str, ret);
+    return ret;
+}
+
+bool Core_Thread::curErrRange(int i, bool flag)
+{
+    bool ret = true; int rated = 10.0;
+    int value  = 0; int exValue = 0;
+    sPdudata *actual = &coreItem.actual.value;
+    sPdudata *desire = &coreItem.desire.value;
+    if(flag) {value = actual->loopCur.at(i).toDouble(); exValue = desire->loopCur.at(i).toDouble();}
+    else {value = actual->lineCur.at(i).toDouble(); exValue = desire->lineCur.at(i).toDouble();}
+    int err = mItem->curErr / rated;
+
+    for(int k=0; k<5; ++k) {
+        ret = checkErrRange(exValue, value, err);
+        if(ret) break; {cm_mdelay(200); readDev();}
+    }
+
+    QString str = tr("电流 L%1：期望值=%2A，实测值=%3A ").arg(i+1).arg(exValue).arg(value);
+    if(ret) str += tr("正常"); else {str += tr("错误");}
+
+    emit msgSig(str, ret);
+    return ret;
+}
+
+bool Core_Thread::powErrRange(int i, bool flag)
+{
+    bool ret = true; int rated = 10.0;
+    int value  = 0; int exValue = 0;
+    sPdudata *actual = &coreItem.actual.value;
+    sPdudata *desire = &coreItem.desire.value;
+    if(flag) {value = actual->loopPow.at(i).toDouble(); exValue = desire->loopPow.at(i).toDouble();}
+    else {value = actual->linePow.at(i).toDouble(); exValue = desire->linePow.at(i).toDouble();}
+    int err = mItem->powErr / rated;
+
+    for(int k=0; k<5; ++k) {
+        ret = checkErrRange(exValue, value, err);
+        if(ret) break; {cm_mdelay(200); readDev();}
+    }
+
+    QString str = tr("功率 L%1：期望值=%2kW，实测值=%3kW ").arg(i+1).arg(exValue).arg(value);
+    if(ret) str += tr("正常"); else {str += tr("错误");}
+
+    emit msgSig(str, ret);
+    return ret;
+}
+
+bool Core_Thread::eleErrRange()
+{
+    bool ret = true; int rated = 10.0;
+    sMonitorData *actual = &coreItem.actual.data;
+    sMonitorData *desire = &coreItem.desire.data;
+    int value = actual->tg_ele;
+    int exValue = desire->tg_ele;
+    int err = mItem->powErr / rated;
+
+    for(int k=0; k<5; ++k) {
+        ret = checkErrRange(exValue, value, err);
+        if(ret) break; else {cm_mdelay(200); readDev();}
+    }
+
+    QString str = tr("总电能：期望值=%2kWh，实测值=%3kWh ").arg(exValue).arg(value);
+    if(ret) str += tr("正常"); else {str += tr("错误");}
+
+    emit msgSig(str, ret);
+    return ret;
+}
+
+bool Core_Thread::apowErrRange()
+{
+    bool ret = true; int rated = 10.0;
+    sMonitorData *actual = &coreItem.actual.data;
+    sMonitorData *desire = &coreItem.desire.data;
+    double value = actual->apparent_pow;
+    double exValue = desire->apparent_pow;
+    int err = mItem->powErr / rated;
+
+    for(int k=0; k<5; ++k) {
+        ret = checkErrRange(exValue, value, err);
+        if(ret) break; else {cm_mdelay(200); readDev();}
+    }
+
+    QString str = tr("总视在功率：期望值=%2kVA，实测值=%3kVA ").arg(exValue).arg(value);
+    if(ret) str += tr("正常");
+    else {str += tr("错误");}
+
+    emit msgSig(str, ret);
+    return ret;
+}
+
+
+
+bool Core_Thread::errRangeCheck()
+{
+    int size = 0; bool res = true, ret = true; bool flag = 0;
+    sParameter *it = &coreItem.actual.param;
+    if(it->loopNum == 0 ) {size = it->lineNum; flag = false;}
+    else {size = it->loopNum; flag = true;}
+
+    for(int i = 0; i<size; ++i) {
+        ret = volErrRange(i, flag); if(!ret) res = false;
+        ret = curErrRange(i, flag); if(!ret) res = false;
+        ret = powErrRange(i, flag); if(!ret) res = false;
+    }
+
+    ret = eleErrRange(); if(!ret) res = false;
+    ret = apowErrRange(); if(!ret) res = false;
 
     return res;
 }
 
-bool Core_Thread::thresholdCheck()
+bool Core_Thread::loopthresholdCheck(int i)
 {
     sThreshold *desire = &coreItem.desire.rate;
     sThreshold *actual = &coreItem.actual.rate;
-    QString str = tr("相额定电压：");
+    QString str;
     bool ret=true, res=true;
-    if(desire->lineVol == actual->lineVol) {
-        str += QString::number(desire->lineVol) +"V";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->lineVol).arg(actual->lineVol);
-    } emit msgSig(str, ret);
 
-    str = tr("相额定电流："); ret = true;
-    if(desire->lineCur == actual->lineCur) {
-        str += QString::number(desire->lineCur) +"A";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->lineCur).arg(actual->lineCur);
-    } emit msgSig(str, ret);
+    str = tr("回路%1额定电压：期望值%2V，实际值%3V ")
+               .arg(i+1).arg(desire->loopVol.at(i).toDouble()).arg(actual->loopVol.at(i).toDouble());
+    if(desire->loopVol == actual->loopVol) {ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
 
-    str = tr("相额定功率："); ret = true;
-    if(desire->linePow == actual->linePow) {
-        str += QString::number(desire->linePow) +"KW";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->linePow).arg(actual->linePow);
-    } emit msgSig(str, ret);
+    str += tr("回路%1额定电流：期望值%2A，实际值%3A ")
+               .arg(i+1).arg(desire->loopCur.at(i).toDouble()).arg(actual->loopCur.at(i).toDouble());
+    if(desire->loopCur == actual->loopCur) {ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
 
-
-    str = tr("回路额定电压："); ret = true;
-    if(desire->loopVol == actual->loopVol) {
-        str += QString::number(desire->loopVol) +"V";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->loopVol).arg(actual->loopVol);
-    } emit msgSig(str, ret);
-
-
-    str = tr("回路额定电流："); ret = true;
-    if(desire->loopCur == actual->loopCur) {
-        str += QString::number(desire->loopCur) +"A";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->loopCur).arg(actual->loopCur);
-    } emit msgSig(str, ret);
-
-    str = tr("回路额定功率："); ret = true;
-    if(desire->loopPow == actual->loopPow) {
-        str += QString::number(desire->loopPow) +"KW";
-    } else {
-        res = ret = false; str += tr("期望值%1,实际值%2")
-                   .arg(desire->loopPow).arg(actual->loopPow);
-    } emit msgSig(str, ret);
+    str += tr("回路%1额定功率：期望值%2kW，实际值%3kW ")
+               .arg(i+1).arg(desire->loopPow.at(i).toDouble()).arg(actual->loopPow.at(i).toDouble());
+    if(desire->loopPow == actual->loopPow) {ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
 
     return res;
 }
 
-
-bool Core_Thread::outletCheck()
+bool Core_Thread::linethresholdCheck(int i)
 {
-    QVariantList tmpList; bool ret = true; QString str;
-    QVariantList *desire = &coreItem.desire.rate.ops;
-    QVariantList *actual = &coreItem.actual.rate.ops;
-    for(int i=0; i<48; ++i) tmpList << 10;
-    for(int i=0; i<desire->size(); ++i) {
-        int id = desire->at(i).toInt();
-        tmpList[id-1] = 16;
-    }
+    sThreshold *desire = &coreItem.desire.rate;
+    sThreshold *actual = &coreItem.actual.rate;
+    QString str;
+    bool ret=true, res=true;
 
-    for(int i=0;i<actual->size(); ++i) {
-        double d = tmpList.at(i).toInt();
-        double s = actual->at(i).toInt();
-        if(s != d) {
-            str = tr("输出位%1额定电流：").arg(i+1);
-            ret = false; str += tr("期望值%1A,实际值%2A")
-                       .arg(d).arg(s);
-             emit msgSig(str, ret);
-        }
-    }
+    str = tr("相 L%1额定电压：期望值%2V，实际值%3V ")
+               .arg(i+1).arg(desire->lineVol.at(i).toDouble()).arg(actual->lineVol.at(i).toDouble());
+    if(desire->lineVol == actual->lineVol) {ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
 
-    if(ret) {
-        str = tr("输出位额定电流检查：OK");
-        emit msgSig(str, ret);
-    }
+    str = tr("相 L%1额定电流：期望值%2A，实际值%3A ")
+               .arg(i+1).arg(desire->lineCur.at(i).toDouble()).arg(actual->lineCur.at(i).toDouble());
+    if(desire->lineCur == actual->lineCur){ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
 
-    return ret;
+    str = tr("相 L%1额定功率：期望值%2kW，实际值%3kW ")
+               .arg(i+1).arg(desire->linePow.at(i).toDouble()).arg(actual->linePow.at(i).toDouble());
+    if(desire->linePow == actual->linePow) {ret = true; str += tr("正常");}
+    else {res = ret = false; str += tr("错误");} emit msgSig(str, ret);
+
+    return res;
 }
 
-bool Core_Thread::outputVolCheck()
+bool Core_Thread::checkAlarmErr()
 {
-    bool ret = true;  QString str;
-    int spec = coreItem.actual.param.devSpec;
-    int num = coreItem.actual.param.outputNum;
-    int value = coreItem.actual.rate.volValue * 10.0;
-    QVariantList vols = coreItem.actual.rate.outputVols;
-    if(spec > 1) {
-        for(int i=0; i<vols.size()&&(i<num); ++i) {
-            int v = vols.at(i).toInt();
-             int s = qAbs(v - value); //cout << v << s;
-            if(spec == 3 && !v){ continue; } if(s > 50 || !v) {
-                str = tr("输出位%1电压相差过大：相电压：%2V 输出位电压：%3V")
-                          .arg(i+1).arg(value/10.0).arg(v/10.0);
-                ret = false;  emit msgSig(str, ret);
-            }
-        }
-    }
+    bool res = true, ret = true;
+    sParameter *it = &coreItem.actual.param;
 
-    if(ret) {
-        str = tr("输出位电压检查：OK");
-        emit msgSig(str, ret);
-    }
+    if(it->loopNum)
+        for(int i=0; i<(int)it->loopNum; ++i) {ret = loopthresholdCheck(i); if(!ret) res = false;}
 
-    return ret;
+    if(res)
+        for(int i=0; i<(int)it->lineNum; ++i) {ret = linethresholdCheck(i); if(!ret) res = false;}
+
+    return res;
 }
 
 bool Core_Thread::alarmCheck()
 {
-    bool ret = false; if(coreItem.alarm) {
+    bool ret = false; if(coreItem.actual.alarm) {
         QString str = tr("设备有报警，请检查：");
-        str += "status=" + QString::number(coreItem.alarm);
+        str += "status=" + QString::number(coreItem.actual.alarm);
         emit msgSig(str, ret);
     } else ret = true;
     return ret;
 }
 
-bool Core_Thread::tgCheck()
-{
-    bool res = true; bool ret = true;
-    sMonitorData *it = &coreItem.actual.data;
-    QString str = tr("设备总功率：%1kva").arg(it->apparent_pow);
-    if(it->apparent_pow >1) {res = ret = false;  str += tr("过大");} emit msgSig(str, ret);
-
-    str = tr("设备总电能：%1kwh").arg(it->tg_ele); ret = true;
-    if(it->tg_ele > 10) {res = ret = false;  str += tr("过大");} emit msgSig(str, ret);
-
-    return res;
-}
 
 bool Core_Thread::envCheck()
 {
@@ -500,36 +496,62 @@ bool Core_Thread::envCheck()
      return res;
 }
 
+bool Core_Thread::cpuCheck()
+{
+    bool res = true;
+    sParameter *it = &coreItem.actual.param;
+    double value = it->cpuTem;
+
+    QString str = tr("CPU温度：%1°C ").arg(value);
+    if((value < 5)&&(value > 90)) {
+        res = false; str += tr("错误");
+    }
+    emit msgSig(str, res);
+
+    return res;
+}
+
+void Core_Thread::readDev(const QString &ip)
+{
+    http->initHost(ip); readMetaData(); jsonAnalysis();
+    http->initHost("192.168.1.33"); readMetaData(); jsonAnalysisRefer();
+}
 
 bool Core_Thread::workDown(const QString &ip)
 {
     bool res = true, ret;
     emit msgSig(tr("目标设备:")+ip, true);
-    Core_Http *http = Core_Http::bulid(this);
-    http->initHost(ip); readMetaData(); jsonAnalysis();
-    ret = timeCheck(); if(!ret) res = false;
+    readDev(ip);
+    //---------------------------接口检测--------------------------//
+
+    // ret = envCheck(); if(!ret) res = false;
+
+    //--------------------------采集检测---------------------------//
+    ret = errRangeCheck(); if(!ret) res = false;
+    ret = cpuCheck(); if(!ret) res = false;        //cpu温度检查
+    ret = alarmCheck(); if(!ret) res = false;     //报警检查
+
+    //--------------------------参数检测--------------------------//
     ret = snCheck(); if(!ret) res = false;
-    ret = fwCheck(); if(!ret) res = false;
     ret = macCheck(); if(!ret) res = false;
-    ret = alarmCheck(); if(!ret) res = false;
-    ret = devNumCheck(); if(!ret) res = false;
-    ret = parameterCheck(); if(!ret) res = false;
-    ret = supplyVolCheck(); if(!ret) res = false;
-    ret = thresholdCheck(); if(!ret) res = false;
-    ret = outputVolCheck(); if(!ret) res = false;
-    ret = mcuTempCheck(); if(!ret) res = false;
-    ret = outletCheck(); if(!ret) res = false;
+    ret = fwCheck(); if(!ret) res = false;
+    ret = timeCheck(); if(!ret) res = false;
     ret = logoCheck(ip); if(!ret) res = false;
-    ret = envCheck(); if(!ret) res = false;
-    ret = tgCheck(); if(!ret) res = false;
+    ret = parameterCheck(); if(!ret) res = false;
+    ret = devNumCheck(); if(!ret) res = false;
+
+    //--------------------------阈值检测--------------------------//
+    ret = checkAlarmErr(); if(!ret) res = false;
 
     if(res) {
-        enCascade(0); rtuSet(0); //clearAllEle()
-        sParameter *desire = &coreItem.desire.param;
-        if(0 == desire->sensorBoxEn) boxSet(0);
-        if(coreItem.actual.param.devSpec > 2) {
-            relayCtrl(1); relayDelay(1); //relayDelay(0);
-        } emit msgSig("清除所有电能", true); clearAllEle();
+        enCascade(0); rtuSet(0); //clearAllEle();
+        // sParameter *desire = &coreItem.desire.param;=======
+        // if(0 == desire->sensorBoxEn) boxSet(0);============
+        // if(coreItem.actual.param.devSpec > 2) {============
+        //     relayCtrl(1); relayDelay(1); //relayDelay(0);==
+        // }
+
+        emit msgSig("清除所有电能", true); clearAllEle();
         emit msgSig("清除运行时间", true); setRunTime();
         emit msgSig("清除设备日志", true); clearLogs();
 
@@ -543,15 +565,12 @@ bool Core_Thread::workDown(const QString &ip)
 
 void Core_Thread::run()
 {
-
     bool ret = searchDev(); if(ret) {
         foreach (const auto &ip, m_ips) {
-            ret = cm_pingNet(ip);
+            // ret = cm_pingNet(ip);
             if(ret) ret = workDown(ip);
             else emit msgSig(tr("目标设备不存在:")+ip, ret);
             emit finshSig(ret, ip+" ");
-            sleep(2);
-            Json_Pack::bulid()->http_post("testdata/add","192.168.1.12");
 
         } m_ips.clear();
     }  emit overSig();

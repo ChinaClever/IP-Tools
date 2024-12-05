@@ -102,66 +102,29 @@ void Home_DevWid::updateParams()
     it->sensorBoxEn = ui->sensorBox->currentIndex();
     it->isBreaker = ui->breakerBox->currentIndex();
     it->language = ui->languageBox->currentIndex();
-    it->boardNum = ui->boardNumBox->value();
     it->loopNum = ui->loopNumBox->value();
-    it->outputNum = ui->outputNumBox->value();
 
     sVersion *ver = &mIt->ver;
     ver->devType = ui->typeEdit->text();
     mPro->getPro()->productType = ui->typeEdit->text();
     ver->fwVer = ui->fwEdit->text();
-    ver->loopOutlets.clear();
-    ver->loopOutlets << ui->opBox_1->value();
-    ver->loopOutlets << ui->opBox_2->value();
-    ver->loopOutlets << ui->opBox_3->value();
-    ver->loopOutlets << ui->opBox_4->value();
-    ver->loopOutlets << ui->opBox_5->value();
-    ver->loopOutlets << ui->opBox_6->value();
 }
 
 void Home_DevWid::updateThresholds()
 {
     sThreshold *it = &mIt->rate;
-    it->lineVol = ui->lineVolBox->value();
-    it->lineCur = ui->lineCurBox->value();
-    it->linePow = ui->linePowBox->value();
-    it->loopVol = ui->loopVolBox->value();
-    it->loopCur = ui->loopCurBox->value();
-    it->loopPow = ui->loopPowBox->value();
-}
-
-void Home_DevWid::updateOutlets()
-{
-    QList<QCheckBox *> box = checkBoxFound();
-    mIt->rate.ops.clear(); foreach (auto it, box) {
-        if(it->isChecked()) {
-            QString name = it->objectName().remove("op_");
-            mIt->rate.ops << name.toInt();
-        }
-    }
+    it->lineVol[0] = ui->lineVolBox->value();
+    it->lineCur[0] = ui->lineCurBox->value();
+    it->linePow[0] = ui->linePowBox->value();
+    it->loopVol[0] = ui->loopVolBox->value();
+    it->loopCur[0] = ui->loopCurBox->value();
+    it->loopPow[0] = ui->loopPowBox->value();
 }
 
 void Home_DevWid::updateData()
 {
-    updateParams();
-    updateOutlets();
-    updateThresholds();
-}
-
-QList<QCheckBox *> Home_DevWid::checkBoxFound()
-{
-    QList<QCheckBox *> box;
-    for (int i = 0; i < ui->checkWid->children().size(); i++) {
-        QCheckBox *cb = qobject_cast<QCheckBox*>(ui->checkWid->children()[i]);
-        if (cb) box << cb;
-    }
-    return box;
-}
-
-void Home_DevWid::on_uncheckBtn_clicked()
-{
-    QList<QCheckBox *> box = checkBoxFound();
-    foreach (auto it, box) it->setChecked(false);
+    // updateParams();
+    // updateThresholds();
 }
 
 void Home_DevWid::on_lineVolBox_valueChanged(int arg1)
