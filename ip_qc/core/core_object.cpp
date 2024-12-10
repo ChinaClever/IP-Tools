@@ -10,6 +10,13 @@ Core_Object::Core_Object(QObject *parent)
     : QThread{parent}
 {
     mHttp = Core_Http::bulid(this);
+    // mModbus = Rtu_Modbus::bulid(this)->get();
+    // setModbus();
+}
+
+void Core_Object::setModbus()
+{
+    mModbus = Rtu_Modbus::bulid(this)->get();
 }
 
 void Core_Object::clearAllEle()
@@ -114,28 +121,39 @@ bool Core_Object::jsonAnalysis()
 {
     QJsonObject obj; sCoreItem *it = &coreItem;
     QByteArray msg = it->jsonPacket.toLatin1();
-    bool ret = checkInput(msg, obj);
-    if(ret) {
-        getSn(obj); getMac(obj); getDevType(obj);
-        getParameter(obj); getAlarmStatus(obj);
-        it->actual.datetime = getValue(obj, "datetime").toString();
-        obj = getObject(obj, "pdu_data"); getThreshold(obj);
-        getPduData(obj); getTgData(obj); getEnvData(obj);
+    it->jsonPacket.clear(); bool ret = false;
+    if(!msg.isEmpty())
+    {
+        ret = checkInput(msg, obj);
+        if(ret) {
+            getSn(obj); getMac(obj); getDevType(obj);
+            getParameter(obj); getAlarmStatus(obj);
+            it->actual.datetime = getValue(obj, "datetime").toString();
+            obj = getObject(obj, "pdu_data"); getThreshold(obj);
+            getPduData(obj); getTgData(obj); getEnvData(obj);
+        }
     }
+
     return ret;
 }
 
 bool Core_Object::jsonAnalysisRefer()
 {
     QJsonObject obj; sCoreItem *it = &coreItem;
+    bool ret = false;
+    if(it->jsonPacket.isEmpty()) return ret;
     QByteArray msg = it->jsonPacket.toLatin1();
-    bool ret = checkInput(msg, obj);
-    if(ret) {
-        getSnRefer(obj); getMacRefer(obj); getDevTypeRefer(obj);
-        getParameterRefer(obj); getAlarmStatusRefer(obj);
-        it->desire.datetime = getValue(obj, "datetime").toString();
-        obj = getObject(obj, "pdu_data"); getThresholdRefer(obj);
-        getPduDataRefer(obj); getTgDataRefer(obj); getEnvDataRefer(obj);
+    it->jsonPacket.clear();
+    if(!msg.isEmpty())
+    {
+        ret = checkInput(msg, obj);
+        if(ret) {
+            // getSnRefer(obj); getMacRefer(obj); getDevTypeRefer(obj);
+            // getParameterRefer(obj); getAlarmStatusRefer(obj);
+            // it->desire.datetime = getValue(obj, "datetime").toString();
+            obj = getObject(obj, "pdu_data"); //getThresholdRefer(obj);
+            getPduDataRefer(obj); getTgDataRefer(obj); getEnvDataRefer(obj);
+        }
     }
     return ret;
 }
@@ -148,34 +166,15 @@ void Core_Object::getSn(const QJsonObject &object)
     coreItem.actual.ver.devType = getValue(obj, "dev").toString();
 }
 
-void Core_Object::getSnRefer(const QJsonObject &object)
-{
-    QJsonObject obj = getObject(object, "pdu_version");
-    coreItem.desire.sn = getValue(obj, "serialNumber").toString();
-    coreItem.desire.ver.fwVer = getValue(obj, "ver").toString();
-
-}
-
 void Core_Object::getMac(const QJsonObject &object)
 {
     QJsonObject obj = getObject(object, "net_addr");
     coreItem.actual.mac = getValue(obj, "mac").toString();
 }
 
-void Core_Object::getMacRefer(const QJsonObject &object)
-{
-    QJsonObject obj = getObject(object, "net_addr");
-    coreItem.desire.mac = getValue(obj, "mac").toString();
-}
-
 void Core_Object::getAlarmStatus(const QJsonObject &object)
 {
     coreItem.actual.alarm = getValue(object, "status").toInt();
-}
-
-void Core_Object::getAlarmStatusRefer(const QJsonObject &object)
-{
-    coreItem.desire.alarm = getValue(object, "status").toInt();
 }
 
 void Core_Object::getDevType(const QJsonObject &object)
@@ -184,18 +183,12 @@ void Core_Object::getDevType(const QJsonObject &object)
     coreItem.actual.ver.devType = getValue(obj, "pdu_type").toString();
 }
 
-void Core_Object::getDevTypeRefer(const QJsonObject &object)
-{
-    QJsonObject obj = getObject(object, "uut_info");
-    coreItem.desire.ver.devType = getValue(obj, "pdu_type").toString();
-}
-
 void Core_Object::getParameter(const QJsonObject &object)
 {
     sParameter *it = &coreItem.actual.param;
     QJsonObject obj = getObject(object, "pdu_info");
     it->devSpec = getData(obj, "pdu_spec");
-    it->sensorBoxEn = getData(obj, "sensor_box");
+    it->oldProtocol = getData(obj, "old_protocol");
     it->standNeutral = getData(obj, "stand_neutral");
     it->lineNum = getData(obj, "line_num");
     it->loopNum = getData(obj, "loop_num");
@@ -210,7 +203,7 @@ void Core_Object::getParameterRefer(const QJsonObject &object)
     sParameter *it = &coreItem.desire.param;
     QJsonObject obj = getObject(object, "pdu_info");
     it->devSpec = getData(obj, "pdu_spec");
-    it->sensorBoxEn = getData(obj, "sensor_box");
+    it->oldProtocol = getData(obj, "old_protocol");
     it->standNeutral = getData(obj, "stand_neutral");
     it->lineNum = getData(obj, "line_num");
     it->loopNum = getData(obj, "loop_num");
@@ -225,8 +218,11 @@ void Core_Object::getTgData(const QJsonObject &object)
     sMonitorData *it = &coreItem.actual.data;
     QJsonObject obj = getObject(object, "pdu_total_data");
     it->apparent_pow = getData(obj, "pow_apparent");
+    it->active_pow = getData(obj, "pow_active");
+    it->reactive_pow = getData(obj, "pow_reactive");
     it->tg_ele = getData(obj, "ele_active");
-    it->tg_pow = getData(obj, "pow_active");
+    it->tg_reactiveEle = getData(obj, "ele_reactive");
+    it->tg_apparentEle = getData(obj, "ele_apparent");
 }
 
 void Core_Object::getTgDataRefer(const QJsonObject &object)
@@ -234,8 +230,11 @@ void Core_Object::getTgDataRefer(const QJsonObject &object)
     sMonitorData *it = &coreItem.desire.data;
     QJsonObject obj = getObject(object, "pdu_total_data");
     it->apparent_pow = getData(obj, "pow_apparent");
+    it->active_pow = getData(obj, "pow_active");
+    it->reactive_pow = getData(obj, "pow_reactive");
     it->tg_ele = getData(obj, "ele_active");
-    it->tg_pow = getData(obj, "pow_active");
+    it->tg_reactiveEle = getData(obj, "ele_reactive");
+    it->tg_apparentEle = getData(obj, "ele_apparent");
 }
 
 void Core_Object::getEnvData(const QJsonObject &object)
@@ -311,24 +310,7 @@ void Core_Object::getThreshold(const QJsonObject &object)
     item->linePow = getArray(obj, "pow_rated").toVariantList();
 }
 
-void Core_Object::getThresholdRefer(const QJsonObject &object)
-{
-    sParameter *it = &coreItem.desire.param;
-    sThreshold *item = &coreItem.desire.rate;
-    QJsonObject obj; int loop = (int)it->loopNum;
 
-    if(loop) {
-        obj = getObject(object, "loop_item_list");
-        item->loopVol = getArray(obj, "vol_rated").toVariantList();
-        item->loopCur = getArray(obj, "cur_rated").toVariantList();
-        item->loopPow = getArray(obj, "pow_rated").toVariantList();
-    }
-
-    obj = getObject(object, "line_item_list");
-    item->lineVol = getArray(obj, "vol_rated").toVariantList();
-    item->lineCur = getArray(obj, "cur_rated").toVariantList();
-    item->linePow = getArray(obj, "pow_rated").toVariantList();
-}
 
 double Core_Object::getActualValue(const QJsonObject &object, const QString &key, int value, const QString &suffix)
 {

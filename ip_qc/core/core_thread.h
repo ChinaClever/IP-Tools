@@ -18,10 +18,11 @@ signals:
     void overSig();
 
 private:
-    void readDev(const QString &ip="192.168.1.31");
+    bool readDev(const QString &ip="192.168.1.17");
     bool fwCheck();
     bool snCheck();
     bool envCheck();
+    bool linkCheck();
     bool macCheck();
     bool searchDev();
     bool timeCheck();
@@ -43,9 +44,16 @@ private:
     bool powErrRange(int i, bool flag);
     bool eleErrRange();
     bool apowErrRange();
+    bool apeleErrRange();
 
+    QString changeType(int value);
+    QString changeSpec(int value);
+    QString changeProtocol(int value);
     bool checkAlarmErr();
     bool checkErrRange(int exValue, int value, int err);
+    bool checkSquare(int exValue, int value, int err);
+
+    void initReadCmd(sRtuItem &item);
 private:
     QString mLogo;
     QStringList m_ips;

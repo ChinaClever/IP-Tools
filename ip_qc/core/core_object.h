@@ -2,16 +2,17 @@
 #define CORE_OBJECT_H
 
 #include "core_http.h"
-#include "cfgcom.h"
+// #include "cfgcom.h"
+#include "modbus/rtu_modbus.h"
 
 #define LOOP_NUM 9
 #define LINE_NUM 3
 
 struct sParameter {
-    uint devSpec; // 设备规格 A\B\C\D
+    uint devSpec; // 设备规格 0-互感器 1-32A小锰铜 2-直流
     uint language; // 0 中文 1 英文
     uint isBreaker; // 0没有断路器 1有断路器
-    uint sensorBoxEn; // 传感器盒子 0：禁用， 1：启用
+    uint oldProtocol; //兼容旧协议
     uint vh; // 0:垂直 1:水平
     uint standNeutral; // 0-标准,1-中性
     uint webBackground; // 网页背景颜色
@@ -46,11 +47,29 @@ struct sThreshold
     double volValue; //电压参考值
 };
 
+struct mThreshold
+{
+    double lineVol;
+    double lineCur;
+    double linePow;
+
+    double loopVol;
+    double loopCur;
+    double loopPow;
+
+    double volValue; //电压参考值
+};
+
 struct sMonitorData
 {
     double apparent_pow;
+    double reactive_pow;
+    double active_pow;
+
     double tg_ele;
-    double tg_pow;
+    double tg_reactiveEle;
+    double tg_apparentEle;
+
     QVariantList temps;
     QVariantList doors;
 };
@@ -74,13 +93,25 @@ struct sCoreUnit
     int alarm;
 };
 
+struct mCoreUnit
+{
+    sVersion ver;
+    sParameter param;
+    mThreshold rate;
+    sPdudata value;
+    sMonitorData data;
+    QString datetime;
+    QString mac,sn, uuid;
+    // QVariantList mcutemp;
+    int alarm;
+};
 
 struct sCoreItem
 {
     int port = 3166;
     QString ip="192.168.1.163";
     QString logo="logo.png";
-    sCoreUnit desire; // 期望
+    mCoreUnit desire; // 期望
     sCoreUnit actual; // 实际
     QString jsonPacket;
 };
@@ -107,6 +138,7 @@ public:
     void setRunTime();
     bool jsonAnalysis();
     bool jsonAnalysisRefer();
+    void setModbus();
 
 private:
     void getSn(const QJsonObject &object);
@@ -118,15 +150,10 @@ private:
     void getAlarmStatus(const QJsonObject &object);
     void getPduData(const QJsonObject &object);
     void getDevType(const QJsonObject &object);
-    void getDevTypeRefer(const QJsonObject &object);
 
-    void getSnRefer(const QJsonObject &object);
-    void getMacRefer(const QJsonObject &object);
     void getTgDataRefer(const QJsonObject &object);
     void getEnvDataRefer(const QJsonObject &object);
     void getParameterRefer(const QJsonObject &object);
-    void getThresholdRefer(const QJsonObject &object);
-    void getAlarmStatusRefer(const QJsonObject &object);
     void getPduDataRefer(const QJsonObject &object);
 
     double getRating(const QJsonObject &object, const QString &key,  int value, const QString &suffix="rated");
@@ -141,6 +168,7 @@ private:
 
 protected:
     Core_Http *mHttp;
+    RtuRw *mModbus;
 };
 
 #endif // CORE_OBJECT_H

@@ -13,6 +13,7 @@ include(logs/logs.pri)
 include(home/home.pri)
 include(setups/setups.pri)
 include(json/json.pri)
+include(modbus/modbus.pri)
 
 CM_PATH = ../com_pbl
 include($$CM_PATH/com_pbl.pri)

@@ -35,7 +35,7 @@ void Home_MainWid::initWid()
 void Home_MainWid::onStart()
 {
     ui->textEdit->clear();
-    mId = 1; //emit startSig();
+    mId = 1; emit startSig();
 }
 
 

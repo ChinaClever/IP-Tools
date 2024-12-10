@@ -647,7 +647,7 @@
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>192.168.1.31</string>
+         <string>192.168.1.163</string>
         </property>
        </widget>
       </item>
