@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MPro产线质检工具</string>
+   <string>IP-MAX产线质检工具</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../com_pbl/images/image.qrc">
