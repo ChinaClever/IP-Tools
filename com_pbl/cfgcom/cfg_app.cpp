@@ -33,8 +33,8 @@ void Cfg_App::app_dir(const QString &dir)
 bool Cfg_App::app_pack(sAppVerIt &it)
 {
     QString g = "app_pack";
-    app_dir("app");
     app_dir("bin");
+    app_dir("lib");
     app_dir("rootfs");
     app_dir("outlet");
     writeCfg("hw", it.hw, g);
