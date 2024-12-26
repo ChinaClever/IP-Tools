@@ -64,6 +64,9 @@ private slots:
     void on_userEdit_selectionChanged();
 
 
+    void on_upBtn_clicked();
+    void on_downBtn_2_clicked();
+
 private:
     Ui::Home_WorkWid *ui;
     Core_Thread *mCoreThread;

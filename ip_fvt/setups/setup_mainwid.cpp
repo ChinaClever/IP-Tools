@@ -18,7 +18,7 @@ Setup_MainWid::Setup_MainWid(QWidget *parent) :
     QTimer::singleShot(rand()%13,this,SLOT(initFunSlot()));
     mItem = CfgCom::bulid()->item; initCfgMac();
     ui->comWid->hide();
-    initSerial();
+    initSerial(); initErrData();
 }
 
 Setup_MainWid::~Setup_MainWid()

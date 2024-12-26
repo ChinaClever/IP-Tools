@@ -16,7 +16,7 @@ Home_WorkWid::Home_WorkWid(QWidget *parent) :
     Ssdp_Core::bulid(this);
     mCoreThread = new Core_Thread(this);
     //Yc = Yc_Obj::bulid(this);
-    mPro=sDataPacket::bulid();
+    // mPro=sDataPacket::bulid();
     QTimer::singleShot(450,this,SLOT(initFunSlot()));
     // Core_Http::bulid(this)->initHost("192.168.1.32");
     //Core_Http::bulid(this)->execute("killall cores");
@@ -54,7 +54,7 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
 
     connect(mCoreThread, &Core_Thread::msgSigYC, this, &Home_WorkWid::insertTextSlot);
-    connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
+    // connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
 
 }
 
@@ -85,11 +85,11 @@ void Home_WorkWid::finishSlot(bool pass, const QString &msg)
     if(pass && mId>10) {
         mCnt.ok += 1;
         str += tr("成功！");
-        mPro->getPro()->uploadPassResult = 1;
+        // mPro->getPro()->uploadPassResult = 1;
     } else {
         mCnt.err += 1;
         str += tr("失败！");
-        mPro->getPro()->uploadPassResult = 0;
+        // mPro->getPro()->uploadPassResult = 0;
     } mCnt.all += 1;
     insertTextSlot(str, pass);
     updateCntSlot(); logWrite();
@@ -112,8 +112,8 @@ void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
 {
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(pass); ui->textEdit->insertPlainText(str);
-    mPro->getPro()->itemName<<msg;
-    mPro->getPro()->uploadPass<<pass;
+    // mPro->getPro()->itemName<<msg;
+    // mPro->getPro()->uploadPass<<pass;
 }
 
 
@@ -201,7 +201,7 @@ bool Home_WorkWid::initUser()
 {
     QString str = ui->userEdit->text();
     if(str.isEmpty()){MsgBox::critical(this, tr("请先填写工单号！")); return false;}
-    mPro->getPro()->pn = ui->userEdit->text();
+    // mPro->getPro()->pn = ui->userEdit->text();
 
     int cnt = ui->cntSpin->value();
     if(cnt < 1) {MsgBox::critical(this, tr("请先填写订单剩余数量！")); return false;}
@@ -263,12 +263,11 @@ void Home_WorkWid::initData()
 
 bool Home_WorkWid::initWid()
 {
-    mPro->init();
+    // mPro->init();
     // bool ret = true;
     bool ret = initMac();
     if(ret) ret = initUser();
     if(ret) ret = inputCheck();
-    if(ret) ret = updateWid();
     if(ret) {
         initData();
         setWidEnabled(false);
@@ -311,12 +310,12 @@ bool Home_WorkWid::updateWid()
     QString str = it.sn;
     if(str.isEmpty()) str = "--- ---";
     ui->snLab->setText(str);
-    mPro->getPro()->productSN = str;
+    // mPro->getPro()->productSN = str;
 
     str = it.dev;
     if(str.isEmpty()) str = "--- ---";
     ui->devLab->setText(str);
-    mPro->getPro()->productType = str;
+    // mPro->getPro()->productType = str;
 
     str = it.hw;
     if(str.isEmpty()) str = "--- ---";
@@ -325,12 +324,12 @@ bool Home_WorkWid::updateWid()
     str = it.ver;
     if(str.isEmpty()) str = "--- ---";
     ui->fwLab->setText(str);
-    mPro->getPro()->softwareVersion = str;
+    // mPro->getPro()->softwareVersion = str;
 
     str = mCoreThread->m_mac;
     if(str.isEmpty()) str = "--- ---";
     ui->macLab->setText(str);
-    mPro->getPro()->macAddress = str;
+    // mPro->getPro()->macAddress = str;
     //writeSnMac(it.sn, str);
 
     return ret;
@@ -388,7 +387,8 @@ void Home_WorkWid::on_downBtn_clicked()
         //FileMgr::build().delFileOrDir("appconfigs/pdu");
         QStringList fs = mCoreThread->getFs(); emit startSig();
         cm_mdelay(10); fs.removeLast(); fs.removeLast();
-        Core_Http::bulid(this)->downFile(fs);
+        bool ret = Core_Http::bulid(this)->downFile(fs);
+        if(ret) MsgBox::information(this, "配置文件下载成功");
     } ui->startBtn->setEnabled(true);
 }
 
@@ -400,5 +400,18 @@ void Home_WorkWid::on_adCheckBox_clicked(bool checked)
 void Home_WorkWid::on_userEdit_selectionChanged()
 {
     ui->userEdit->setClearButtonEnabled(1);
+}
+
+
+void Home_WorkWid::on_upBtn_clicked()
+{
+    Yc_Obj::bulid()->get()->setVol(220);
+}
+
+
+void Home_WorkWid::on_downBtn_2_clicked()
+{
+    Yc_Obj::bulid()->get()->setCur(0);
+    Yc_Obj::bulid()->get()->setVol(0);
 }
 
