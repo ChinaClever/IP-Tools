@@ -213,7 +213,6 @@ bool Core_Thread::startCalibration()
     if(ret) http->calibration(); else return ret;
     emit msgSig(tr("校准开始"), true); cm_mdelay(6000);
 
-    // QString str = mSocket->return_Recv();
 
     QString str = data; data.clear();
     if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false); return false;}
@@ -246,8 +245,8 @@ bool Core_Thread::startCalibration()
         }
     }
 
-    http->execute("reboot");    //设备重启
-    emit msgSig(tr("设备重启"), true);
+    // http->execute("reboot");    //设备重启
+    // emit msgSig(tr("设备重启"), true);
     // cm_mdelay(5*1000);
 
     return res;
