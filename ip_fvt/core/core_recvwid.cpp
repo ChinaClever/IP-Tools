@@ -3,7 +3,7 @@
 Core_RecvWid::Core_RecvWid(QObject *parent)
     : QObject{parent}
 {
-    udpSocket = new QUdpSocket(this);
+    udpSocket = new QUdpSocket(this); data.clear();
     udpSocket->bind(QHostAddress::AnyIPv4, 21907, QUdpSocket::ShareAddress);
     connect(udpSocket, &QUdpSocket::readyRead, this, &Core_RecvWid::udpRecvSlot);
 }
@@ -24,10 +24,12 @@ void Core_RecvWid::udpRecvSlot()
         if(ret > 0) {data += QString(datagram) + ";";}
         else qCritical() << udpSocket->errorString();
     }
-
+    qDebug()<<"udpRecvSlot"<<data;
 }
 
 QString Core_RecvWid::return_Recv()
 {
-    return data;
+    QString str;
+    str = data; data.clear();
+    return str;
 }

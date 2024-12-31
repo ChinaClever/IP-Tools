@@ -2,25 +2,52 @@
 #define CORE_OBJECT_H
 
 #include "core_http.h"
-#include "cfgcom.h"
+// #include "cfgcom.h"
+#include "modbus/rtu_modbus.h"
+
+#define LOOP_NUM 9
+#define LINE_NUM 3
 
 struct sParameter {
-    uint devSpec; // 设备规格 A\B\C\D
+    uint devSpec; // 设备规格 0-互感器 1-32A小锰铜 2-直流
     uint language; // 0 中文 1 英文
     uint isBreaker; // 0没有断路器 1有断路器
-    uint sensorBoxEn; // 传感器盒子 0：禁用， 1：启用
+    uint oldProtocol; //兼容旧协议
     uint vh; // 0:垂直 1:水平
     uint standNeutral; // 0-标准,1-中性
     uint webBackground; // 网页背景颜色
-    uint supplyVol;
 
     uint lineNum; //设备单三相
-    uint boardNum;   //　执行板数量
     uint loopNum; // 回路数量
-    uint outputNum;   //　输出位数量
+    double cpuTem;
+};
+
+struct sPdudata
+{
+    QVariantList lineVol;
+    QVariantList lineCur;
+    QVariantList linePow;
+
+    QVariantList loopVol;
+    QVariantList loopCur;
+    QVariantList loopPow;
+
 };
 
 struct sThreshold
+{
+    QVariantList lineVol;
+    QVariantList lineCur;
+    QVariantList linePow;
+
+    QVariantList loopVol;
+    QVariantList loopCur;
+    QVariantList loopPow;
+
+    double volValue; //电压参考值
+};
+
+struct mThreshold
 {
     double lineVol;
     double lineCur;
@@ -29,25 +56,26 @@ struct sThreshold
     double loopVol;
     double loopCur;
     double loopPow;
+
     double volValue; //电压参考值
-    QVariantList ops; //输出位电流额定值
-    QVariantList outputVols;
 };
 
 struct sMonitorData
 {
     double apparent_pow;
+    double reactive_pow;
+    double active_pow;
+
     double tg_ele;
-    double tg_pow;
+    double tg_reactiveEle;
+    double tg_apparentEle;
+
     QVariantList temps;
     QVariantList doors;
 };
 
 struct sVersion
 {
-    QVariantList opSn; // 执行板序列号
-    QVariantList opVers; // 每块执行板软件版本
-    QVariantList loopOutlets; // 每个回路输出位爆裂
     QString devType; // 设备类型
     QString fwVer; //软件版本号
 };
@@ -57,22 +85,35 @@ struct sCoreUnit
     sVersion ver;
     sParameter param;
     sThreshold rate;
+    sPdudata value;
     sMonitorData data;
+    QString datetime;
+    QString mac,sn, uuid;
+    // QVariantList mcutemp;
+    int alarm;
 };
 
+struct mCoreUnit
+{
+    sVersion ver;
+    sParameter param;
+    mThreshold rate;
+    sPdudata value;
+    sMonitorData data;
+    QString datetime;
+    QString mac,sn, uuid;
+    // QVariantList mcutemp;
+    int alarm;
+};
 
 struct sCoreItem
 {
     int port = 3166;
     QString ip="192.168.1.163";
     QString logo="logo.png";
-    sCoreUnit desire; // 期望
+    mCoreUnit desire; // 期望
     sCoreUnit actual; // 实际
     QString jsonPacket;
-    QString datetime;
-    QString mac,sn, uuid;
-    QVariantList mcutemp;
-    int alarm;
 };
 
 
@@ -96,17 +137,28 @@ public:
     void irqCheck();
     void setRunTime();
     bool jsonAnalysis();
+    bool jsonAnalysisRefer();
+    void setModbus();
 
 private:
     void getSn(const QJsonObject &object);
     void getMac(const QJsonObject &object);
     void getTgData(const QJsonObject &object);
     void getEnvData(const QJsonObject &object);
-    void getOutputVol(const QJsonObject &object);
     void getParameter(const QJsonObject &object);
     void getThreshold(const QJsonObject &object);
     void getAlarmStatus(const QJsonObject &object);
-    double getRating(const QJsonObject &object, const QString &key, const QString &suffix="rated");
+    void getPduData(const QJsonObject &object);
+    void getDevType(const QJsonObject &object);
+
+    void getTgDataRefer(const QJsonObject &object);
+    void getEnvDataRefer(const QJsonObject &object);
+    void getParameterRefer(const QJsonObject &object);
+    void getPduDataRefer(const QJsonObject &object);
+
+    double getRating(const QJsonObject &object, const QString &key,  int value, const QString &suffix="rated");
+    double getActualValue(const QJsonObject &object, const QString &key, int value, const QString &suffix="value");
+
 
     bool checkInput(const QByteArray &msg, QJsonObject &obj);
     double getData(const QJsonObject &object, const QString &key);
@@ -116,6 +168,7 @@ private:
 
 protected:
     Core_Http *mHttp;
+    RtuRw *mModbus;
 };
 
 #endif // CORE_OBJECT_H

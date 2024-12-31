@@ -21,6 +21,8 @@ protected:
     void initSerial();
     void initLogCount();
     void writeLogCount();
+    void initErrData();
+    void updateErrData();
 
 protected slots:
     void initFunSlot();
@@ -28,7 +30,7 @@ protected slots:
     void on_pcBtn_clicked();
     void on_verBtn_clicked();
     void timeoutDone();
-    //void on_saveBtn_clicked();
+    void on_saveBtn_clicked();
 
 private:
     Ui::Setup_MainWid *ui;

@@ -3,7 +3,6 @@
 Yc_Obj::Yc_Obj(QObject *parent) : BaseThread(parent)
 {
     mAc = YC_Ac92b::bulid(this);
-    mDc = YC_Dc107::bulid(this);
 }
 
 

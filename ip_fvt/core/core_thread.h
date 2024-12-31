@@ -24,6 +24,7 @@ signals:
 
 public slots:
     void startSlot() {run();}
+    void udpRecvSlot();
 
 protected:
     void timeSync();
@@ -52,17 +53,16 @@ protected:
 private:
     bool searchDev();
     bool fsCheck();
-    sProgress *mPro;
-    sDevData *mDev;
     sObjData *mData;
     Yc_Obj *mYc;
     YC_StandSource *mSource;
     sCfgComIt *mItem;
     Core_Http *http;
-    Core_RecvWid *mSocket;
+    QUdpSocket *udpSocket;
 
 private:
     QStringList m_ips;
+    QString data;
 };
 
 #endif // CORE_THREAD_H

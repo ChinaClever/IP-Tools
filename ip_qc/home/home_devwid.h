@@ -23,13 +23,11 @@ public slots:
 
 private:
     void updateParams();
-    void updateOutlets();
     void updateThresholds();
-    QList<QCheckBox *> checkBoxFound();
-
+    void initWid();
+    void updateWid();
 
 private slots:
-    void on_uncheckBtn_clicked();
     void on_eleClearBtn_clicked();
     void on_factoryBtn_clicked();
     void on_lineVolBox_valueChanged(int arg1);
@@ -39,24 +37,16 @@ private slots:
 
     void on_logBtn_clicked();
     void on_cascadeBtn_clicked();
-    void on_openAllBtn_clicked();
-    void on_closeAllBtn_clicked();
-    void on_enDelayBtn_clicked();
-    void on_disDelayBtn_clicked();
-
     void on_rtuEnBtn_clicked();
-
     void on_rtuDisenBtn_clicked();
-
-    void on_bosEnBtn_clicked();
-
-    void on_boxDisenBtn_clicked();
+    void on_loopNumBox_valueChanged(int arg1);
 
 private:
     Ui::Home_DevWid *ui;
     Core_Http *mHttp;
-    sCoreUnit *mIt;
+    mCoreUnit *mIt;
     sDataPacket *mPro;
+    sCfgComIt *item;
 };
 
 #endif // HOME_DEVWID_H

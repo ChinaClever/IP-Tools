@@ -53,9 +53,9 @@ void Home_WorkWid::initFunSlot()
 
 void Home_WorkWid::logWrite()
 {
-    sLogItem logIt; logIt.dev = "IP";
+    sLogItem logIt; logIt.dev = "IP MAX";
     sCoreItem *it = &Core_Thread::bulid()->coreItem;
-    logIt.mac = it->mac; logIt.sn = it->sn;
+    logIt.mac = it->actual.mac; logIt.sn = it->actual.sn;
     logIt.user = ui->userEdit->text();
     logIt.sw = it->actual.ver.fwVer;
     if(mResult) logIt.result = tr("通过");
@@ -66,7 +66,7 @@ void Home_WorkWid::logWrite()
 void Home_WorkWid::finishSlot(bool pass, const QString &msg)
 {
     QString str = msg + tr(" 检查结果 ");
-    if(pass) {
+    if(mResult) {
         mCnt.ok += 1;
         str += tr("成功！");
         mPro->getPro()->uploadPassResult = 1;
@@ -75,7 +75,7 @@ void Home_WorkWid::finishSlot(bool pass, const QString &msg)
         str += tr("失败！");
         mPro->getPro()->uploadPassResult = 0;
     } mCnt.all += 1;
-    insertTextSlot(str, pass);
+    insertTextSlot(str, mResult);
     updateCntSlot(); logWrite();
 }
 
@@ -94,7 +94,6 @@ void Home_WorkWid::setTextColor(bool pass)
 
 void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
 {
-    // mPro->init();
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(pass); ui->textEdit->insertPlainText(str);
     mPro->getPro()->itemName<<msg;
@@ -140,7 +139,6 @@ void Home_WorkWid::setWidEnabled(bool en)
 {
     ui->groupBox->setEnabled(en);
 }
-
 
 void Home_WorkWid::updateResult()
 {
@@ -208,25 +206,18 @@ void Home_WorkWid::initData()
 {
     QStringList ips;
     mId = 1; mResult = true;
-    //if(!ui->auCheckBox->isChecked()) {
-    //    ips << ui->ipEdit->text();
-    //} mCoreThread->setIps(ips);
+    if(!ui->auCheckBox->isChecked()) {
+        ips << ui->ipEdit->text();
+        // mCoreThread->setIps(ips);
+    }
 
     sCoreItem *it = &(Core_Object::coreItem);
     it->jsonPacket.clear();
-    it->datetime.clear();
-    //it->ip = ips.first();
-    it->mac.clear();
-    it->sn.clear();
+    it->actual.datetime.clear();
+    it->actual.mac.clear();
+    it->actual.sn.clear();
 
     memset(&(it->actual.param), 0, sizeof(sParameter));
-    it->actual.rate.lineVol = 0;
-    it->actual.rate.lineCur = 0;
-    it->actual.rate.linePow = 0;
-    it->actual.rate.loopVol = 0;
-    it->actual.rate.loopCur = 0;
-    it->actual.rate.loopPow = 0;
-    it->actual.rate.ops.clear();
 }
 
 
@@ -240,7 +231,7 @@ bool Home_WorkWid::initWid()
         initData();
         setWidEnabled(false);
         ui->startBtn->setText(tr("终 止"));
-        QTimer::singleShot(1715,this,SLOT(updateWidSlot()));
+        QTimer::singleShot(1900,this,SLOT(updateWidSlot()));
         startTime = QTime::currentTime(); emit startSig();
         QString str = startTime.toString("hh:mm:ss");
         ui->startLab->setText(str);
@@ -261,7 +252,7 @@ bool Home_WorkWid::updateWid()
 {
     sCoreItem *it = &Core_Object::coreItem;
 
-    QString str = it->sn;
+    QString str = it->actual.sn;
     if(str.isEmpty()) str = "--- ---";
     ui->snLab->setText(str);
     mPro->getPro()->productSN = str;
@@ -271,7 +262,7 @@ bool Home_WorkWid::updateWid()
     ui->fwLab->setText(str);
     mPro->getPro()->softwareVersion = str;
 
-    str = it->mac;
+    str = it->actual.mac;
     if(str.isEmpty()) str = "--- ---";
     ui->macLab->setText(str);
     mPro->getPro()->macAddress = str;
@@ -287,10 +278,8 @@ void Home_WorkWid::timeoutDone()
 
 void Home_WorkWid::on_startBtn_clicked()
 {
-    mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     if(isStart == false) {
         if(initWid()) {
-
             timer->start(500);
             //mCoreThread->run();
             mCoreThread->start();

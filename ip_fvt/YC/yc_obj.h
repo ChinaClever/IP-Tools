@@ -22,7 +22,6 @@ signals:
 
 private:
     YC_Ac92b *mAc;
-    YC_Dc107 *mDc;
 };
 
 #endif // TEST_YC_H

@@ -644,7 +644,7 @@
       <item row="3" column="1" colspan="2">
        <widget class="QLineEdit" name="ipEdit">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>192.168.1.163</string>
@@ -665,8 +665,11 @@
         <property name="text">
          <string>自动发现</string>
         </property>
-        <property name="checked">
+        <property name="checkable">
          <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

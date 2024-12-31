@@ -10,6 +10,13 @@ Core_Object::Core_Object(QObject *parent)
     : QThread{parent}
 {
     mHttp = Core_Http::bulid(this);
+    // mModbus = Rtu_Modbus::bulid(this)->get();
+    // setModbus();
+}
+
+void Core_Object::setModbus()
+{
+    mModbus = Rtu_Modbus::bulid(this)->get();
 }
 
 void Core_Object::clearAllEle()
@@ -114,13 +121,39 @@ bool Core_Object::jsonAnalysis()
 {
     QJsonObject obj; sCoreItem *it = &coreItem;
     QByteArray msg = it->jsonPacket.toLatin1();
-    bool ret = checkInput(msg, obj);
-    if(ret) {
-        getOutputVol(obj); getSn(obj);
-        getMac(obj); getParameter(obj); getAlarmStatus(obj);
-        it->datetime = getValue(obj, "datetime").toString();
-        obj = getObject(obj, "pdu_data"); getThreshold(obj);
-        getTgData(obj); getEnvData(obj);
+    it->jsonPacket.clear(); bool ret = false;
+    if(!msg.isEmpty())
+    {
+        ret = checkInput(msg, obj);
+        if(ret) {
+            getSn(obj); getMac(obj); getDevType(obj);
+            getParameter(obj); getAlarmStatus(obj);
+            it->actual.datetime = getValue(obj, "datetime").toString();
+            obj = getObject(obj, "pdu_data"); getThreshold(obj);
+            getPduData(obj); getTgData(obj); getEnvData(obj);
+        }
+    }
+
+    return ret;
+}
+
+bool Core_Object::jsonAnalysisRefer()
+{
+    QJsonObject obj; sCoreItem *it = &coreItem;
+    bool ret = false;
+    if(it->jsonPacket.isEmpty()) return ret;
+    QByteArray msg = it->jsonPacket.toLatin1();
+    it->jsonPacket.clear();
+    if(!msg.isEmpty())
+    {
+        ret = checkInput(msg, obj);
+        if(ret) {
+            // getSnRefer(obj); getMacRefer(obj); getDevTypeRefer(obj);
+            // getParameterRefer(obj); getAlarmStatusRefer(obj);
+            // it->desire.datetime = getValue(obj, "datetime").toString();
+            obj = getObject(obj, "pdu_data"); //getThresholdRefer(obj);
+            getPduDataRefer(obj); getTgDataRefer(obj); getEnvDataRefer(obj);
+        }
     }
     return ret;
 }
@@ -128,33 +161,26 @@ bool Core_Object::jsonAnalysis()
 void Core_Object::getSn(const QJsonObject &object)
 {
     QJsonObject obj = getObject(object, "pdu_version");
-    coreItem.sn = getValue(obj, "serialNumber").toString();
-    coreItem.mcutemp = getArray(obj, "mcu_temp").toVariantList();
+    coreItem.actual.sn = getValue(obj, "serialNumber").toString();
     coreItem.actual.ver.fwVer = getValue(obj, "ver").toString();
-    //coreItem.actual.ver.devType = getValue(obj, "dev").toString();
-    coreItem.actual.ver.opVers = getArray(obj, "op_vers").toVariantList();
-    coreItem.actual.ver.opSn = getArray(obj, "op_sn").toVariantList();
+    coreItem.actual.ver.devType = getValue(obj, "dev").toString();
 }
 
 void Core_Object::getMac(const QJsonObject &object)
 {
     QJsonObject obj = getObject(object, "net_addr");
-    coreItem.mac = getValue(obj, "mac").toString();
-}
-
-void Core_Object::getOutputVol(const QJsonObject &object)
-{    
-    coreItem.actual.rate.outputVols = getArray(object, "output_vol").toVariantList();
-    //cout << coreItem.actual.rate.outputVols.size() << coreItem.actual.rate.outputVols;
-
-    QJsonObject obj = getObject(object, "uut_info");
-    coreItem.uuid = getValue(obj, "uuid").toString();
-    coreItem.actual.ver.devType = getValue(obj, "pdu_type").toString();
+    coreItem.actual.mac = getValue(obj, "mac").toString();
 }
 
 void Core_Object::getAlarmStatus(const QJsonObject &object)
 {
-    coreItem.alarm = getValue(object, "status").toInt();
+    coreItem.actual.alarm = getValue(object, "status").toInt();
+}
+
+void Core_Object::getDevType(const QJsonObject &object)
+{
+    QJsonObject obj = getObject(object, "uut_info");
+    coreItem.actual.ver.devType = getValue(obj, "pdu_type").toString();
 }
 
 void Core_Object::getParameter(const QJsonObject &object)
@@ -162,28 +188,53 @@ void Core_Object::getParameter(const QJsonObject &object)
     sParameter *it = &coreItem.actual.param;
     QJsonObject obj = getObject(object, "pdu_info");
     it->devSpec = getData(obj, "pdu_spec");
-    it->sensorBoxEn = getData(obj, "sensor_box");
+    it->oldProtocol = getData(obj, "old_protocol");
     it->standNeutral = getData(obj, "stand_neutral");
-    it->supplyVol = getData(obj, "supply_vol");
     it->lineNum = getData(obj, "line_num");
     it->loopNum = getData(obj, "loop_num");
-    it->outputNum = getData(obj, "output_num");
-    it->boardNum = getData(obj, "board_num");
     it->language = getData(obj, "language");
     it->isBreaker = getData(obj, "breaker");
     it->vh = getData(obj, "vh");
+    it->cpuTem = getData(obj, "cpu_temp");
+}
 
-    sVersion *ver = &coreItem.actual.ver;
-    ver->loopOutlets = getArray(obj, "loop_array").toVariantList();
+void Core_Object::getParameterRefer(const QJsonObject &object)
+{
+    sParameter *it = &coreItem.desire.param;
+    QJsonObject obj = getObject(object, "pdu_info");
+    it->devSpec = getData(obj, "pdu_spec");
+    it->oldProtocol = getData(obj, "old_protocol");
+    it->standNeutral = getData(obj, "stand_neutral");
+    it->lineNum = getData(obj, "line_num");
+    it->loopNum = getData(obj, "loop_num");
+    it->language = getData(obj, "language");
+    it->isBreaker = getData(obj, "breaker");
+    it->vh = getData(obj, "vh");
+    it->cpuTem = getData(obj, "cpu_temp");
 }
 
 void Core_Object::getTgData(const QJsonObject &object)
 {
     sMonitorData *it = &coreItem.actual.data;
-    QJsonObject obj = getObject(object, "pdu_tg_data");
-    it->apparent_pow = getData(obj, "apparent_pow");
-    it->tg_ele = getData(obj, "ele");
-    it->tg_pow = getData(obj, "pow");
+    QJsonObject obj = getObject(object, "pdu_total_data");
+    it->apparent_pow = getData(obj, "pow_apparent");
+    it->active_pow = getData(obj, "pow_active");
+    it->reactive_pow = getData(obj, "pow_reactive");
+    it->tg_ele = getData(obj, "ele_active");
+    it->tg_reactiveEle = getData(obj, "ele_reactive");
+    it->tg_apparentEle = getData(obj, "ele_apparent");
+}
+
+void Core_Object::getTgDataRefer(const QJsonObject &object)
+{
+    sMonitorData *it = &coreItem.desire.data;
+    QJsonObject obj = getObject(object, "pdu_total_data");
+    it->apparent_pow = getData(obj, "pow_apparent");
+    it->active_pow = getData(obj, "pow_active");
+    it->reactive_pow = getData(obj, "pow_reactive");
+    it->tg_ele = getData(obj, "ele_active");
+    it->tg_reactiveEle = getData(obj, "ele_reactive");
+    it->tg_apparentEle = getData(obj, "ele_apparent");
 }
 
 void Core_Object::getEnvData(const QJsonObject &object)
@@ -194,41 +245,99 @@ void Core_Object::getEnvData(const QJsonObject &object)
     it->temps = getArray(obj, "tem_value").toVariantList();
 }
 
+void Core_Object::getEnvDataRefer(const QJsonObject &object)
+{
+    sMonitorData *it = &coreItem.desire.data;
+    QJsonObject obj = getObject(object, "env_item_list");
+    it->doors = getArray(obj, "door").toVariantList();
+    it->temps = getArray(obj, "tem_value").toVariantList();
+}
+void Core_Object::getPduData(const QJsonObject &object)
+{
+    sParameter *it = &coreItem.actual.param;
+    sPdudata *item = &coreItem.actual.value;
+    QJsonObject obj; int loop = (int)it->loopNum;
+
+    if(loop)
+    {
+        obj = getObject(object, "loop_item_list");
+        item->loopVol = getArray(obj, "vol_value").toVariantList();
+        item->loopCur = getArray(obj, "cur_value").toVariantList();
+        item->loopPow = getArray(obj, "pow_value").toVariantList();
+    }
+
+    obj = getObject(object, "line_item_list");
+    item->lineVol = getArray(obj, "vol_value").toVariantList();
+    item->lineCur = getArray(obj, "cur_value").toVariantList();
+    item->linePow = getArray(obj, "pow_value").toVariantList();
+}
+
+void Core_Object::getPduDataRefer(const QJsonObject &object)
+{
+    sParameter *it = &coreItem.desire.param;
+    sPdudata *item = &coreItem.desire.value;
+    QJsonObject obj; int loop = (int)it->loopNum;
+
+    if(loop) {
+        obj = getObject(object, "loop_item_list");
+        item->loopVol = getArray(obj, "vol_value").toVariantList();
+        item->loopCur = getArray(obj, "cur_value").toVariantList();
+        item->loopPow = getArray(obj, "pow_value").toVariantList();
+    }
+
+    obj = getObject(object, "line_item_list");
+    item->lineVol = getArray(obj, "vol_value").toVariantList();
+    item->lineCur = getArray(obj, "cur_value").toVariantList();
+    item->linePow = getArray(obj, "pow_value").toVariantList();
+}
 
 void Core_Object::getThreshold(const QJsonObject &object)
 {
-    sThreshold *it = &coreItem.actual.rate;    
-    QJsonObject obj = getObject(object, "line_item_list");
-    it->lineVol = getRating(obj, "vol");
-    it->lineCur = getRating(obj, "cur");
-    it->linePow = getRating(obj, "pow");
-    it->volValue = getRating(obj, "vol", "value");
+    sParameter *it = &coreItem.actual.param;
+    sThreshold *item = &coreItem.actual.rate;
+    QJsonObject obj; int loop = (int)it->loopNum;
 
-    obj = getObject(object, "loop_item_list");
-    it->loopVol = getRating(obj, "vol");
-    it->loopCur = getRating(obj, "cur");
-    it->loopPow = getRating(obj, "pow");
+    if(loop) {
+        obj = getObject(object, "loop_item_list");
+        item->loopVol = getArray(obj, "vol_rated").toVariantList();
+        item->loopCur = getArray(obj, "cur_rated").toVariantList();
+        item->loopPow = getArray(obj, "pow_rated").toVariantList();
+    }
 
-    obj = getObject(object, "output_item_list");
-    it->ops = getArray(obj, "cur_rated").toVariantList();
+    obj = getObject(object, "line_item_list");
+    item->lineVol = getArray(obj, "vol_rated").toVariantList();
+    item->lineCur = getArray(obj, "cur_rated").toVariantList();
+    item->linePow = getArray(obj, "pow_rated").toVariantList();
 }
 
-double Core_Object::getRating(const QJsonObject &object, const QString &key, const QString &suffix)
+
+
+double Core_Object::getActualValue(const QJsonObject &object, const QString &key, int value, const QString &suffix)
 {
     QJsonArray array = getArray(object, key+"_"+suffix);
-    QJsonValue firstElement = array.first();
-    bool allElementsEqual = true;
-    if(suffix.contains("rated")) {
-        for (int i = 1; i < array.size(); ++i) {
-            if (firstElement != array.at(i)) {
-                allElementsEqual = false;
+    if(suffix.contains("value")) {
+        for (int i = 0; i < array.size(); ++i) {
+            if (i == value) {
                 break;
             }
         }
     }
 
-    if(!allElementsEqual) cout <<  array;
-    return array.first().toDouble();
+    return array.at(value).toDouble();
+}
+
+double Core_Object::getRating(const QJsonObject &object, const QString &key,  int value, const QString &suffix)
+{
+    QJsonArray array = getArray(object, key+"_"+suffix);
+    if(suffix.contains("rated")) {
+        for (int i = 1; i < array.size(); ++i) {
+            if (i == value) {
+                break;
+            }
+        }
+    }
+
+    return array.at(value).toDouble();
 }
 
 QJsonArray Core_Object::getArray(const QJsonObject &object, const QString &key)

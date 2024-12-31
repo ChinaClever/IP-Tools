@@ -13,17 +13,28 @@ Core_Thread::Core_Thread(QObject *parent)
 {
     Ssdp_Core::bulid(this);
     http = Core_Http::bulid(this);
-    mPro = sDataPacket::bulid()->getPro();
-    mDev = sDataPacket::bulid()->getDev();
-    mData = &(mDev->data);
     mYc = Yc_Obj::bulid(this);
     mItem = CfgCom::bulid()->item;
-    mSocket = new Core_RecvWid(this);
+    mSource = mYc->get();
 
-    // connect(mSocket , &Core_RecvWid::msgSig , this ,&Core_Thread::msgSigYC);
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::AnyIPv4, 21907, QUdpSocket::ShareAddress);
+    connect(udpSocket, &QUdpSocket::readyRead, this, &Core_Thread::udpRecvSlot);
+
     connect(mYc , &Yc_Obj::msgSig , this ,&Core_Thread::msgSigYC);
     connect(this, &Core_Thread::startSig, &Core_Thread::startSlot);
 
+}
+
+void Core_Thread::udpRecvSlot()
+{
+    QByteArray datagram; QHostAddress host;
+    while(udpSocket->hasPendingDatagrams()) {
+        datagram.resize(int(udpSocket->pendingDatagramSize()));
+        int ret = udpSocket->readDatagram(datagram.data(), datagram.size(), &host);
+        if(ret > 0) {data += QString(datagram) + ";";}
+        else qCritical() << udpSocket->errorString();
+    }
 }
 
 QStringList Core_Thread::getFs()
@@ -142,7 +153,6 @@ bool Core_Thread::downVer(const QString &ip)
     QFile::remove(fs.first()); http->initHost(ip);
     http->execute("chmod -R 777 /customer/pdu/");
     http->downFile(fs);
-
     for(int i=0; i<10; ++i) {
         if(QFile::exists(fs.first())) break; else cm_mdelay(100);
     } QString dir = "customer/pdu";
@@ -150,7 +160,6 @@ bool Core_Thread::downVer(const QString &ip)
     bool ret = cfg.app_unpack(it);
     if(ret) {
         it.sn = m_sn = createSn();
-        mPro->productSN = m_sn;
         cfg.app_serialNumber(it.sn);
         QString mac = m_mac = updateMacAddr();
         writeSnMac(it.sn, mac); //str += "ok\n";
@@ -205,10 +214,12 @@ bool Core_Thread::waitForRest()
 bool Core_Thread::startCalibration()
 {
     bool res = true, ret = waitForRest();
-    if(ret) http->calibration(); else return false;
-    emit msgSig(tr("校准开始"), true); cm_mdelay(5500);
 
-    QString str = mSocket->return_Recv();
+    if(ret) http->calibration(); else return ret;
+    emit msgSig(tr("校准开始"), true); cm_mdelay(6000);
+
+
+    QString str = data; data.clear();
     if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false); return false;}
 
     QStringList splitList = str.split(';');
@@ -459,10 +470,9 @@ bool Core_Thread::noLoadCurFun()
 bool Core_Thread::startCheck()
 {
     bool ret = false;
-    mSource = Yc_Obj::bulid()->get();
     mSource->setVol(250, 1);
     ret = mSource->setCur(40, 3);
-    cm_mdelay(6*1000);
+    cm_mdelay(5*1000);
 
     QString str = tr("验证电流：期望电流4A");
     emit msgSig(str, ret);
@@ -512,8 +522,7 @@ void Core_Thread::run()
             emit finshSig(ret, ip+" ");
 
             http->execute("reboot");
-            mSource = Yc_Obj::bulid()->get();
-            mSource->setVol(0, 1); mSource->setCur(0, 1);
+            mSource->setVol(0, 0); mSource->setCur(0, 0);
 
 #if 0
             cm_mdelay(2000);

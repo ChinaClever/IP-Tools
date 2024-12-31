@@ -87,7 +87,7 @@ private:
     void getTgData(const QJsonObject &object);
     void getEnvData(const QJsonObject &object);
     void getParameter(const QJsonObject &object);
-    void getThreshold(const QJsonObject &object);
+    void getPduData(const QJsonObject &object);
     void getAlarmStatus(const QJsonObject &object);
     double getActualValue(const QJsonObject &object, const QString &key, int value, const QString &suffix="value");
     double getRating(const QJsonObject &object, const QString &key, const QString &suffix="rated");

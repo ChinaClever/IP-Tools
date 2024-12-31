@@ -15,6 +15,8 @@ Home_DevWid::Home_DevWid(QWidget *parent) :
     mHttp = Core_Http::bulid(this);
     mPro=sDataPacket::bulid();
     mIt = &Core_Object::coreItem.desire;
+    item = CfgCom::bulid()->item;
+    initWid();
 }
 
 Home_DevWid::~Home_DevWid()
@@ -40,28 +42,6 @@ void Home_DevWid::on_logBtn_clicked()
     MsgBox::information(this, tr("设备日志已清除，重启后生效"));
 }
 
-void Home_DevWid::on_openAllBtn_clicked()
-{
-    Core_Thread::bulid(this)->relayCtrl(1);
-}
-
-void Home_DevWid::on_closeAllBtn_clicked()
-{
-    Core_Thread::bulid(this)->relayCtrl(0);
-}
-
-void Home_DevWid::on_enDelayBtn_clicked()
-{
-    Core_Thread::bulid(this)->relayDelay(1);
-    MsgBox::information(this, tr("顺序上下电延时功能已开启"));
-}
-
-void Home_DevWid::on_disDelayBtn_clicked()
-{
-    Core_Thread::bulid(this)->relayDelay(0);
-    MsgBox::information(this, tr("顺序上下电延时功能已清除"));
-}
-
 void Home_DevWid::on_cascadeBtn_clicked()
 {
     Core_Thread::bulid(this)->enCascade(1);
@@ -80,49 +60,85 @@ void Home_DevWid::on_rtuDisenBtn_clicked()
     MsgBox::information(this, tr("Modbus-RTU功能已关闭"));
 }
 
-void Home_DevWid::on_bosEnBtn_clicked()
+void Home_DevWid::initWid()
 {
-    Core_Thread::bulid(this)->boxSet(1);
-    MsgBox::information(this, tr("传感器盒子功能已开启"));
+    ui->vhBox->setCurrentIndex(item->vh);
+    ui->lineNumBox->setCurrentIndex(item->lineNum);
+    ui->standardBox->setCurrentIndex(item->standNeutral);
+    ui->devspecBox->setCurrentIndex(item->devSpec);
+    ui->protocolBox->setCurrentIndex(item->oldProtocol);
+    ui->breakerBox->setCurrentIndex(item->isBreaker);
+    ui->languageBox->setCurrentIndex(item->language);
+    ui->loopNumBox->setValue(item->loopNum);
+    ui->typeEdit->setText(item->devType);
+    ui->fwEdit->setText(item->fwVer);
+
+    ui->timeBox->setChecked(item->isTimer);
+    ui->macBox->setChecked(item->isMac);
+    ui->sersorBox->setChecked(item->isSersor);
+    ui->linkBox->setChecked(item->isLink);
+
+    ui->lineVolBox->setValue(item->lineVol);
+    ui->lineCurBox->setValue(item->lineCur);
+    ui->linePowBox->setValue(item->linePow);
+    ui->loopVolBox->setValue(item->loopVol);
+    ui->loopCurBox->setValue(item->loopCur);
+    ui->loopPowBox->setValue(item->loopPow);
 }
 
-void Home_DevWid::on_boxDisenBtn_clicked()
+void Home_DevWid::updateWid()
 {
-    Core_Thread::bulid(this)->boxSet(0);
-    MsgBox::information(this, tr("传感器盒子功能已关闭"));
+    item->vh = ui->vhBox->currentIndex();
+    // it->devSpec = ui->devSpecBox->currentIndex()+1;
+    item->lineNum = ui->lineNumBox->currentIndex();
+    item->standNeutral = ui->standardBox->currentIndex();
+    item->devSpec = ui->devspecBox->currentIndex();
+    item->oldProtocol = ui->protocolBox->currentIndex();
+    item->isBreaker = ui->breakerBox->currentIndex();
+    item->language = ui->languageBox->currentIndex();
+    item->loopNum = ui->loopNumBox->value();
+    item->devType = ui->typeEdit->text();
+    item->fwVer = ui->fwEdit->text();
+
+    item->isTimer = ui->timeBox->isChecked();
+    item->isMac = ui->macBox->isChecked();
+    item->isSersor = ui->sersorBox->isChecked();
+    item->isLink = ui->linkBox->isChecked();
+    CfgCom::bulid()->writeParams();
+
+    item->lineVol= ui->lineVolBox->value();
+    item->lineCur = ui->lineCurBox->value();
+    item->linePow = ui->linePowBox->value();
+    item->loopVol = ui->loopVolBox->value();
+    item->loopCur = ui->loopCurBox->value();
+    item->loopPow = ui->loopPowBox->value();
+
+    CfgCom::bulid()->writeThresholds();
 }
+
 
 void Home_DevWid::updateParams()
 {
     sParameter *it = &mIt->param;
     it->vh = ui->vhBox->currentIndex();
-    it->devSpec = ui->devSpecBox->currentIndex()+1;
+    // it->devSpec = ui->devSpecBox->currentIndex()+1;
     it->lineNum = ui->lineNumBox->currentIndex()?3:1;
     it->standNeutral = ui->standardBox->currentIndex();
-    it->sensorBoxEn = ui->sensorBox->currentIndex();
+    it->devSpec = ui->devspecBox->currentIndex();
+    it->oldProtocol = ui->protocolBox->currentIndex();
     it->isBreaker = ui->breakerBox->currentIndex();
     it->language = ui->languageBox->currentIndex();
-    it->boardNum = ui->boardNumBox->value();
     it->loopNum = ui->loopNumBox->value();
-    it->outputNum = ui->outputNumBox->value();
 
     sVersion *ver = &mIt->ver;
     ver->devType = ui->typeEdit->text();
-    mPro->getPro()->productType = ui->typeEdit->text();
     ver->fwVer = ui->fwEdit->text();
-    ver->loopOutlets.clear();
-    ver->loopOutlets << ui->opBox_1->value();
-    ver->loopOutlets << ui->opBox_2->value();
-    ver->loopOutlets << ui->opBox_3->value();
-    ver->loopOutlets << ui->opBox_4->value();
-    ver->loopOutlets << ui->opBox_5->value();
-    ver->loopOutlets << ui->opBox_6->value();
 }
 
 void Home_DevWid::updateThresholds()
 {
-    sThreshold *it = &mIt->rate;
-    it->lineVol = ui->lineVolBox->value();
+    mThreshold *it = &mIt->rate;
+    it->lineVol= ui->lineVolBox->value();
     it->lineCur = ui->lineCurBox->value();
     it->linePow = ui->linePowBox->value();
     it->loopVol = ui->loopVolBox->value();
@@ -130,38 +146,11 @@ void Home_DevWid::updateThresholds()
     it->loopPow = ui->loopPowBox->value();
 }
 
-void Home_DevWid::updateOutlets()
-{
-    QList<QCheckBox *> box = checkBoxFound();
-    mIt->rate.ops.clear(); foreach (auto it, box) {
-        if(it->isChecked()) {
-            QString name = it->objectName().remove("op_");
-            mIt->rate.ops << name.toInt();
-        }
-    }
-}
-
 void Home_DevWid::updateData()
 {
     updateParams();
-    updateOutlets();
     updateThresholds();
-}
-
-QList<QCheckBox *> Home_DevWid::checkBoxFound()
-{
-    QList<QCheckBox *> box;
-    for (int i = 0; i < ui->checkWid->children().size(); i++) {
-        QCheckBox *cb = qobject_cast<QCheckBox*>(ui->checkWid->children()[i]);
-        if (cb) box << cb;
-    }
-    return box;
-}
-
-void Home_DevWid::on_uncheckBtn_clicked()
-{
-    QList<QCheckBox *> box = checkBoxFound();
-    foreach (auto it, box) it->setChecked(false);
+    updateWid();
 }
 
 void Home_DevWid::on_lineVolBox_valueChanged(int arg1)
@@ -189,20 +178,14 @@ void Home_DevWid::on_loopCurBox_valueChanged(int arg1)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void Home_DevWid::on_loopNumBox_valueChanged(int arg1)
+{
+    if(!arg1) {ui->loopVolBox->setEnabled(false);
+        ui->loopCurBox->setEnabled(false);
+        ui->loopPowBox->setEnabled(false);
+    } else {ui->loopVolBox->setEnabled(true);
+        ui->loopCurBox->setEnabled(true);
+        ui->loopPowBox->setEnabled(true);
+    }
+}
 

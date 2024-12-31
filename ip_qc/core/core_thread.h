@@ -18,31 +18,48 @@ signals:
     void overSig();
 
 private:
+    bool readDev(const QString &ip="192.168.1.17");
     bool fwCheck();
-    bool tgCheck();
     bool snCheck();
     bool envCheck();
+    bool linkCheck();
     bool macCheck();
     bool searchDev();
     bool timeCheck();
     bool alarmCheck();
     bool devNumCheck();
-    bool outletCheck();
-    bool mcuTempCheck();
-    bool outputVolCheck();
-    bool supplyVolCheck();
     bool parameterCheck();
-    bool thresholdCheck();
+    bool loopthresholdCheck(int i);
+    bool linethresholdCheck(int i);
     bool compareImages();
     bool bigEleCheck();
     bool logoCheck(const QString &ip);
     bool downLogo(const QString &ip);
     bool workDown(const QString &ip);
+    bool cpuCheck();
+    bool errRangeCheck();
 
+    bool volErrRange(int i, bool flag);
+    bool curErrRange(int i, bool flag);
+    bool powErrRange(int i, bool flag);
+    bool eleErrRange();
+    bool apowErrRange();
+    bool apeleErrRange();
+
+    QString changeType(int value);
+    QString changeSpec(int value);
+    QString changeProtocol(int value);
+    bool checkAlarmErr();
+    bool checkErrRange(int exValue, int value, int err);
+    bool checkSquare(int exValue, int value, int err);
+
+    void initReadCmd(sRtuItem &item);
 private:
     QString mLogo;
     QStringList m_ips;
     QHash<QString, QString> mHashMac, mHashSn;
+    sCfgComIt *mItem;
+    Core_Http *http;
 };
 
 #endif // CORE_THREAD_H

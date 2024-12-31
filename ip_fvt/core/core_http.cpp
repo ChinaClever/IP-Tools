@@ -95,14 +95,16 @@ bool Core_Http::uploadFile(const QString &fn)
     return ret;
 }
 
-void Core_Http::downFile(const QStringList &fs)
+bool Core_Http::downFile(const QStringList &fs)
 {
+    bool ret = false;
     foreach (const auto &fn, fs) {
         QJsonObject json; json.insert("file", fn);
         bool ret = http_down("download", json, fn, m_ip, m_port);
         if(!ret) FileMgr::build().delFileOrDir(fn);
         if(ret) cm_mdelay(243); else if(!fn.contains(".pem")) break;
     }
+    return ret;
 }
 
 auto Core_Http::sslConfig()

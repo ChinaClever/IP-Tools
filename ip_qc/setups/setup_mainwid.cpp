@@ -15,6 +15,8 @@ Setup_MainWid::Setup_MainWid(QWidget *parent) :
     groupBox_background_icon(this);
     QTimer::singleShot(rand()%13,this,SLOT(initFunSlot()));
     mItem = CfgCom::bulid()->item; initSerial();
+    initErrData();
+    ui->sourceWid->hide();
 }
 
 Setup_MainWid::~Setup_MainWid()
@@ -52,10 +54,10 @@ void Setup_MainWid::checkPcNumSlot()
 void Setup_MainWid::initSerial()
 {
     mComWid = new SerialStatusWid(ui->comWid);
-    mItem->coms.sp = mComWid->initSerialPort(tr("IN"));
+    mItem->coms.sp = mComWid->initSerialPort(tr("LINK"));
 
-    mSourceWid = new SerialStatusWid(ui->sourceWid);
-    mItem->coms.src = mSourceWid->initSerialPort(tr("OUT"));
+    // mSourceWid = new SerialStatusWid(ui->sourceWid);
+    // mItem->coms.src = mSourceWid->initSerialPort(tr("OUT"));
 }
 
 void Setup_MainWid::initLogCount()
@@ -113,6 +115,46 @@ void Setup_MainWid::timeoutDone()
 
 }
 
+void Setup_MainWid::updateErrData()
+{
+    sCfgComIt *item = mItem;
+    item->volErr = ui->volErrBox->value();
+    item->curErr = ui->curErrBox->value() * 10;
+    item->powErr = ui->powErrBox->value() * 10;
+    CfgCom::bulid()->writeErrData();
+}
+
+void Setup_MainWid::initErrData()
+{
+    sCfgComIt *item = mItem;
+    ui->volErrBox->setValue(item->volErr);
+    ui->curErrBox->setValue(item->curErr / 10.0);
+    ui->powErrBox->setValue(item->powErr / 10.0);
+}
+
+void Setup_MainWid::on_saveBtn_clicked()
+{
+    static int flg = 0;
+    QString str = tr("修改");
+
+    bool ret = usr_land_jur();
+    if(!ret) {
+        MsgBox::critical(this, tr("你无权进行此操作"));
+        return;
+    }
+
+    if(flg++ %2) {
+        ret = false;
+        updateErrData();
+    } else {
+        str = tr("保存");
+    }
+
+    ui->saveBtn->setText(str);
+    ui->volErrBox->setEnabled(ret);
+    ui->curErrBox->setEnabled(ret);
+    ui->powErrBox->setEnabled(ret);
+}
 //void Setup_MainWid::on_saveBtn_clicked()
 //{
 //    static int flg = 0;

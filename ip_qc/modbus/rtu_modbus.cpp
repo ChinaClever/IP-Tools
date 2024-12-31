@@ -8,6 +8,7 @@
 Rtu_Modbus::Rtu_Modbus(QObject *parent) : QObject(parent)
 {
     mRtuRw = new RtuRw(this);
+    mItem = CfgCom::bulid()->item;
 }
 
 Rtu_Modbus *Rtu_Modbus::bulid(QObject *parent)
@@ -21,14 +22,14 @@ Rtu_Modbus *Rtu_Modbus::bulid(QObject *parent)
 
 RtuRw *Rtu_Modbus::get()
 {
-    // RtuRw *res = mRtuRw;
-    // SerialPort *ser = CfgCom::bulid()->item->coms.src;
-    // if(ser) {
-    //     res->init(ser);
-    //     //ser->reflush();
-    // } else {
-    //     res = nullptr;
-    // }
+    RtuRw *res = mRtuRw;
+    SerialPort *ser = mItem->coms.sp;
+    if(ser) {
+        res->init(ser);
+        //ser->reflush();
+    } else {
+        res = nullptr;
+    }
 
-    // return res;
+    return res;
 }

@@ -175,7 +175,7 @@ bool Core_Object::jsonAnalysis()
         getParameter(obj);
         it->datetime = getValue(obj, "datetime").toString();
         obj = getObject(obj, "pdu_data");
-        getThreshold(obj);
+        getPduData(obj);
     }
     return ret;
 }
@@ -184,7 +184,6 @@ void Core_Object::getSn(const QJsonObject &object)
 {
     QJsonObject obj = getObject(object, "pdu_version");
     coreItem.sn = getValue(obj, "serialNumber").toString();
-    coreItem.mcutemp = getArray(obj, "mcu_temp").toVariantList();
 }
 
 void Core_Object::getMac(const QJsonObject &object)
@@ -228,7 +227,7 @@ void Core_Object::getEnvData(const QJsonObject &object)
     it->temps = getArray(obj, "tem_value").toVariantList();
 }
 
-void Core_Object::getThreshold(const QJsonObject &object)
+void Core_Object::getPduData(const QJsonObject &object)
 {
     sParameter *it = &coreItem.actual.param;
     sThreshold *item = &coreItem.actual.value;
