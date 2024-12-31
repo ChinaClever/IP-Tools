@@ -41,6 +41,10 @@ private slots:
     void on_rtuDisenBtn_clicked();
     void on_loopNumBox_valueChanged(int arg1);
 
+    void on_tlsBtn_clicked();
+
+    void on_standardBox_currentIndexChanged(int index);
+
 private:
     Ui::Home_DevWid *ui;
     Core_Http *mHttp;

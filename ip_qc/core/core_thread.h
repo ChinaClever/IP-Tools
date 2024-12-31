@@ -36,6 +36,11 @@ private:
     bool logoCheck(const QString &ip);
     bool downLogo(const QString &ip);
     bool workDown(const QString &ip);
+
+    bool compareTls();
+    bool tlsCertCheck(const QString &ip);
+    bool downTlsCert(const QString &ip);
+
     bool cpuCheck();
     bool errRangeCheck();
 
@@ -55,7 +60,7 @@ private:
 
     void initReadCmd(sRtuItem &item);
 private:
-    QString mLogo;
+    QString mLogo, mTls;
     QStringList m_ips;
     QHash<QString, QString> mHashMac, mHashSn;
     sCfgComIt *mItem;

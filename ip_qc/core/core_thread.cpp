@@ -19,6 +19,10 @@ Core_Thread::Core_Thread(QObject *parent)
     FileMgr::build().mkpath(dir);
     mItem = CfgCom::bulid()->item;
     http = Core_Http::bulid(this);
+
+    dir = "etc/ssl/certs";
+    FileMgr::build().mkpath(dir);
+    mTls = "etc/ssl/certs/client-cert.pem";
 }
 
 Core_Thread *Core_Thread::bulid(QObject *parent)
@@ -186,6 +190,51 @@ bool Core_Thread::logoCheck(const QString &ip)
 
     return ret;
  }
+
+bool Core_Thread::downTlsCert(const QString &ip)
+{
+    QString str = tr("Tls证书下载：");
+    QStringList fs; fs << mTls;
+
+    QFile::remove(mTls);
+    Core_Http *http = Core_Http::bulid(this);
+    http->initHost(ip); http->downFile(fs);
+    for(int i=0; i<1000; i+= 100) {
+        if(QFile::exists(mTls)) break; else cm_mdelay(100);
+    }
+
+    bool ret = QFile::exists(mTls);
+    if(ret) str += tr("成功"); else str += tr("失败");
+    emit msgSig(str, ret);
+    return ret;
+}
+
+bool Core_Thread::compareTls()
+{
+    if(File::fileSize(mTls) != File::fileSize(coreItem.tlsFile))  return false;
+    return File::md5(mTls) == File::md5(coreItem.tlsFile);
+}
+
+bool Core_Thread::tlsCertCheck(const QString &ip)
+{
+    bool ret = true;
+    if(coreItem.desire.param.standNeutral) {
+        if(coreItem.tlsFile.size()) {
+            ret = downTlsCert(ip);
+            if(ret) {
+                ret = compareTls();
+                QString str = tr("证书差异检查：");
+                if(ret) str += tr("通过"); else str += tr("失败");
+                emit msgSig(str, ret);
+            }
+
+        } else emit msgSig(tr("未指定证书此项检测跳过"), true);
+    }
+
+    return ret;
+
+}
+
 
 QString Core_Thread::changeSpec(int value)
 {
@@ -629,6 +678,7 @@ bool Core_Thread::workDown(const QString &ip)
     if(ret) ret = logoCheck(ip);
     if(ret) ret = parameterCheck();
     if(ret) ret = devNumCheck();
+    if(ret) ret = tlsCertCheck(ip);
 
     //--------------------------阈值检测--------------------------//
     if(ret) ret = checkAlarmErr();

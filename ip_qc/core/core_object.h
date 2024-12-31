@@ -111,6 +111,7 @@ struct sCoreItem
     int port = 3166;
     QString ip="192.168.1.163";
     QString logo="logo.png";
+    QString tlsFile;
     mCoreUnit desire; // 期望
     sCoreUnit actual; // 实际
     QString jsonPacket;
