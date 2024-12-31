@@ -100,7 +100,8 @@ void Core_Http::downFile(const QStringList &fs)
     foreach (const auto &fn, fs) {
         QJsonObject json; json.insert("file", fn);
         bool ret = http_down("download", json, fn, m_ip, m_port);
-        if(ret) cm_mdelay(243); else break;
+        if(!ret) FileMgr::build().delFileOrDir(fn);
+        if(ret) cm_mdelay(243); else if(!fn.contains(".pem")) break;
     }
 }
 
