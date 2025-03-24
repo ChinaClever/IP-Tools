@@ -81,7 +81,7 @@ void Home_WorkWid::logWrite()
 
 void Home_WorkWid::finishSlot(bool pass, const QString &msg)
 {
-    QString str = msg + tr(" 配置");;
+    QString str = msg + tr(" 最终结果");;
     if(pass && mId>10) {
         mCnt.ok += 1;
         str += tr("成功！");
@@ -272,7 +272,7 @@ bool Home_WorkWid::initWid()
         initData();
         setWidEnabled(false);
         ui->startBtn->setText(tr("终 止"));
-        QTimer::singleShot(2100,this,&Home_WorkWid::updateWid);
+        QTimer::singleShot(9100,this,&Home_WorkWid::updateWid);
         startTime = QTime::currentTime(); emit startSig();
         QString str = startTime.toString("hh:mm:ss");
         ui->startLab->setText(str);
