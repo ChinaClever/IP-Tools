@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>IP-MAX自动校准工具</string>
+   <string>IP-PDU自动校准工具</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../com_pbl/images/image.qrc">
