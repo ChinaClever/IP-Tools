@@ -12,6 +12,7 @@ Home_DevWid::Home_DevWid(QWidget *parent) :
 {
     ui->setupUi(this);
     groupBox_background_icon(this);
+    ui->sersorBox->setHidden(true);
     mHttp = Core_Http::bulid(this);
     mPro=sDataPacket::bulid();
     mIt = &Core_Object::coreItem.desire;
