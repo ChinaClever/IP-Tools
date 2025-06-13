@@ -185,7 +185,7 @@
          <string>传感器盒子检查</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -204,7 +204,7 @@
          <string>级联口检查</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -280,7 +280,7 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_26">
         <property name="text">
-         <string>设备类型：</string>
+         <string>设备名称：</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -302,7 +302,7 @@
          </size>
         </property>
         <property name="text">
-         <string>IP Max</string>
+         <string>IP-PDU</string>
         </property>
        </widget>
       </item>
@@ -541,7 +541,12 @@
         </item>
         <item>
          <property name="text">
-          <string>兼容旧协议</string>
+          <string>兼容V3协议</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>兼容V1协议</string>
          </property>
         </item>
         <item>
