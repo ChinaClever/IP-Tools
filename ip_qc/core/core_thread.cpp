@@ -358,9 +358,9 @@ bool Core_Thread::checkErrRange(int exValue, int value, int err)
     int min = exValue - err;
     int max = exValue + err;
     if((value>=min) && (value<=max) && value) {
-        ret =  true; qDebug() << "value" << value << exValue << err;
+        ret =  true; //qDebug() << "value" << value << exValue << err;
     } else {
-        qDebug() << "value Err Range" << value << exValue << err;
+        cout << "value Err Range" << value << exValue << err;
     }
 
     return ret;
@@ -428,17 +428,17 @@ bool Core_Thread::powErrRange(int i, bool flag)
     return ret;
 }
 
-bool Core_Thread::checkSquare(int sValue, int pValue, int qValue)
+bool Core_Thread::checkSquare(double sValue, double pValue, double qValue)
 {
     bool ret = false;
-    int appow = sValue* sValue;
-    int active = pValue* pValue;
-    int reactive = qValue* qValue;
+    double appow = sValue* sValue;
+    double active = pValue* pValue;
+    double reactive = qValue* qValue;
 
-    qDebug()<<"apowErrRange"<<appow<<active<<reactive;
-
-    int sum = active + reactive;
-    if((appow == sum)&&(sum)) ret = true;
+    double sum = active + reactive;
+    double err = qAbs(appow - sum);
+    if((err < (appow*0.05))&&(sum)) ret = true;
+    else cout << appow  << active << reactive;
 
     return ret;
 }
@@ -449,8 +449,8 @@ bool Core_Thread::eleErrRange()
     bool ret = false; double value = actual->tg_ele;
     QString str = tr("总有功电能：实测值=%1kWh ").arg(value);
 
-    if((value >0)&&(value <10)) {ret = true; str += tr("正常");}
-    if((value >=10)&&(value == 10)) {ret = false; str += tr("错误");}
+    if((value >0)&&(value <15)) {ret = true; str += tr("正常");}
+    else {ret = false; str += tr("电能值过大");}
 
     emit msgSig(str, ret);
     return ret;
@@ -459,13 +459,13 @@ bool Core_Thread::eleErrRange()
 bool Core_Thread::apowErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; //int rated = 0; //RATED /1000;
     double value = actual->apparent_pow;
     double exValue = actual->active_pow;
     double err = actual->reactive_pow;
 
     for(int k=0; k<3; ++k) {
-        ret = checkSquare( value*rated, exValue *rated, err*rated);
+        ret = checkSquare( value, exValue, err);
         if(ret) break; else readDev(); //cm_mdelay(100);
     }
 
@@ -479,11 +479,12 @@ bool Core_Thread::apowErrRange()
 bool Core_Thread::apeleErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; int rated = 1; //RATED /100;
     double value = actual->tg_apparentEle;
     double exValue = actual->tg_ele;
     double err = actual->tg_reactiveEle;
 
+    cout << value << exValue << err;
     for(int k=0; k<3; ++k) {
         ret = checkSquare( value*rated, exValue *rated, err*rated);
         if(ret) break; else readDev(); //cm_mdelay(100);
