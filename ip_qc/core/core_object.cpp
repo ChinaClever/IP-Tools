@@ -23,7 +23,7 @@ void Core_Object::clearAllEle()
 {
     sDataItem it;
     it.id = 0;
-    it.type = 3;
+    it.type = 1;
     it.topic = 5;
     it.subtopic = 1;
     mHttp->setting(it);
