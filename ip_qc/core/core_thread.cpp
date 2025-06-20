@@ -455,7 +455,7 @@ bool Core_Thread::eleErrRange()
     bool ret = false; double value = actual->tg_ele;
     QString str = tr("总有功电能：实测值=%1kWh ").arg(value);
 
-    if((value >0)&&(value <20)) {ret = true; str += tr("正常");}
+    if((value >0)&&(value <10)) {ret = true; str += tr("正常");}
     else {ret = false; str += tr("电能值过大");}
 
     emit msgSig(str, ret);
