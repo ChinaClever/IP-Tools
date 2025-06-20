@@ -56,7 +56,7 @@ private:
     QString changeProtocol(int value);
     bool checkAlarmErr();
     bool checkErrRange(int exValue, int value, int err);
-    bool checkSquare(double exValue, double value, double err);
+    bool checkSquare(double exValue, double value, double err, double rated);
 
     void initReadCmd(sRtuItem &item);
 private:
