@@ -65,6 +65,7 @@ bool Core_Thread::timeCheck()
     QDateTime dt = QDateTime::fromString(coreItem.actual.datetime, fmd);
     QDateTime time = QDateTime::currentDateTime();
     int secs = qAbs(time.secsTo(dt));
+    cout << dt << time;
     if(secs > 10) str += tr("相差过大："); else ret = true;
     str += coreItem.actual.datetime;
     emit msgSig(str, ret);
@@ -358,9 +359,9 @@ bool Core_Thread::checkErrRange(int exValue, int value, int err)
     int min = exValue - err;
     int max = exValue + err;
     if((value>=min) && (value<=max) && value) {
-        ret =  true; qDebug() << "value" << value << exValue << err;
+        ret =  true; //qDebug() << "value" << value << exValue << err;
     } else {
-        qDebug() << "value Err Range" << value << exValue << err;
+        cout << "value Err Range" << value << exValue << err;
     }
 
     return ret;
@@ -428,17 +429,22 @@ bool Core_Thread::powErrRange(int i, bool flag)
     return ret;
 }
 
-bool Core_Thread::checkSquare(int sValue, int pValue, int qValue)
+bool Core_Thread::checkSquare(double sValue, double pValue, double qValue, double rated)
 {
     bool ret = false;
-    int appow = sValue* sValue;
-    int active = pValue* pValue;
-    int reactive = qValue* qValue;
+    double errRange = 0.05;
+    double appow = sValue* sValue;
+    double active = pValue* pValue;
+    double reactive = qValue* qValue;
+    if(rated == COM_RATE_ELE) errRange = 0.1;
 
-    qDebug()<<"apowErrRange"<<appow<<active<<reactive;
+    double sum = active + reactive;
+    double err = qSqrt(qAbs(appow - sum));
+    if((err < (sValue*errRange))&&(sum)) ret = true;
+    else cout << sValue  << pValue << qValue;
 
-    int sum = active + reactive;
-    if((appow == sum)&&(sum)) ret = true;
+
+//    cout << rated << err << sValue*errRange << pValue << qValue; /////======
 
     return ret;
 }
@@ -449,8 +455,8 @@ bool Core_Thread::eleErrRange()
     bool ret = false; double value = actual->tg_ele;
     QString str = tr("总有功电能：实测值=%1kWh ").arg(value);
 
-    if((value >0)&&(value <10)) {ret = true; str += tr("正常");}
-    if((value >=10)&&(value == 10)) {ret = false; str += tr("错误");}
+    if((value >0)&&(value <20)) {ret = true; str += tr("正常");}
+    else {ret = false; str += tr("电能值过大");}
 
     emit msgSig(str, ret);
     return ret;
@@ -459,13 +465,14 @@ bool Core_Thread::eleErrRange()
 bool Core_Thread::apowErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; int rated = COM_RATE_POW; //RATED /1000;
     double value = actual->apparent_pow;
     double exValue = actual->active_pow;
     double err = actual->reactive_pow;
+//    cout << value << exValue << err;
 
     for(int k=0; k<3; ++k) {
-        ret = checkSquare( value*rated, exValue *rated, err*rated);
+        ret = checkSquare( value, exValue, err, rated);
         if(ret) break; else readDev(); //cm_mdelay(100);
     }
 
@@ -479,13 +486,13 @@ bool Core_Thread::apowErrRange()
 bool Core_Thread::apeleErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; int rated = COM_RATE_ELE; //RATED /100;
     double value = actual->tg_apparentEle;
     double exValue = actual->tg_ele;
     double err = actual->tg_reactiveEle;
 
     for(int k=0; k<3; ++k) {
-        ret = checkSquare( value*rated, exValue *rated, err*rated);
+        ret = checkSquare( value, exValue , err, rated);
         if(ret) break; else readDev(); //cm_mdelay(100);
     }
     QString str = tr("总视在电能检查 ");
@@ -510,7 +517,7 @@ bool Core_Thread::errRangeCheck()
 
     ret = eleErrRange(); if(!ret) res = false;
     ret = apowErrRange(); if(!ret) res = false;
-    ret = apeleErrRange(); if(!ret) res = false;
+//    ret = apeleErrRange(); if(!ret) res = false;
 
     return res;
 }
@@ -645,11 +652,11 @@ bool Core_Thread::cpuCheck()
 
 bool Core_Thread::readDev(const QString &ip)
 {
-    http->initHost(m_ips.first()); readMetaData();
-    bool ret = jsonAnalysis(); //if(!ret) emit msgSig(tr("目标设备读取数据失败"), false);
+    http->initHost("192.168.1.31"); readMetaData();
+    bool ret = jsonAnalysisRefer(); //if(!ret) emit msgSig(tr("参照设备读取数据失败"), false);
     if(ret){
-        http->initHost("192.168.1.31"); readMetaData();
-        ret = jsonAnalysisRefer(); //if(!ret) emit msgSig(tr("参照设备读取数据失败"), false);
+        http->initHost(m_ips.first()); readMetaData();
+        ret = jsonAnalysis(); //if(!ret) emit msgSig(tr("目标设备读取数据失败"), false);
     }
 
     return ret;

@@ -216,7 +216,7 @@ bool Core_Thread::startCalibration()
     bool res = true, ret = waitForRest();
 
     if(ret) http->calibration(); else return ret;
-    emit msgSig(tr("校准开始"), true); cm_mdelay(6000);
+    emit msgSig(tr("校准开始"), true); cm_mdelay(10000);
 
 
     QString str = data; data.clear();

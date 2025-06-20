@@ -77,7 +77,7 @@ bool YC_Ac92b::setCur(int v, int sec)
 {
     bool ret = setValue("A", v);
     if(ret) {
-        if(v == 60) serialWrite("P3\r");
+        if(v == 60) serialWrite("P5\r");//("P3\r");
         ret = delay(sec);
     }
     return ret;
