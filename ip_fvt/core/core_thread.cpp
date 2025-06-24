@@ -184,7 +184,7 @@ bool Core_Thread::workDown(const QString &ip)
         if(!ret && fn.contains(".pem")) continue;
         if(!ret) res = false;
         emit msgSig(fn, ret);
-        cm_mdelay(20);
+        cm_mdelay(350);
     }
 
     return res;
