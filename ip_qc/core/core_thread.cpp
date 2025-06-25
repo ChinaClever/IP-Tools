@@ -64,8 +64,7 @@ bool Core_Thread::timeCheck()
     QString fmd = "yyyy-MM-dd hh:mm:ss";
     QDateTime dt = QDateTime::fromString(coreItem.actual.datetime, fmd);
     QDateTime time = QDateTime::currentDateTime();
-    int secs = qAbs(time.secsTo(dt));
-    cout << dt << time;
+    int secs = qAbs(time.secsTo(dt)); //cout << dt << time;
     if(secs > 10) str += tr("相差过大："); else ret = true;
     str += coreItem.actual.datetime;
     emit msgSig(str, ret);
