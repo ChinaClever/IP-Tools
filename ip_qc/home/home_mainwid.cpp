@@ -27,8 +27,8 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     mEnvTabWid = new Home_EnvTabWid(ui->tabWidget);
     ui->tabWidget->insertTab(2, mEnvTabWid, tr("传感器环境状态"));
 
-    mEdit = new QPlainTextEdit(ui->tabWidget);
-    ui->tabWidget->insertTab(3, mEdit, tr("调试日志"));
+    mEditTabWid = new QPlainTextEdit(ui->tabWidget);
+    ui->tabWidget->insertTab(3, mEditTabWid, tr("调试日志"));
 }
 
 Home_MainWid::~Home_MainWid()
@@ -39,14 +39,14 @@ Home_MainWid::~Home_MainWid()
 
 void Home_MainWid::initWid()
 {
-    QPalette pl = mEdit->palette();  mId = 1;
+    QPalette pl = mEditTabWid->palette();  mId = 1;
     pl.setBrush(QPalette::Base,QBrush(QColor(255,0,0,0)));
-    mEdit->setPalette(pl);
+    mEditTabWid->setPalette(pl);
 }
 
 void Home_MainWid::onStart()
 {
-    mId = 1; emit startSig(); mEdit->clear();
+    mId = 1; emit startSig(); mEditTabWid->clear();
     sPdudata *obj = & Core_Object::coreItem.actual.value;
     obj->lineCur.clear(); obj->linePow.clear();
     obj->lineVol.clear(); obj->ele.clear();
@@ -63,13 +63,13 @@ void Home_MainWid::setTextColor(const QString &str)
 
     QColor color("black");
     if(!pass) color = QColor("red");
-    mEdit->moveCursor(QTextCursor::Start);
+    mEditTabWid->moveCursor(QTextCursor::Start);
 
     QTextCharFormat fmt;//文本字符格式
     fmt.setForeground(color);// 前景色(即字体色)设为color色
-    QTextCursor cursor = mEdit->textCursor();//获取文本光标
+    QTextCursor cursor = mEditTabWid->textCursor();//获取文本光标
     cursor.mergeCharFormat(fmt);//光标后的文字就用该格式显示
-    mEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
+    mEditTabWid->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
 }
 
 
@@ -78,7 +78,7 @@ void Home_MainWid::onMsg(const QString &msg)
     if(msg.size() > 2048) Core_Object::coreItem.jsonPacket = msg;
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(str); //ui->textEdit->moveCursor(QTextCursor::Start);
-    mEdit->insertPlainText(str);
+    mEditTabWid->insertPlainText(str);
     //ui->textEdit->moveCursor(QTextCursor::Start);
     //ui->textEdit->insertPlainText(str);
 }

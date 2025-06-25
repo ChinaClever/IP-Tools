@@ -672,14 +672,14 @@ bool Core_Thread::workDown(const QString &ip)
     emit msgSig(tr("目标设备:")+ip, true);
     bool ret = readDev();
     if(!ret) emit msgSig("数据读取失败！", ret);
-    //---------------------------接口检测--------------------------//
-    if(ret && mItem->isSersor) ret = envCheck();
-    if(ret && mItem->isLink) ret = linkCheck();
-
     //--------------------------采集检测---------------------------//
     if(ret) ret = errRangeCheck();
     if(ret) ret = cpuCheck();                           //cpu温度检查
     if(ret) ret = alarmCheck();                         //报警检查
+
+    //---------------------------接口检测--------------------------//
+    if(ret && mItem->isSersor) ret = envCheck();
+    if(ret && mItem->isLink) ret = linkCheck();
 
     //--------------------------参数检测--------------------------//
     if(ret) ret = snCheck();

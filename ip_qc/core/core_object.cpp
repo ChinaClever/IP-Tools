@@ -10,13 +10,13 @@ Core_Object::Core_Object(QObject *parent)
     : QThread{parent}
 {
     mHttp = Core_Http::bulid(this);
-    // mModbus = Rtu_Modbus::bulid(this)->get();
+    mModbus = Rtu_Modbus::bulid(this)->get();
     // setModbus();
 }
 
 void Core_Object::setModbus()
 {
-    // mModbus = Rtu_Modbus::bulid(this)->get();
+     mModbus = Rtu_Modbus::bulid(this)->get();
 }
 
 void Core_Object::clearAllEle()
@@ -264,6 +264,8 @@ void Core_Object::getPduData(const QJsonObject &object)
         item->loopVol = getArray(obj, "vol_value").toVariantList();
         item->loopCur = getArray(obj, "cur_value").toVariantList();
         item->loopPow = getArray(obj, "pow_value").toVariantList();
+        item->pf = getArray(obj, "power_factor").toVariantList();
+        item->ele = getArray(obj, "ele_active").toVariantList();
     }
 
     obj = getObject(object, "line_item_list");

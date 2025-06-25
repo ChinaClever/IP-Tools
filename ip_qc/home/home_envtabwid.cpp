@@ -22,7 +22,7 @@ void Home_EnvTabWid::appendItem()
 {
     sMonitorData *it = &Core_Object::coreItem.actual.data;
     for(int i=0;i<1 && i<it->temps.size(); ++i) {
-        QStringList listStr;
+        QStringList listStr; listStr << QString::number(i+1);
         listStr << QString::number(it->temps.at(i).toDouble(),'f',1)+"℃";
         setTableRow(i, listStr);
     }

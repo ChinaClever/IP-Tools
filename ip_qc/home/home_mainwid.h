@@ -35,7 +35,7 @@ private:
     Home_EnvTabWid *mEnvTabWid;
     Home_LineTabWid *mLineTabWid;
     Home_ThresholdTabWid *mThTabWid;
-    QPlainTextEdit *mEdit;
+    QPlainTextEdit *mEditTabWid;
     int mId=0;
     //Td_MainWid *mTabWid;
 };

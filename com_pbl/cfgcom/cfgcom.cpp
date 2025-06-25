@@ -67,7 +67,7 @@ void CfgCom::initCfgData()
     item->oldProtocol = readCfg("oldProtocol", 0,"Params").toInt();
     item->standNeutral = readCfg("standNeutral", 0,"Params").toInt();
     item->devType = readCfg("devType", "IP-PDU","Params").toString();
-    item->fwVer = readCfg("fwVer", "0.1.3.042","Params").toString();
+    item->fwVer = readCfg("fwVer", "0.1.5.042","Params").toString();
     item->isSersor = readCfg("isSersor", false,"Params").toBool();
     item->isTimer = readCfg("isTimer", true,"Params").toBool();
     item->isLink = readCfg("isLink", false,"Params").toBool();

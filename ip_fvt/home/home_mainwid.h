@@ -2,7 +2,8 @@
 #define HOME_MAINWID_H
 
 #include <QWidget>
-#include "home_workwid.h"
+#include <QPlainTextEdit>
+#include "home_linetabwid.h"
 #include "backcolourcom.h"
 
 namespace Ui {
@@ -28,6 +29,8 @@ private slots:
 private:
     Ui::Home_MainWid *ui;
     Home_WorkWid *mWorkWid;
+    Home_LineTabWid *mLineTabWid;
+    QPlainTextEdit *mEditTabWid;
     int mId=0;
     //Td_MainWid *mTabWid;
 };
