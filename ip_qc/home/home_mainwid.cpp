@@ -28,7 +28,7 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     ui->tabWidget->insertTab(2, mEnvTabWid, tr("传感器环境状态"));
 
     mEdit = new QPlainTextEdit(ui->tabWidget);
-    ui->tabWidget->insertTab(2, mEnvTabWid, tr("调试日志"));
+    ui->tabWidget->insertTab(3, mEdit, tr("调试日志"));
 }
 
 Home_MainWid::~Home_MainWid()
