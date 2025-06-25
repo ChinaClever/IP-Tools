@@ -46,8 +46,7 @@ void Home_MainWid::initWid()
 
 void Home_MainWid::onStart()
 {
-    mEdit->clear();
-    mId = 1; emit startSig();
+    mId = 1; emit startSig(); mEdit->clear();
     sPdudata *obj = & Core_Object::coreItem.actual.value;
     obj->lineCur.clear(); obj->linePow.clear();
     obj->lineVol.clear();
