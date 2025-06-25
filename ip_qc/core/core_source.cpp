@@ -25,8 +25,8 @@ bool Core_Source::readRk9901()
 {
     sPdudata *obj = &coreItem.desire.value;
     obj->lineCur.clear(); obj->linePow.clear();
-    obj->lineVol.clear(); obj->pf.clear();
-    obj->hz.clear(); sRkItem rkIt;
+    obj->lineVol.clear(); obj->linePF.clear();
+    obj->lineHz.clear(); sRkItem rkIt;
 
     bool ret = mRk->readPacket(rkIt);
     if(ret) {
@@ -34,8 +34,8 @@ bool Core_Source::readRk9901()
             obj->lineVol << rkIt.vol/10.0;
             obj->lineCur << rkIt.cur / 1000.0;
             obj->linePow << rkIt.pow / 1000000.0;
-            obj->pf << rkIt.pf / 1000.0;
-            obj->hz << rkIt.hz / 100.0;
+            obj->linePF << rkIt.pf / 1000.0;
+            obj->lineHz << rkIt.hz / 100.0;
         }
     } //cout << obj->lineVol << obj->lineCur <<  obj->linePow << obj->pf << obj->hz;
 

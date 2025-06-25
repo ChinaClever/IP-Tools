@@ -27,12 +27,16 @@ struct sPdudata
     QVariantList lineVol;
     QVariantList lineCur;
     QVariantList linePow;
-    QVariantList pf, hz, ele;
+    QVariantList linePF;
+    QVariantList lineHz;
+    QVariantList lineEle;
 
     QVariantList loopVol;
     QVariantList loopCur;
     QVariantList loopPow;
-
+    QVariantList loopPF;
+    QVariantList loopHz;
+    QVariantList loopEle;
 };
 
 struct sThreshold
