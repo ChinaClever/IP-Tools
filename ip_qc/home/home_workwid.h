@@ -2,10 +2,10 @@
 #define HOME_WORKWID_H
 
 #include <QWidget>
-#include "home_devwid.h"
 #include "logmainwid.h"
 #include "datapacket.h"
 #include "json_pack.h"
+#include "home_envtabwid.h"
 
 namespace Ui {
 class Home_WorkWid;

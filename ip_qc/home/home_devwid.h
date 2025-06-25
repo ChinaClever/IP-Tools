@@ -6,6 +6,7 @@
 #include "backcolourcom.h"
 #include "core_thread.h"
 
+
 namespace Ui {
 class Home_DevWid;
 }

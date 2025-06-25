@@ -11,7 +11,7 @@
 #define RATED 10000.0
 
 Core_Thread::Core_Thread(QObject *parent)
-    : Core_Object{parent}
+    : Core_Source{parent}
 {
     Ssdp_Core::bulid(this);
     mLogo = "usr/data/pdu/cfg/logo.png";
@@ -369,11 +369,12 @@ bool Core_Thread::checkErrRange(int exValue, int value, int err)
 
 bool Core_Thread::volErrRange(int i, bool flag)
 {
-    bool ret = true; double value  = 0; double exValue = 0;
+    bool ret = true; double value  = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopVol.at(i).toDouble(); exValue = desire->loopVol.at(i).toDouble();}
-    else {value = actual->lineVol.at(i).toDouble(); exValue = desire->lineVol.at(i).toDouble();}
+    double exValue = desire->lineVol.at(i).toDouble();
+    if(flag) value = actual->loopVol.at(i).toDouble();
+    else value = actual->lineVol.at(i).toDouble();
     double err = mItem->volErr;
 
     for(int k=0; k<3; ++k) {
@@ -393,8 +394,9 @@ bool Core_Thread::curErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopCur.at(i).toDouble(); exValue = desire->loopCur.at(i).toDouble();}
-    else {value = actual->lineCur.at(i).toDouble(); exValue = desire->lineCur.at(i).toDouble();}
+     exValue = desire->lineCur.at(i).toDouble();
+    if(flag) value = actual->loopCur.at(i).toDouble();
+    else value = actual->lineCur.at(i).toDouble();
     double err = mItem->curErr * 10.0;
 
     for(int k=0; k<3; ++k) {
@@ -414,8 +416,9 @@ bool Core_Thread::powErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopPow.at(i).toDouble(); exValue = desire->loopPow.at(i).toDouble();}
-    else {value = actual->linePow.at(i).toDouble(); exValue = desire->linePow.at(i).toDouble();}
+     exValue = desire->linePow.at(i).toDouble();
+    if(flag) value = actual->loopPow.at(i).toDouble();
+    else value = actual->linePow.at(i).toDouble();
     double err = mItem->powErr * exValue *10.0 ;
 
     for(int k=0; k<3; ++k) {
@@ -469,7 +472,6 @@ bool Core_Thread::apowErrRange()
     double value = actual->apparent_pow;
     double exValue = actual->active_pow;
     double err = actual->reactive_pow;
-//    cout << value << exValue << err;
 
     for(int k=0; k<3; ++k) {
         ret = checkSquare( value, exValue, err, rated);
@@ -515,8 +517,8 @@ bool Core_Thread::errRangeCheck()
         ret = powErrRange(i, flag); if(!ret) res = false;
     }
 
-    ret = eleErrRange(); if(!ret) res = false;
     ret = apowErrRange(); if(!ret) res = false;
+    if(ret && mItem->isEle) ret = eleErrRange(); if(!ret) res = false;
 //    ret = apeleErrRange(); if(!ret) res = false;
 
     return res;
@@ -650,23 +652,24 @@ bool Core_Thread::cpuCheck()
     return res;
 }
 
-bool Core_Thread::readDev(const QString &ip)
+bool Core_Thread::readDev()
 {
-    http->initHost("192.168.1.31"); readMetaData();
-    bool ret = jsonAnalysisRefer(); //if(!ret) emit msgSig(tr("参照设备读取数据失败"), false);
-    if(ret){
-        http->initHost(m_ips.first()); readMetaData();
-        ret = jsonAnalysis(); //if(!ret) emit msgSig(tr("目标设备读取数据失败"), false);
-    }
+    http->initHost(m_ips.first());
+    readMetaData();
+
+    bool ret = jsonAnalysis();
+    if(ret) {
+        ret = readRk9901();
+        if(!ret) emit msgSig(tr("比对源PK9901数据读取失败"), ret);
+    } else emit msgSig(tr("目标设备读取数据失败"), ret);
 
     return ret;
 }
 
 bool Core_Thread::workDown(const QString &ip)
 {
-    bool ret = true;
     emit msgSig(tr("目标设备:")+ip, true);
-    ret = readDev(ip);
+    bool ret = readDev();
     if(!ret) emit msgSig("数据读取失败！", ret);
     //---------------------------接口检测--------------------------//
     if(ret && mItem->isSersor) ret = envCheck();

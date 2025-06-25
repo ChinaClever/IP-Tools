@@ -16,7 +16,7 @@ Core_Object::Core_Object(QObject *parent)
 
 void Core_Object::setModbus()
 {
-    mModbus = Rtu_Modbus::bulid(this)->get();
+    // mModbus = Rtu_Modbus::bulid(this)->get();
 }
 
 void Core_Object::clearAllEle()

@@ -15,8 +15,7 @@ Setup_MainWid::Setup_MainWid(QWidget *parent) :
     groupBox_background_icon(this);
     QTimer::singleShot(rand()%13,this,SLOT(initFunSlot()));
     mItem = CfgCom::bulid()->item; initSerial();
-    initErrData();
-    ui->sourceWid->hide();
+    initErrData(); //ui->sourceWid->hide();
 }
 
 Setup_MainWid::~Setup_MainWid()
@@ -53,11 +52,11 @@ void Setup_MainWid::checkPcNumSlot()
 
 void Setup_MainWid::initSerial()
 {
+    mSourceWid = new SerialStatusWid(ui->sourceWid);
+    mItem->coms.src = mSourceWid->initSerialPort(tr("电源"));
+
     mComWid = new SerialStatusWid(ui->comWid);
     mItem->coms.sp = mComWid->initSerialPort(tr("LINK"));
-
-    // mSourceWid = new SerialStatusWid(ui->sourceWid);
-    // mItem->coms.src = mSourceWid->initSerialPort(tr("OUT"));
 }
 
 void Setup_MainWid::initLogCount()

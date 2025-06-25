@@ -12,7 +12,6 @@ Home_DevWid::Home_DevWid(QWidget *parent) :
 {
     ui->setupUi(this);
     groupBox_background_icon(this);
-    ui->sersorBox->setHidden(true);
     mHttp = Core_Http::bulid(this);
     mPro=sDataPacket::bulid();
     mIt = &Core_Object::coreItem.desire;
@@ -74,9 +73,10 @@ void Home_DevWid::initWid()
     ui->typeEdit->setText(item->devType);
     ui->fwEdit->setText(item->fwVer);
 
+    ui->eleBox->setChecked(item->isEle);
     ui->timeBox->setChecked(item->isTimer);
     ui->macBox->setChecked(item->isMac);
-    ui->sersorBox->setChecked(item->isSersor);
+    ui->sersor->setChecked(item->isSersor);
     ui->linkBox->setChecked(item->isLink);
 
     ui->lineVolBox->setValue(item->lineVol);
@@ -102,9 +102,10 @@ void Home_DevWid::updateWid()
     item->fwVer = ui->fwEdit->text();
 
     item->isTimer = ui->timeBox->isChecked();
-    item->isMac = ui->macBox->isChecked();
-    item->isSersor = ui->sersorBox->isChecked();
+    item->isSersor = ui->sersor->isChecked();
     item->isLink = ui->linkBox->isChecked();
+    item->isMac = ui->macBox->isChecked();
+    item->isEle = ui->eleBox->isChecked();
     CfgCom::bulid()->writeParams();
 
     item->lineVol= ui->lineVolBox->value();
