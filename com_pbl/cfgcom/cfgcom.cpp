@@ -74,6 +74,9 @@ void CfgCom::initCfgData()
     item->isMac = readCfg("isMac", true,"Params").toBool();
     item->isEle = readCfg("isEle", true,"Params").toBool();
 
+    item->snPrint = readCfg("snPrint", false,"Params").toBool();
+    item->fwPrint = readCfg("fwPrint", false,"Params").toBool();
+    item->macPrint = readCfg("macPrint", false,"Params").toBool();
     item->lineVol = readCfg("lineVol", 220,"Thresholds").toDouble();
     item->lineCur = readCfg("lineCur", 32,"Thresholds").toDouble();
     item->linePow = readCfg("linePow", 7.04,"Thresholds").toDouble();
@@ -84,20 +87,24 @@ void CfgCom::initCfgData()
 }
 void CfgCom::writeParams()
 {
-    writeCfg("lineNum", item->lineNum, "Params");
     writeCfg("vh", item->vh, "Params");
-    writeCfg("standNeutral", item->standNeutral, "Params");
+    writeCfg("lineNum", item->lineNum, "Params");
     writeCfg("devSpec", item->devSpec, "Params");
+    writeCfg("standNeutral", item->standNeutral, "Params");
     writeCfg("oldProtocol", item->oldProtocol, "Params");
     writeCfg("isBreaker", item->isBreaker, "Params");
     writeCfg("language", item->language, "Params");
     writeCfg("loopNum", item->loopNum, "Params");
     writeCfg("devType", item->devType, "Params");
-    writeCfg("fwVer", item->fwVer, "Params");
     writeCfg("isTimer", item->isTimer, "Params");
-    writeCfg("isMac", item->isMac, "Params");
     writeCfg("isSersor", item->isSersor, "Params");
     writeCfg("isLink", item->isLink, "Params");
+    writeCfg("fwVer", item->fwVer, "Params");
+    writeCfg("isMac", item->isMac, "Params");
+
+    writeCfg("snPrint", item->snPrint, "Params");
+    writeCfg("fwPrint", item->fwPrint, "Params");
+    writeCfg("macPrint", item->macPrint, "Params");
 }
 
 void CfgCom::writeThresholds()

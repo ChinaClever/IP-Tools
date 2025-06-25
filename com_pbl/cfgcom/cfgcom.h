@@ -29,6 +29,9 @@ struct sCfgComIt
     bool isMac;
     bool isSersor;
     bool isLink;
+    bool snPrint;
+    bool macPrint;
+    bool fwPrint;
 
     double cpuTem;
 

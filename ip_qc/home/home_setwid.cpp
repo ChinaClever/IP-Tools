@@ -73,11 +73,14 @@ void Home_SetWid::initWid()
     ui->typeEdit->setText(item->devType);
     ui->fwEdit->setText(item->fwVer);
 
-    ui->eleBox->setChecked(item->isEle);
-    ui->timeBox->setChecked(item->isTimer);
     ui->macBox->setChecked(item->isMac);
-    ui->sersor->setChecked(item->isSersor);
+    ui->eleBox->setChecked(item->isEle);
     ui->linkBox->setChecked(item->isLink);
+    ui->timeBox->setChecked(item->isTimer);
+    ui->sersor->setChecked(item->isSersor);
+    ui->printFw->setChecked(item->fwPrint);
+    ui->printSN->setChecked(item->snPrint);
+    ui->printMac->setChecked(item->macPrint);
 
     ui->lineVolBox->setValue(item->lineVol);
     ui->lineCurBox->setValue(item->lineCur);
@@ -106,6 +109,10 @@ void Home_SetWid::updateWid()
     item->isLink = ui->linkBox->isChecked();
     item->isMac = ui->macBox->isChecked();
     item->isEle = ui->eleBox->isChecked();
+
+    item->fwPrint = ui->printFw->isChecked();
+    item->snPrint = ui->printSN->isChecked();
+    item->macPrint = ui->printMac->isChecked();
     CfgCom::bulid()->writeParams();
 
     item->lineVol= ui->lineVolBox->value();
