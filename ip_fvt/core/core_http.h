@@ -25,8 +25,6 @@ public:
 
     void readJson(int addr=0);
 
-
-
 signals:
     void httpSig(const QString &msg);
 

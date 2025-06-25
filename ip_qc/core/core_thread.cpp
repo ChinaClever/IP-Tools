@@ -625,13 +625,10 @@ void Core_Thread::initReadCmd(sRtuItem &item)
 
 bool Core_Thread::linkCheck()
 {
-    setModbus();
-    bool res = true; sRtuItem itRtu;
-    sRtuReplyItem buf;
-    initReadCmd(itRtu);
-    QString str = tr("级联口检查 ");
-    res = mModbus->readCheck(&itRtu, &buf);
-
+    setModbus(); sRtuItem itRtu;
+    QString str = tr("RS485口检查 ");
+    sRtuReplyItem buf; initReadCmd(itRtu);
+    bool res = mModbus->readCheck(&itRtu, &buf);
     if(res) str += tr("正常"); else { str += tr("错误");}
     emit msgSig(str, res);
 

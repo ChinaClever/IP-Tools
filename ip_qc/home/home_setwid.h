@@ -1,5 +1,5 @@
-#ifndef HOME_DEVWID_H
-#define HOME_DEVWID_H
+#ifndef HOME_SETWID_H
+#define HOME_SETWID_H
 
 #include <QWidget>
 #include <QCheckBox>
@@ -8,16 +8,16 @@
 
 
 namespace Ui {
-class Home_DevWid;
+class Home_SetWid;
 }
 
-class Home_DevWid : public QWidget
+class Home_SetWid : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Home_DevWid(QWidget *parent = nullptr);
-    ~Home_DevWid();
+    explicit Home_SetWid(QWidget *parent = nullptr);
+    ~Home_SetWid();
 
 public slots:
     void updateData();
@@ -47,11 +47,11 @@ private slots:
     void on_standardBox_currentIndexChanged(int index);
 
 private:
-    Ui::Home_DevWid *ui;
+    Ui::Home_SetWid *ui;
     Core_Http *mHttp;
     mCoreUnit *mIt;
     sDataPacket *mPro;
     sCfgComIt *item;
 };
 
-#endif // HOME_DEVWID_H
+#endif // HOME_SETWID_H

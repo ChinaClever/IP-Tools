@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Home_DevWid</class>
- <widget class="QWidget" name="Home_DevWid">
+ <class>Home_SetWid</class>
+ <widget class="QWidget" name="Home_SetWid">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -803,7 +803,7 @@
        <enum>Qt::RightToLeft</enum>
       </property>
       <property name="text">
-       <string>级联口检查</string>
+       <string>串口检查</string>
       </property>
       <property name="checked">
        <bool>false</bool>

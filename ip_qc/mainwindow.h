@@ -31,7 +31,7 @@ private:
     Ui::MainWindow *ui;
 
     LogMainWid *mLog;
-    Home_DevWid *mDevWid;
+    Home_SetWid *mDevWid;
     NavBarWid *mNavBarWid;
     Home_MainWid *mHomeWid;
     Setup_MainWid *mSetupWid;
