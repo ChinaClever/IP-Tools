@@ -49,7 +49,8 @@ void Home_MainWid::onStart()
     mId = 1; emit startSig(); mEdit->clear();
     sPdudata *obj = & Core_Object::coreItem.actual.value;
     obj->lineCur.clear(); obj->linePow.clear();
-    obj->lineVol.clear();
+    obj->lineVol.clear(); obj->ele.clear();
+    obj->hz.clear();
 }
 
 

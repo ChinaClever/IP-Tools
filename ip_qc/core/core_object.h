@@ -27,6 +27,7 @@ struct sPdudata
     QVariantList lineVol;
     QVariantList lineCur;
     QVariantList linePow;
+    QVariantList pf, hz, ele;
 
     QVariantList loopVol;
     QVariantList loopCur;

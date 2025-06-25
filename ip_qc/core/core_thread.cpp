@@ -601,8 +601,9 @@ bool Core_Thread::envCheck()
 {
     bool res = true; bool ret = true;
     sMonitorData *it = &coreItem.actual.data;
+    cout << it->temps;
 
-    for(int i=0; i<4 && i< it->temps.size(); ++i) {
+    for(int i=0; i<1 && i< it->temps.size(); ++i) {
         double value = it->temps.at(i).toDouble();
         QString str = tr("传感器温度%1：%2°C").arg(i+1).arg(value);
         if(value < 5 || value > 50) {
@@ -644,7 +645,7 @@ bool Core_Thread::cpuCheck()
     double value = it->cpuTem;
 
     QString str = tr("CPU温度：%1°C ").arg(value);
-    if((value >= 45)&&(value <= 85)) {
+    if((value >= 25)&&(value <= 90)) {
         res = true; str += tr("正常");
     } else { str += tr("错误");}
     emit msgSig(str, res);

@@ -270,6 +270,8 @@ void Core_Object::getPduData(const QJsonObject &object)
     item->lineVol = getArray(obj, "vol_value").toVariantList();
     item->lineCur = getArray(obj, "cur_value").toVariantList();
     item->linePow = getArray(obj, "pow_value").toVariantList();
+    item->pf = getArray(obj, "power_factor").toVariantList();
+    item->ele = getArray(obj, "ele_active").toVariantList();
 }
 
 void Core_Object::getPduDataRefer(const QJsonObject &object)
