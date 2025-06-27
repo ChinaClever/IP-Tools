@@ -51,13 +51,15 @@ void Home_SetWid::on_cascadeBtn_clicked()
 void Home_SetWid::on_rtuEnBtn_clicked()
 {
     Core_Thread::bulid(this)->rtuSet(1);
-    MsgBox::information(this, tr("Modbus-RTU功能已开启"));
+    Core_Thread::bulid(this)->reset();
+    MsgBox::information(this, tr("Modbus-RTU功能已开启，设备已重启"));
 }
 
 void Home_SetWid::on_rtuDisenBtn_clicked()
 {
     Core_Thread::bulid(this)->rtuSet(0);
-    MsgBox::information(this, tr("Modbus-RTU功能已关闭"));
+    Core_Thread::bulid(this)->reset();
+    MsgBox::information(this, tr("Modbus-RTU功能已关闭，设备已重启"));
 }
 
 void Home_SetWid::initWid()

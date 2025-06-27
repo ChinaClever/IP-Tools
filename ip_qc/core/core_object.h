@@ -145,6 +145,7 @@ public:
     bool jsonAnalysis();
     bool jsonAnalysisRefer();
     void setModbus();
+    void reset();
 
 private:
     void getSn(const QJsonObject &object);

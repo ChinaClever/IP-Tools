@@ -58,6 +58,14 @@ void Core_Object::factoryRestore()
     mHttp->setting(it, 1);
 }
 
+void Core_Object::reset()
+{
+    sCfgItem it;
+    it.type = 96; it.fc = 1;
+    mHttp->setting(it, 1);
+}
+
+
 void Core_Object::setRunTime()
 {
     sCfgItem it;

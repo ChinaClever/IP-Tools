@@ -600,7 +600,6 @@ bool Core_Thread::envCheck()
 {
     bool res = true; bool ret = true;
     sMonitorData *it = &coreItem.actual.data;
-    cout << it->temps;
 
     for(int i=0; i<1 && i< it->temps.size(); ++i) {
         double value = it->temps.at(i).toDouble();

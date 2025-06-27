@@ -17,11 +17,11 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     connect(http, &Core_Http::httpSig, this, &Home_MainWid::onMsg);
     connect(mWorkWid, &Home_WorkWid::startSig, this, &Home_MainWid::onStart);
 
-    mLineTabWid = new Home_LineTabWid(ui->tabWidget);
-    ui->tabWidget->insertTab(0, mLineTabWid, tr("相监测数据列表"));
-
     mEditTabWid = new QPlainTextEdit(ui->tabWidget);
-    ui->tabWidget->insertTab(1, mEditTabWid, tr("调试日志"));
+    ui->tabWidget->insertTab(0, mEditTabWid, tr("调试日志"));
+
+    mLineTabWid = new Home_LineTabWid(ui->tabWidget);
+    ui->tabWidget->insertTab(1, mLineTabWid, tr("相监测数据列表"));
 }
 
 Home_MainWid::~Home_MainWid()
