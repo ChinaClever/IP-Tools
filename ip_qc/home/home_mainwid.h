@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "home_workwid.h"
-
+#include <QPlainTextEdit>
 
 namespace Ui {
 class Home_MainWid;
@@ -32,6 +32,10 @@ private slots:
 private:
     Ui::Home_MainWid *ui;
     Home_WorkWid *mWorkWid;
+    Home_EnvTabWid *mEnvTabWid;
+    Home_LineTabWid *mLineTabWid;
+    Home_ThresholdTabWid *mThTabWid;
+    QPlainTextEdit *mEditTabWid;
     int mId=0;
     //Td_MainWid *mTabWid;
 };

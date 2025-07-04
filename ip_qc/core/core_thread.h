@@ -1,9 +1,9 @@
 #ifndef CORE_THREAD_H
 #define CORE_THREAD_H
 #include "json_pack.h"
-#include "core_object.h"
+#include "core_source.h"
 
-class Core_Thread : public Core_Object
+class Core_Thread : public Core_Source
 {
     Q_OBJECT
     explicit Core_Thread(QObject *parent = nullptr);
@@ -18,7 +18,7 @@ signals:
     void overSig();
 
 private:
-    bool readDev(const QString &ip="192.168.1.17");
+    bool readDev();
     bool fwCheck();
     bool snCheck();
     bool envCheck();
@@ -56,7 +56,7 @@ private:
     QString changeProtocol(int value);
     bool checkAlarmErr();
     bool checkErrRange(int exValue, int value, int err);
-    bool checkSquare(int exValue, int value, int err);
+    bool checkSquare(double exValue, double value, double err, double rated);
 
     void initReadCmd(sRtuItem &item);
 private:

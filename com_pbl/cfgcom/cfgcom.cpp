@@ -58,45 +58,53 @@ void CfgCom::writeErrData()
 
 void CfgCom::initCfgData()
 {
+    item->vh = readCfg("vh", 0,"Params").toInt();
     item->lineNum = readCfg("lineNum", 1,"Params").toInt();
-    item->vh = readCfg("vh", 1,"Params").toInt();
-    item->standNeutral = readCfg("standNeutral", 0,"Params").toInt();
-    item->devSpec = readCfg("devSpec", 1,"Params").toInt();
-    item->oldProtocol = readCfg("oldProtocol", 1,"Params").toInt();
-    item->isBreaker = readCfg("isBreaker", 1,"Params").toInt();
+    item->devSpec = readCfg("devSpec", 0,"Params").toInt();
+    item->loopNum = readCfg("loopNum", 0,"Params").toInt();
     item->language = readCfg("language", 0,"Params").toInt();
-    item->loopNum = readCfg("loopNum", 1,"Params").toInt();
-    item->devType = readCfg("devType", "","Params").toString();
-    item->fwVer = readCfg("fwVer", "","Params").toString();
-    item->isTimer = readCfg("isTimer", "","Params").toBool();
-    item->isMac = readCfg("isMac", "","Params").toBool();
-    item->isSersor = readCfg("isSersor", "","Params").toBool();
-    item->isLink = readCfg("isLink", "","Params").toBool();
+    item->isBreaker = readCfg("isBreaker", 1,"Params").toInt();
+    item->oldProtocol = readCfg("oldProtocol", 0,"Params").toInt();
+    item->standNeutral = readCfg("standNeutral", 0,"Params").toInt();
+    item->devType = readCfg("devType", "IP-PDU","Params").toString();
+    item->fwVer = readCfg("fwVer", "0.1.5.042","Params").toString();
+    item->isSersor = readCfg("isSersor", false,"Params").toBool();
+    item->isTimer = readCfg("isTimer", true,"Params").toBool();
+    item->isLink = readCfg("isLink", false,"Params").toBool();
+    item->isMac = readCfg("isMac", true,"Params").toBool();
+    item->isEle = readCfg("isEle", true,"Params").toBool();
 
-    item->lineVol = readCfg("lineVol", 1,"Thresholds").toDouble();
-    item->lineCur = readCfg("lineCur", 1,"Thresholds").toDouble();
-    item->linePow = readCfg("linePow", 0,"Thresholds").toDouble();
-    item->loopVol = readCfg("loopVol", 1,"Thresholds").toDouble();
-    item->loopCur = readCfg("loopCur", 1,"Thresholds").toDouble();
-    item->loopPow = readCfg("loopPow", 0,"Thresholds").toDouble();
+    item->snPrint = readCfg("snPrint", false,"Params").toBool();
+    item->fwPrint = readCfg("fwPrint", false,"Params").toBool();
+    item->macPrint = readCfg("macPrint", false,"Params").toBool();
+    item->lineVol = readCfg("lineVol", 220,"Thresholds").toDouble();
+    item->lineCur = readCfg("lineCur", 32,"Thresholds").toDouble();
+    item->linePow = readCfg("linePow", 7.04,"Thresholds").toDouble();
+    item->loopVol = readCfg("loopVol", 220,"Thresholds").toDouble();
+    item->loopCur = readCfg("loopCur", 16,"Thresholds").toDouble();
+    item->loopPow = readCfg("loopPow", 3.52,"Thresholds").toDouble();
 
 }
 void CfgCom::writeParams()
 {
-    writeCfg("lineNum", item->lineNum, "Params");
     writeCfg("vh", item->vh, "Params");
-    writeCfg("standNeutral", item->standNeutral, "Params");
+    writeCfg("lineNum", item->lineNum, "Params");
     writeCfg("devSpec", item->devSpec, "Params");
+    writeCfg("standNeutral", item->standNeutral, "Params");
     writeCfg("oldProtocol", item->oldProtocol, "Params");
     writeCfg("isBreaker", item->isBreaker, "Params");
     writeCfg("language", item->language, "Params");
     writeCfg("loopNum", item->loopNum, "Params");
     writeCfg("devType", item->devType, "Params");
-    writeCfg("fwVer", item->fwVer, "Params");
     writeCfg("isTimer", item->isTimer, "Params");
-    writeCfg("isMac", item->isMac, "Params");
     writeCfg("isSersor", item->isSersor, "Params");
     writeCfg("isLink", item->isLink, "Params");
+    writeCfg("fwVer", item->fwVer, "Params");
+    writeCfg("isMac", item->isMac, "Params");
+
+    writeCfg("snPrint", item->snPrint, "Params");
+    writeCfg("fwPrint", item->fwPrint, "Params");
+    writeCfg("macPrint", item->macPrint, "Params");
 }
 
 void CfgCom::writeThresholds()

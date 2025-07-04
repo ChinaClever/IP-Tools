@@ -3,12 +3,12 @@
  *  Created on: 2021年1月1日
  *      Author: Lzy
  */
-#include "home_devwid.h"
-#include "ui_home_devwid.h"
+#include "home_setwid.h"
+#include "ui_home_setwid.h"
 
-Home_DevWid::Home_DevWid(QWidget *parent) :
+Home_SetWid::Home_SetWid(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Home_DevWid)
+    ui(new Ui::Home_SetWid)
 {
     ui->setupUi(this);
     groupBox_background_icon(this);
@@ -19,48 +19,50 @@ Home_DevWid::Home_DevWid(QWidget *parent) :
     initWid();
 }
 
-Home_DevWid::~Home_DevWid()
+Home_SetWid::~Home_SetWid()
 {
     delete ui;
 }
 
-void Home_DevWid::on_eleClearBtn_clicked()
+void Home_SetWid::on_eleClearBtn_clicked()
 {
     Core_Thread::bulid(this)->clearAllEle();
     MsgBox::information(this, tr("电能已清除"));
 }
 
-void Home_DevWid::on_factoryBtn_clicked()
+void Home_SetWid::on_factoryBtn_clicked()
 {
     Core_Thread::bulid(this)->factoryRestore();
     MsgBox::information(this, tr("设备已进行出厂设置"));
 }
 
-void Home_DevWid::on_logBtn_clicked()
+void Home_SetWid::on_logBtn_clicked()
 {
     Core_Thread::bulid(this)->clearLogs();
     MsgBox::information(this, tr("设备日志已清除，重启后生效"));
 }
 
-void Home_DevWid::on_cascadeBtn_clicked()
+void Home_SetWid::on_cascadeBtn_clicked()
 {
     Core_Thread::bulid(this)->enCascade(1);
     MsgBox::information(this, tr("设备级联功能已开启"));
 }
 
-void Home_DevWid::on_rtuEnBtn_clicked()
+void Home_SetWid::on_rtuEnBtn_clicked()
 {
     Core_Thread::bulid(this)->rtuSet(1);
-    MsgBox::information(this, tr("Modbus-RTU功能已开启"));
+    Core_Thread::bulid(this)->reset();
+    MsgBox::information(this, tr("Modbus-RTU功能已开启，设备已重启"));
 }
 
-void Home_DevWid::on_rtuDisenBtn_clicked()
+void Home_SetWid::on_rtuDisenBtn_clicked()
 {
     Core_Thread::bulid(this)->rtuSet(0);
-    MsgBox::information(this, tr("Modbus-RTU功能已关闭"));
+    Core_Thread::bulid(this)->reset();
+    MsgBox::information(this, tr("Modbus-RTU功能已关闭，设备已重启"));
 }
 
-void Home_DevWid::initWid()
+void Home_SetWid::initWid()
 {
     ui->vhBox->setCurrentIndex(item->vh);
     ui->lineNumBox->setCurrentIndex(item->lineNum);
@@ -73,10 +75,14 @@ void Home_DevWid::initWid()
     ui->typeEdit->setText(item->devType);
     ui->fwEdit->setText(item->fwVer);
 
-    ui->timeBox->setChecked(item->isTimer);
     ui->macBox->setChecked(item->isMac);
-    ui->sersorBox->setChecked(item->isSersor);
+    ui->eleBox->setChecked(item->isEle);
     ui->linkBox->setChecked(item->isLink);
+    ui->timeBox->setChecked(item->isTimer);
+    ui->sersor->setChecked(item->isSersor);
+    ui->printFw->setChecked(item->fwPrint);
+    ui->printSN->setChecked(item->snPrint);
+    ui->printMac->setChecked(item->macPrint);
 
     ui->lineVolBox->setValue(item->lineVol);
     ui->lineCurBox->setValue(item->lineCur);
@@ -86,7 +92,7 @@ void Home_DevWid::initWid()
     ui->loopPowBox->setValue(item->loopPow);
 }
 
-void Home_DevWid::updateWid()
+void Home_SetWid::updateWid()
 {
     item->vh = ui->vhBox->currentIndex();
     // it->devSpec = ui->devSpecBox->currentIndex()+1;
@@ -101,9 +107,14 @@ void Home_DevWid::updateWid()
     item->fwVer = ui->fwEdit->text();
 
     item->isTimer = ui->timeBox->isChecked();
-    item->isMac = ui->macBox->isChecked();
-    item->isSersor = ui->sersorBox->isChecked();
+    item->isSersor = ui->sersor->isChecked();
     item->isLink = ui->linkBox->isChecked();
+    item->isMac = ui->macBox->isChecked();
+    item->isEle = ui->eleBox->isChecked();
+
+    item->fwPrint = ui->printFw->isChecked();
+    item->snPrint = ui->printSN->isChecked();
+    item->macPrint = ui->printMac->isChecked();
     CfgCom::bulid()->writeParams();
 
     item->lineVol= ui->lineVolBox->value();
@@ -117,7 +128,7 @@ void Home_DevWid::updateWid()
 }
 
 
-void Home_DevWid::updateParams()
+void Home_SetWid::updateParams()
 {
     sParameter *it = &mIt->param;
     it->vh = ui->vhBox->currentIndex();
@@ -135,7 +146,7 @@ void Home_DevWid::updateParams()
     ver->fwVer = ui->fwEdit->text();
 }
 
-void Home_DevWid::updateThresholds()
+void Home_SetWid::updateThresholds()
 {
     mThreshold *it = &mIt->rate;
     it->lineVol= ui->lineVolBox->value();
@@ -146,39 +157,39 @@ void Home_DevWid::updateThresholds()
     it->loopPow = ui->loopPowBox->value();
 }
 
-void Home_DevWid::updateData()
+void Home_SetWid::updateData()
 {
     updateParams();
     updateThresholds();
     updateWid();
 }
 
-void Home_DevWid::on_lineVolBox_valueChanged(int arg1)
+void Home_SetWid::on_lineVolBox_valueChanged(int arg1)
 {
     double v = arg1 * ui->lineCurBox->value() / 1000.0;
     ui->linePowBox->setValue(v);
 }
 
-void Home_DevWid::on_lineCurBox_valueChanged(int arg1)
+void Home_SetWid::on_lineCurBox_valueChanged(int arg1)
 {
     double v = arg1 * ui->lineVolBox->value() / 1000.0;
     ui->linePowBox->setValue(v);
 }
 
-void Home_DevWid::on_loopVolBox_valueChanged(int arg1)
+void Home_SetWid::on_loopVolBox_valueChanged(int arg1)
 {
     double v = arg1 * ui->loopCurBox->value() / 1000.0;
     ui->loopPowBox->setValue(v);
 }
 
-void Home_DevWid::on_loopCurBox_valueChanged(int arg1)
+void Home_SetWid::on_loopCurBox_valueChanged(int arg1)
 {
     double v = arg1 * ui->loopVolBox->value() / 1000.0;
     ui->loopPowBox->setValue(v);
 }
 
 
-void Home_DevWid::on_loopNumBox_valueChanged(int arg1)
+void Home_SetWid::on_loopNumBox_valueChanged(int arg1)
 {
     if(!arg1) {ui->loopVolBox->setEnabled(false);
         ui->loopCurBox->setEnabled(false);
@@ -190,7 +201,7 @@ void Home_DevWid::on_loopNumBox_valueChanged(int arg1)
 }
 
 
-void Home_DevWid::on_tlsBtn_clicked()
+void Home_SetWid::on_tlsBtn_clicked()
 {
     sCoreItem *it = &Core_Object::coreItem;
     it->tlsFile = QFileDialog::getOpenFileName(this, "设备证书选择",
@@ -199,7 +210,7 @@ void Home_DevWid::on_tlsBtn_clicked()
 }
 
 
-void Home_DevWid::on_standardBox_currentIndexChanged(int index)
+void Home_SetWid::on_standardBox_currentIndexChanged(int index)
 {
     ui->tlsBtn->setHidden(!index);
 }

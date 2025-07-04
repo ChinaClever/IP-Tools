@@ -10,20 +10,20 @@ Core_Object::Core_Object(QObject *parent)
     : QThread{parent}
 {
     mHttp = Core_Http::bulid(this);
-    // mModbus = Rtu_Modbus::bulid(this)->get();
+    mModbus = Rtu_Modbus::bulid(this)->get();
     // setModbus();
 }
 
 void Core_Object::setModbus()
 {
-    mModbus = Rtu_Modbus::bulid(this)->get();
+     mModbus = Rtu_Modbus::bulid(this)->get();
 }
 
 void Core_Object::clearAllEle()
 {
     sDataItem it;
     it.id = 0;
-    it.type = 3;
+    it.type = 1;
     it.topic = 5;
     it.subtopic = 1;
     mHttp->setting(it);
@@ -57,6 +57,14 @@ void Core_Object::factoryRestore()
     it.type = 96; it.fc = 2;
     mHttp->setting(it, 1);
 }
+
+void Core_Object::reset()
+{
+    sCfgItem it;
+    it.type = 96; it.fc = 1;
+    mHttp->setting(it, 1);
+}
+
 
 void Core_Object::setRunTime()
 {
@@ -264,12 +272,16 @@ void Core_Object::getPduData(const QJsonObject &object)
         item->loopVol = getArray(obj, "vol_value").toVariantList();
         item->loopCur = getArray(obj, "cur_value").toVariantList();
         item->loopPow = getArray(obj, "pow_value").toVariantList();
+        item->loopPF = getArray(obj, "power_factor").toVariantList();
+        item->loopEle = getArray(obj, "ele_active").toVariantList();
     }
 
     obj = getObject(object, "line_item_list");
     item->lineVol = getArray(obj, "vol_value").toVariantList();
     item->lineCur = getArray(obj, "cur_value").toVariantList();
     item->linePow = getArray(obj, "pow_value").toVariantList();
+    item->linePF = getArray(obj, "power_factor").toVariantList();
+    item->lineEle = getArray(obj, "ele_active").toVariantList();
 }
 
 void Core_Object::getPduDataRefer(const QJsonObject &object)

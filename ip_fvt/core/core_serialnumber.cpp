@@ -250,6 +250,8 @@ void Core_Object::getPduData(const QJsonObject &object)
             item->lineVol[i] = getActualValue(obj, "vol", i);
             item->lineCur[i] = getActualValue(obj, "cur", i);
             item->linePow[i] = getActualValue(obj, "pow", i);
+
+
         }
     }
 }

@@ -16,6 +16,12 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     Core_Http *http = Core_Http::bulid(this);
     connect(http, &Core_Http::httpSig, this, &Home_MainWid::onMsg);
     connect(mWorkWid, &Home_WorkWid::startSig, this, &Home_MainWid::onStart);
+
+    mEditTabWid = new QPlainTextEdit(ui->tabWidget);
+    ui->tabWidget->insertTab(0, mEditTabWid, tr("调试日志"));
+
+    mLineTabWid = new Home_LineTabWid(ui->tabWidget);
+    ui->tabWidget->insertTab(1, mLineTabWid, tr("相监测数据列表"));
 }
 
 Home_MainWid::~Home_MainWid()
@@ -26,14 +32,16 @@ Home_MainWid::~Home_MainWid()
 
 void Home_MainWid::initWid()
 {
-    QPalette pl = ui->textEdit->palette();  mId = 1;
+    QPalette pl = mEditTabWid->palette();  mId = 1;
     pl.setBrush(QPalette::Base,QBrush(QColor(255,0,0,0)));
-    ui->textEdit->setPalette(pl);
+    mEditTabWid->setPalette(pl);
 }
 
 void Home_MainWid::onStart()
 {    
-    ui->textEdit->clear(); mId = 1;
+    mEditTabWid->clear(); mId = 1;
+    sThreshold *it = &Core_Object::coreItem.actual.value;
+    for(int i=0; i<3; ++i) it->lineVol[i] = 0;
 }
 
 
@@ -45,13 +53,13 @@ void Home_MainWid::setTextColor(const QString &str)
 
     QColor color("black");
     if(!pass) color = QColor("red");
-    ui->textEdit->moveCursor(QTextCursor::Start);
+    mEditTabWid->moveCursor(QTextCursor::Start);
 
     QTextCharFormat fmt;//文本字符格式
     fmt.setForeground(color);// 前景色(即字体色)设为color色
-    QTextCursor cursor = ui->textEdit->textCursor();//获取文本光标
+    QTextCursor cursor = mEditTabWid->textCursor();//获取文本光标
     cursor.mergeCharFormat(fmt);//光标后的文字就用该格式显示
-    ui->textEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
+    mEditTabWid->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
 }
 
 
@@ -60,8 +68,8 @@ void Home_MainWid::onMsg(const QString &msg)
     if(msg.contains("Download failed: Url") && msg.contains(".pem")) return;
     if(msg.size() > 2048) Core_Object::coreItem.jsonPacket = msg;
     QString str = QString::number(mId++) + "、"+ msg + "\n";
-    setTextColor(str); //ui->textEdit->moveCursor(QTextCursor::Start);
-    ui->textEdit->insertPlainText(str);
+    setTextColor(str); //mEditTabWid->moveCursor(QTextCursor::Start);
+    mEditTabWid->insertPlainText(str);
 
     if(msg.contains("Download failed: Url")) {
         QString str = tr("文件下载错误：\n") + msg;

@@ -26,6 +26,8 @@ struct sThreshold
     double lineVol[LINE_NUM];
     double lineCur[LINE_NUM];
     double linePow[LINE_NUM];
+    double pf[LINE_NUM];
+    double ele[LINE_NUM];
 
     double loopVol[LOOP_NUM];
     double loopCur[LOOP_NUM];

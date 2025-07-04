@@ -24,10 +24,14 @@ struct sCfgComIt
     QString devType; // 设备类型
     QString fwVer; //软件版本号
 
+    bool isEle;
     bool isTimer;
     bool isMac;
     bool isSersor;
     bool isLink;
+    bool snPrint;
+    bool macPrint;
+    bool fwPrint;
 
     double cpuTem;
 

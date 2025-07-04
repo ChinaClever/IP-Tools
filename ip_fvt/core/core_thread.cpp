@@ -184,7 +184,7 @@ bool Core_Thread::workDown(const QString &ip)
         if(!ret && fn.contains(".pem")) continue;
         if(!ret) res = false;
         emit msgSig(fn, ret);
-        cm_mdelay(20);
+        cm_mdelay(350);
     }
 
     return res;
@@ -216,7 +216,7 @@ bool Core_Thread::startCalibration()
     bool res = true, ret = waitForRest();
 
     if(ret) http->calibration(); else return ret;
-    emit msgSig(tr("校准开始"), true); cm_mdelay(8500);
+    emit msgSig(tr("校准开始"), true); cm_mdelay(10000);
 
 
     QString str = data; data.clear();

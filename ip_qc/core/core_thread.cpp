@@ -11,7 +11,7 @@
 #define RATED 10000.0
 
 Core_Thread::Core_Thread(QObject *parent)
-    : Core_Object{parent}
+    : Core_Source{parent}
 {
     Ssdp_Core::bulid(this);
     mLogo = "usr/data/pdu/cfg/logo.png";
@@ -64,8 +64,8 @@ bool Core_Thread::timeCheck()
     QString fmd = "yyyy-MM-dd hh:mm:ss";
     QDateTime dt = QDateTime::fromString(coreItem.actual.datetime, fmd);
     QDateTime time = QDateTime::currentDateTime();
-    int secs = qAbs(time.secsTo(dt));
-    if(secs > 10) str += tr("相差过大："); else ret = true;
+    int secs = qAbs(time.secsTo(dt)); //cout << dt << time;
+    if(secs > 10*60) str += tr("相差过大："); else ret = true;
     str += coreItem.actual.datetime;
     emit msgSig(str, ret);
     return ret;
@@ -358,9 +358,9 @@ bool Core_Thread::checkErrRange(int exValue, int value, int err)
     int min = exValue - err;
     int max = exValue + err;
     if((value>=min) && (value<=max) && value) {
-        ret =  true; qDebug() << "value" << value << exValue << err;
+        ret =  true; //qDebug() << "value" << value << exValue << err;
     } else {
-        qDebug() << "value Err Range" << value << exValue << err;
+        cout << "value Err Range" << value << exValue << err;
     }
 
     return ret;
@@ -368,11 +368,12 @@ bool Core_Thread::checkErrRange(int exValue, int value, int err)
 
 bool Core_Thread::volErrRange(int i, bool flag)
 {
-    bool ret = true; double value  = 0; double exValue = 0;
+    bool ret = true; double value  = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopVol.at(i).toDouble(); exValue = desire->loopVol.at(i).toDouble();}
-    else {value = actual->lineVol.at(i).toDouble(); exValue = desire->lineVol.at(i).toDouble();}
+    double exValue = desire->lineVol.at(i).toDouble();
+    if(flag) value = actual->loopVol.at(i).toDouble();
+    else value = actual->lineVol.at(i).toDouble();
     double err = mItem->volErr;
 
     for(int k=0; k<3; ++k) {
@@ -392,8 +393,9 @@ bool Core_Thread::curErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopCur.at(i).toDouble(); exValue = desire->loopCur.at(i).toDouble();}
-    else {value = actual->lineCur.at(i).toDouble(); exValue = desire->lineCur.at(i).toDouble();}
+     exValue = desire->lineCur.at(i).toDouble();
+    if(flag) value = actual->loopCur.at(i).toDouble();
+    else value = actual->lineCur.at(i).toDouble();
     double err = mItem->curErr * 10.0;
 
     for(int k=0; k<3; ++k) {
@@ -413,8 +415,9 @@ bool Core_Thread::powErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    if(flag) {value = actual->loopPow.at(i).toDouble(); exValue = desire->loopPow.at(i).toDouble();}
-    else {value = actual->linePow.at(i).toDouble(); exValue = desire->linePow.at(i).toDouble();}
+     exValue = desire->linePow.at(i).toDouble();
+    if(flag) value = actual->loopPow.at(i).toDouble();
+    else value = actual->linePow.at(i).toDouble();
     double err = mItem->powErr * exValue *10.0 ;
 
     for(int k=0; k<3; ++k) {
@@ -428,17 +431,22 @@ bool Core_Thread::powErrRange(int i, bool flag)
     return ret;
 }
 
-bool Core_Thread::checkSquare(int sValue, int pValue, int qValue)
+bool Core_Thread::checkSquare(double sValue, double pValue, double qValue, double rated)
 {
     bool ret = false;
-    int appow = sValue* sValue;
-    int active = pValue* pValue;
-    int reactive = qValue* qValue;
+    double errRange = 0.05;
+    double appow = sValue* sValue;
+    double active = pValue* pValue;
+    double reactive = qValue* qValue;
+    if(rated == COM_RATE_ELE) errRange = 0.1;
 
-    qDebug()<<"apowErrRange"<<appow<<active<<reactive;
+    double sum = active + reactive;
+    double err = qSqrt(qAbs(appow - sum));
+    if((err < (sValue*errRange))&&(sum)) ret = true;
+    else cout << sValue  << pValue << qValue;
 
-    int sum = active + reactive;
-    if((appow == sum)&&(sum)) ret = true;
+
+//    cout << rated << err << sValue*errRange << pValue << qValue; /////======
 
     return ret;
 }
@@ -450,7 +458,7 @@ bool Core_Thread::eleErrRange()
     QString str = tr("总有功电能：实测值=%1kWh ").arg(value);
 
     if((value >0)&&(value <10)) {ret = true; str += tr("正常");}
-    if((value >=10)&&(value == 10)) {ret = false; str += tr("错误");}
+    else {ret = false; str += tr("电能值过大");}
 
     emit msgSig(str, ret);
     return ret;
@@ -459,13 +467,13 @@ bool Core_Thread::eleErrRange()
 bool Core_Thread::apowErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; int rated = COM_RATE_POW; //RATED /1000;
     double value = actual->apparent_pow;
     double exValue = actual->active_pow;
     double err = actual->reactive_pow;
 
     for(int k=0; k<3; ++k) {
-        ret = checkSquare( value*rated, exValue *rated, err*rated);
+        ret = checkSquare( value, exValue, err, rated);
         if(ret) break; else readDev(); //cm_mdelay(100);
     }
 
@@ -479,13 +487,13 @@ bool Core_Thread::apowErrRange()
 bool Core_Thread::apeleErrRange()
 {
     sMonitorData *actual = &coreItem.actual.data;
-    bool ret = true; int rated = RATED /100;
+    bool ret = true; int rated = COM_RATE_ELE; //RATED /100;
     double value = actual->tg_apparentEle;
     double exValue = actual->tg_ele;
     double err = actual->tg_reactiveEle;
 
     for(int k=0; k<3; ++k) {
-        ret = checkSquare( value*rated, exValue *rated, err*rated);
+        ret = checkSquare( value, exValue , err, rated);
         if(ret) break; else readDev(); //cm_mdelay(100);
     }
     QString str = tr("总视在电能检查 ");
@@ -508,9 +516,9 @@ bool Core_Thread::errRangeCheck()
         ret = powErrRange(i, flag); if(!ret) res = false;
     }
 
-    ret = eleErrRange(); if(!ret) res = false;
     ret = apowErrRange(); if(!ret) res = false;
-    ret = apeleErrRange(); if(!ret) res = false;
+    if(ret && mItem->isEle) ret = eleErrRange(); if(!ret) res = false;
+//    ret = apeleErrRange(); if(!ret) res = false;
 
     return res;
 }
@@ -593,7 +601,7 @@ bool Core_Thread::envCheck()
     bool res = true; bool ret = true;
     sMonitorData *it = &coreItem.actual.data;
 
-    for(int i=0; i<4 && i< it->temps.size(); ++i) {
+    for(int i=0; i<1 && i< it->temps.size(); ++i) {
         double value = it->temps.at(i).toDouble();
         QString str = tr("传感器温度%1：%2°C").arg(i+1).arg(value);
         if(value < 5 || value > 50) {
@@ -615,13 +623,10 @@ void Core_Thread::initReadCmd(sRtuItem &item)
 
 bool Core_Thread::linkCheck()
 {
-    setModbus();
-    bool res = true; sRtuItem itRtu;
-    sRtuReplyItem buf;
-    initReadCmd(itRtu);
-    QString str = tr("级联口检查 ");
-    res = mModbus->readCheck(&itRtu, &buf);
-
+    setModbus(); sRtuItem itRtu;
+    QString str = tr("RS485口检查 ");
+    sRtuReplyItem buf; initReadCmd(itRtu);
+    bool res = mModbus->readCheck(&itRtu, &buf);
     if(res) str += tr("正常"); else { str += tr("错误");}
     emit msgSig(str, res);
 
@@ -635,7 +640,7 @@ bool Core_Thread::cpuCheck()
     double value = it->cpuTem;
 
     QString str = tr("CPU温度：%1°C ").arg(value);
-    if((value >= 45)&&(value <= 85)) {
+    if((value >= 25)&&(value <= 90)) {
         res = true; str += tr("正常");
     } else { str += tr("错误");}
     emit msgSig(str, res);
@@ -643,32 +648,33 @@ bool Core_Thread::cpuCheck()
     return res;
 }
 
-bool Core_Thread::readDev(const QString &ip)
+bool Core_Thread::readDev()
 {
-    http->initHost(m_ips.first()); readMetaData();
-    bool ret = jsonAnalysis(); //if(!ret) emit msgSig(tr("目标设备读取数据失败"), false);
-    if(ret){
-        http->initHost("192.168.1.31"); readMetaData();
-        ret = jsonAnalysisRefer(); //if(!ret) emit msgSig(tr("参照设备读取数据失败"), false);
-    }
+    http->initHost(m_ips.first());
+    readMetaData();
+
+    bool ret = jsonAnalysis();
+    if(ret) {
+        ret = readRk9901();
+        if(!ret) emit msgSig(tr("比对源PK9901数据读取失败"), ret);
+    } else emit msgSig(tr("目标设备读取数据失败"), ret);
 
     return ret;
 }
 
 bool Core_Thread::workDown(const QString &ip)
 {
-    bool ret = true;
     emit msgSig(tr("目标设备:")+ip, true);
-    ret = readDev(ip);
+    bool ret = readDev();
     if(!ret) emit msgSig("数据读取失败！", ret);
-    //---------------------------接口检测--------------------------//
-    if(ret && mItem->isSersor) ret = envCheck();
-    if(ret && mItem->isLink) ret = linkCheck();
-
     //--------------------------采集检测---------------------------//
     if(ret) ret = errRangeCheck();
     if(ret) ret = cpuCheck();                           //cpu温度检查
     if(ret) ret = alarmCheck();                         //报警检查
+
+    //---------------------------接口检测--------------------------//
+    if(ret && mItem->isSersor) ret = envCheck();
+    if(ret && mItem->isLink) ret = linkCheck();
 
     //--------------------------参数检测--------------------------//
     if(ret) ret = snCheck();

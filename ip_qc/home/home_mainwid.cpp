@@ -17,6 +17,18 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     connect(http, &Core_Http::httpSig, this, &Home_MainWid::onMsg);
     connect(mWorkWid, &Home_WorkWid::startSig, this, &Home_MainWid::onStart);
     connect(this, &Home_MainWid::setDevSig, [&]{mWorkWid->devSetBtn();});
+
+    mLineTabWid = new Home_LineTabWid(ui->tabWidget);
+    ui->tabWidget->insertTab(0, mLineTabWid, tr("相监测数据列表"));
+
+    mThTabWid = new Home_ThresholdTabWid(ui->tabWidget);
+    ui->tabWidget->insertTab(1, mThTabWid, tr("报警阈值信息"));
+
+    mEnvTabWid = new Home_EnvTabWid(ui->tabWidget);
+    ui->tabWidget->insertTab(2, mEnvTabWid, tr("传感器环境状态"));
+
+    mEditTabWid = new QPlainTextEdit(ui->tabWidget);
+    ui->tabWidget->insertTab(3, mEditTabWid, tr("调试日志"));
 }
 
 Home_MainWid::~Home_MainWid()
@@ -27,15 +39,18 @@ Home_MainWid::~Home_MainWid()
 
 void Home_MainWid::initWid()
 {
-    QPalette pl = ui->textEdit->palette();  mId = 1;
+    QPalette pl = mEditTabWid->palette();  mId = 1;
     pl.setBrush(QPalette::Base,QBrush(QColor(255,0,0,0)));
-    ui->textEdit->setPalette(pl);
+    mEditTabWid->setPalette(pl);
 }
 
 void Home_MainWid::onStart()
 {
-    ui->textEdit->clear();
-    mId = 1; emit startSig();
+    mId = 1; emit startSig(); mEditTabWid->clear();
+    sPdudata *obj = & Core_Object::coreItem.actual.value;
+    obj->lineCur.clear(); obj->linePow.clear();
+    obj->lineVol.clear(); obj->lineEle.clear();
+    obj->lineHz.clear(); obj->linePF.clear();
 }
 
 
@@ -48,13 +63,13 @@ void Home_MainWid::setTextColor(const QString &str)
 
     QColor color("black");
     if(!pass) color = QColor("red");
-    ui->textEdit->moveCursor(QTextCursor::Start);
+    mEditTabWid->moveCursor(QTextCursor::Start);
 
     QTextCharFormat fmt;//文本字符格式
     fmt.setForeground(color);// 前景色(即字体色)设为color色
-    QTextCursor cursor = ui->textEdit->textCursor();//获取文本光标
+    QTextCursor cursor = mEditTabWid->textCursor();//获取文本光标
     cursor.mergeCharFormat(fmt);//光标后的文字就用该格式显示
-    ui->textEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
+    mEditTabWid->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
 }
 
 
@@ -63,7 +78,7 @@ void Home_MainWid::onMsg(const QString &msg)
     if(msg.size() > 2048) Core_Object::coreItem.jsonPacket = msg;
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(str); //ui->textEdit->moveCursor(QTextCursor::Start);
-    ui->textEdit->insertPlainText(str);
+    mEditTabWid->insertPlainText(str);
     //ui->textEdit->moveCursor(QTextCursor::Start);
     //ui->textEdit->insertPlainText(str);
 }

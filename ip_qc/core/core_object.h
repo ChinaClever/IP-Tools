@@ -27,11 +27,16 @@ struct sPdudata
     QVariantList lineVol;
     QVariantList lineCur;
     QVariantList linePow;
+    QVariantList linePF;
+    QVariantList lineHz;
+    QVariantList lineEle;
 
     QVariantList loopVol;
     QVariantList loopCur;
     QVariantList loopPow;
-
+    QVariantList loopPF;
+    QVariantList loopHz;
+    QVariantList loopEle;
 };
 
 struct sThreshold
@@ -140,6 +145,7 @@ public:
     bool jsonAnalysis();
     bool jsonAnalysisRefer();
     void setModbus();
+    void reset();
 
 private:
     void getSn(const QJsonObject &object);
