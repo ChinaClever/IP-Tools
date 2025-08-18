@@ -46,12 +46,15 @@ private slots:
 
     void on_standardBox_currentIndexChanged(int index);
 
+    void on_printBtn_clicked();
+
 private:
     Ui::Home_SetWid *ui;
     Core_Http *mHttp;
     mCoreUnit *mIt;
     sDataPacket *mPro;
     sCfgComIt *item;
+
 };
 
 #endif // HOME_SETWID_H

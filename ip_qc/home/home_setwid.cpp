@@ -5,7 +5,7 @@
  */
 #include "home_setwid.h"
 #include "ui_home_setwid.h"
-
+#include "printer/printer_bartender.h""
 Home_SetWid::Home_SetWid(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Home_SetWid)
@@ -214,4 +214,40 @@ void Home_SetWid::on_standardBox_currentIndexChanged(int index)
 {
     ui->tlsBtn->setHidden(!index);
 }
+
+
+void Home_SetWid::on_printBtn_clicked()
+{
+
+    QString mac = Core_Object::coreItem.actual.mac;
+    QString fw = ui->fwEdit->text();
+
+    bool macPrint = ui->printMac->isChecked();
+    bool fwPrint = ui->printFw->isChecked();
+
+    qDebug()<<macPrint<<' '<<fwPrint;
+    qDebug() << fw << "  " << mac;
+
+    if (!macPrint && !fwPrint) {
+        QMessageBox::warning(this, "提示", "请至少勾选要打印的内容（MAC 或 FW）！");
+        return;
+    }
+
+    if ((macPrint && mac.trimmed().isEmpty()) || (fwPrint && fw.trimmed().isEmpty())) {
+        QMessageBox::warning(this, "提示", "MAC 或 FW 数据为空，请先进行检测！");
+        return;
+    }
+
+    sBarTend it;
+    it.fw = fw;
+    // 添加必要字段
+
+//    if (macPrint)
+//        Printer_BarTender::bulid()->printMAC(mac);
+
+//    if (fwPrint)
+//        Printer_BarTender::bulid()->printerInfo(it);
+}
+
+
 

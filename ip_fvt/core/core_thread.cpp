@@ -216,8 +216,8 @@ bool Core_Thread::startCalibration()
     bool res = true, ret = waitForRest();
 
     if(ret) http->calibration(); else return ret;
-    emit msgSig(tr("校准开始"), true); cm_mdelay(10000);
-
+    emit msgSig(tr("校准开始"), true); cm_mdelay(16000);
+    if(data.isEmpty()) cm_mdelay(10000);
 
     QString str = data; data.clear();
     if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false); return false;}
