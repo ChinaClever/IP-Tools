@@ -154,7 +154,7 @@ bool Core_Thread::downVer(const QString &ip)
     http->execute("chmod -R 777 /customer/pdu/");
     http->downFile(fs);
     for(int i=0; i<10; ++i) {
-        if(QFile::exists(fs.first())) break; else cm_mdelay(100);
+        if(QFile::exists(fs.first())) break; else cm_mdelay(300);
     } QString dir = "customer/pdu";
     Cfg_App cfg(dir, this); sAppVerIt it;
     bool ret = cfg.app_unpack(it);
