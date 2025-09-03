@@ -102,7 +102,7 @@ bool Core_Http::downFile(const QStringList &fs)
         QJsonObject json; json.insert("file", fn);
         bool ret = http_down("download", json, fn, m_ip, m_port);
         if(!ret) FileMgr::build().delFileOrDir(fn);
-        if(ret) cm_mdelay(243); else if(!fn.contains(".pem")) break;
+        if(ret) cm_mdelay(343); else if(!fn.contains(".pem")) break;
     }
     return ret;
 }
@@ -112,7 +112,7 @@ auto Core_Http::sslConfig()
     QSslConfiguration SSLConfig;
     SSLConfig = QSslConfiguration::defaultConfiguration();
     SSLConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
-    SSLConfig.setProtocol(QSsl::TlsV1_2OrLater);
+    SSLConfig.setProtocol(QSsl::TlsV1_3OrLater);
     return SSLConfig;
 }
 
