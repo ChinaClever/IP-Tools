@@ -22,6 +22,7 @@ void cm_mdelay(int msec)
 #if 1
     //非阻塞方式延时,现在很多人推荐的方法
     QEventLoop loop;
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     QTimer::singleShot(msec, &loop, SLOT(quit()));
     loop.exec();
 #else

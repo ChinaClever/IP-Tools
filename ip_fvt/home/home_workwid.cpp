@@ -350,8 +350,8 @@ void Home_WorkWid::on_startBtn_clicked()
         if(initWid()) {
             timer->start(500);
             // mCoreThread->run();
-            // mCoreThread->start();
-            emit mCoreThread->startSig();
+            mCoreThread->start();
+            // emit mCoreThread->startSig();
         }
     } else {
         bool ret = MsgBox::question(this, tr("确定需要提前结束？"));
