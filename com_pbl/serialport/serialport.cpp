@@ -8,7 +8,7 @@
 #include <QSerialPortInfo>
 #include <QApplication>
 #define SERIAL_TIMEOUT  100  // 100MS
-
+#include "print.h"
 
 SerialPort::SerialPort(QObject *parent) : QThread(parent)
 {
@@ -194,7 +194,7 @@ void SerialPort::recvSlot()
 
 QByteArray SerialPort::readSerial(int msecs)
 {
-    QByteArray array; msleep(msecs);
+    QByteArray array; cm_mdelay(msecs); // msleep(msecs);
     QWriteLocker locker(&mRwLock);
     array += mSerialData;
     mSerialData.clear();
@@ -208,13 +208,13 @@ int SerialPort::read(QByteArray &array, int secs)
             int rtn = mSerialData.size();
             if(rtn) {
                 // if(rtn>0)
-                msleep(380);
+                cm_mdelay(380);
                 QWriteLocker locker(&mRwLock);
                 array += mSerialData;
                 mSerialData.clear();
                 break;
             } else {
-                if(i) msleep(SERIAL_TIMEOUT); else msleep(365);
+                if(i) cm_mdelay(SERIAL_TIMEOUT); else cm_mdelay(365);
             }
         }
     }
@@ -253,7 +253,7 @@ int SerialPort::transmit(const QByteArray &witeArray, QByteArray &readArray, int
 {
     int ret = write(witeArray);
     if(ret > 0) {
-        msleep(75);
+        cm_mdelay(75);
         ret = read(readArray, msecs);
         if((ret < 0) || (ret > SERIAL_LEN)) {
             qDebug() << "SerialPort transmit read err"  << ret;

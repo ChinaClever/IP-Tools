@@ -4,6 +4,7 @@
  *      Author: Lzy
  */
 #include "datapacket.h"
+#include "print.h"
 
 sDataPacket::sDataPacket()
 {
@@ -55,7 +56,7 @@ bool sDataPacket::delay(int s)
     bool ret = true;
     for(int i=0; i<s; ++i) {
         if((pro->step < Test_Over)  || (pro->step > Test_End)){
-            QThread::msleep(100);
+            cm_mdelay(100); // QThread::msleep(100);
         } else {
             ret = false;
             break;
