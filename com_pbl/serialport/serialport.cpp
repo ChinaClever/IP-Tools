@@ -174,7 +174,7 @@ void SerialPort::writeSlot()
  */
 void SerialPort::recvSlot()
 {
-    if(isOpen) {
+    if(isOpen && mSerial->bytesAvailable()) {
         /* 处理所有还没有被处理的各类事件，主要是不用用户感觉到ka */
         QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 

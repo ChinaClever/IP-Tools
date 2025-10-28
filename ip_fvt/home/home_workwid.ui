@@ -622,7 +622,7 @@
       <item row="1" column="1" colspan="2">
        <widget class="QLineEdit" name="userEdit">
         <property name="text">
-         <string/>
+         <string>12</string>
         </property>
         <property name="frame">
          <bool>false</bool>
@@ -706,7 +706,7 @@
          <enum>QAbstractSpinBox::DefaultStepType</enum>
         </property>
         <property name="value">
-         <number>0</number>
+         <number>2</number>
         </property>
        </widget>
       </item>
