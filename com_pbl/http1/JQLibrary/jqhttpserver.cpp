@@ -1127,7 +1127,7 @@ bool JQHttpServer::SslServerManage::listen(
     sslConfiguration_->setPeerVerifyDepth( 1 );
     sslConfiguration_->setLocalCertificate( sslCertificate );
     sslConfiguration_->setPrivateKey( sslKey );
-    sslConfiguration_->setProtocol( QSsl::TlsV1_1OrLater );
+    sslConfiguration_->setProtocol( QSsl::TlsV1_2OrLater );
     sslConfiguration_->setCaCertificates( caCertificates );
 
     return this->initialize();

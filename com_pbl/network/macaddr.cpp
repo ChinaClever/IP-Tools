@@ -4,7 +4,15 @@
  *      Author: Lzy
  */
 #include "macaddr.h"
+#include <QValidator>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#else
+#include <QRegExp>
 #include <QRegExpValidator>
+#endif
+
 #include "print.h"
 #define MAC_ADDR_LEN 6
 
@@ -25,14 +33,26 @@ MacAddr *MacAddr::bulid()
 bool MacAddr::isMacAddress(const QString &mac)
 {
     QString mac_addr = mac;
-    QRegExp rx("^([A-Fa-f0-9]{2}[-,:]){5}[A-Fa-f0-9]{2}$");
-    QRegExpValidator v(rx, 0);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    // Qt6 使用 QRegularExpressionValidator
+    QRegularExpression rx("^([A-Fa-f0-9]{2}[-,:]){5}[A-Fa-f0-9]{2}$");
+    QRegularExpressionValidator v(rx, nullptr);
     int pos = 0;
     if(v.validate(mac_addr, pos) == QValidator::Acceptable)
         return true;
+#else
+    // Qt5 使用 QRegExpValidator
+    QRegExp rx("^([A-Fa-f0-9]{2}[-,:]){5}[A-Fa-f0-9]{2}$");
+    QRegExpValidator v(rx, nullptr);
+    int pos = 0;
+    if(v.validate(mac_addr, pos) == QValidator::Acceptable)
+        return true;
+#endif
 
     return false;
 }
+
 
 /**
 * 函数功能:将格式如"EA-EB-EC-AA-AB-AC"的MAC QString字符串转换成6字节的数组，

@@ -6,7 +6,10 @@
  */
 #include "excel_savethread.h"
 #include "msgbox.h"
-
+#ifdef Q_OS_WIN32
+#include <windows.h>   // OleInitialize, CoInitializeEx
+#include <objbase.h>   // S_OK, S_FALSE
+#endif
 Excel_SaveThread::Excel_SaveThread(QObject *parent) : QThread(parent)
 {
 
@@ -43,7 +46,7 @@ int Excel_SaveThread::getProgress()
 bool Excel_SaveThread::init()
 {
     bool ret = true;
-
+#if defined(Q_OS_WIN32)
     mSize = mAllSize = 0;
     HRESULT r = OleInitialize(0);  // 增加头文件 #include <sapi.h>
     if (r != S_OK && r != S_FALSE)
@@ -52,6 +55,7 @@ bool Excel_SaveThread::init()
         MsgBox::critical(0, tr("Qt:初始化Ole失败"));
         ret = false;
     }
+#endif
     return ret;
 }
 
