@@ -10,6 +10,8 @@ class Core_Thread : public Core_Object
     Q_OBJECT
 public:
     explicit Core_Thread(QObject *parent = nullptr);
+    ~Core_Thread();
+
     void setIps(const QStringList &ips) {m_ips = ips;}
     QString m_mac, m_sn;
     QStringList getFs();
@@ -21,6 +23,8 @@ signals:
     void finshSig(bool pass, const QString &msg);
     void overSig(); void startSig();
     void msgSigYC(const QString &msg, bool pass);
+
+    void requestDownVer(const QString &ip);
 
 public slots:
     void startSlot() {run();}

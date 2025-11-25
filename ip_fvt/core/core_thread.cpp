@@ -12,7 +12,9 @@ Core_Thread::Core_Thread(QObject *parent)
     : Core_Object{parent}
 {
     Ssdp_Core::bulid(this);
+
     http = Core_Http::bulid(this);
+
     mYc = Yc_Obj::bulid(this);
     mItem = CfgCom::bulid()->item;
     mSource = mYc->get();
@@ -24,6 +26,28 @@ Core_Thread::Core_Thread(QObject *parent)
     connect(mYc , &Yc_Obj::msgSig , this ,&Core_Thread::msgSigYC);
     connect(this, &Core_Thread::startSig, &Core_Thread::startSlot);
 
+
+}
+Core_Thread::~Core_Thread()
+{
+    // 停止线程
+    if(isRunning()) {
+        requestInterruption();
+        quit();
+        wait(3000); // 等待3秒
+    }
+
+    // 清理资源
+    if(udpSocket) {
+        udpSocket->close();
+        udpSocket->deleteLater();
+        udpSocket = nullptr;
+    }
+
+    if(mSource) {
+        mSource->setVol(0, 0);
+        mSource->setCur(0, 0);
+    }
 }
 
 void Core_Thread::udpRecvSlot()
@@ -32,10 +56,21 @@ void Core_Thread::udpRecvSlot()
     while(udpSocket->hasPendingDatagrams()) {
         datagram.resize(int(udpSocket->pendingDatagramSize()));
         int ret = udpSocket->readDatagram(datagram.data(), datagram.size(), &host);
-        if(ret > 0) {data += QString(datagram) + ";";}
+        qDebug()<<datagram.size();
+        if(ret > 0) {
+            data += QString(datagram) + ";";
+            // 防止内存溢出：限制data的大小，超过5MB就保留最新的数据
+            const int MAX_DATA_SIZE = 5 * 1024 * 1024; // 5MB
+            if(data.size() > MAX_DATA_SIZE) {
+                qWarning() << "UDP data buffer exceeded" << MAX_DATA_SIZE << "bytes, truncating...";
+                // 只保留最后1MB的数据
+                data = data.right(1024 * 1024);
+            }
+        }
         else qCritical() << udpSocket->errorString();
     }
 }
+
 
 QStringList Core_Thread::getFs()
 {
@@ -156,7 +191,10 @@ bool Core_Thread::downVer(const QString &ip)
     for(int i=0; i<10; ++i) {
         if(QFile::exists(fs.first())) break; else cm_mdelay(300);
     } QString dir = "customer/pdu";
-    Cfg_App cfg(dir, this); sAppVerIt it;
+    Cfg_App cfg(dir, nullptr);
+//*    Cfg_App cfg(dir, nullptr);
+
+    sAppVerIt it;
     bool ret = cfg.app_unpack(it);
     if(ret) {
         it.sn = m_sn = createSn();
@@ -177,7 +215,7 @@ bool Core_Thread::downVer(const QString &ip)
 }
 
 bool Core_Thread::workDown(const QString &ip)
-{    
+{
     QStringList fs = getFs(); bool res = true;
     foreach (const auto fn, fs) {
         bool ret = http->uploadFile(fn);
@@ -192,11 +230,23 @@ bool Core_Thread::workDown(const QString &ip)
 
 bool Core_Thread::waitForRest()
 {
+    // 安全检查：确保http对象和IP列表有效
+    if(!http) {
+        emit msgSig(tr("http对象未初始化"), false);
+        return false;
+    }
+    
+    if(m_ips.isEmpty()) {
+        emit msgSig(tr("设备IP列表为空"), false);
+        return false;
+    }
+    
     http->execute("sync"); cm_mdelay(1000);
     http->execute("killall -9 cores && sleep 0.3 && cores &");
     emit msgSig(tr("设备重启，设备有响声"), true); cm_mdelay(9500);
 
-    bool ret;  QString ip = m_ips.first();
+    bool ret = false;
+    QString ip = m_ips.first();
     for(int i=0; i<10; ++i) {
         ret = cm_pingNet(ip);
         if(ret == true) {
@@ -215,13 +265,19 @@ bool Core_Thread::startCalibration()
 {
     bool res = true, ret = waitForRest();
 
+    // 安全检查：确保http对象有效
+    if(!http) {
+        emit msgSig(tr("http对象未初始化"), false);
+        return false;
+    }
+    
     if(ret) http->calibration(); else return ret;
     emit msgSig(tr("校准开始"), true); cm_mdelay(16000);
-    if(data.isEmpty()) cm_mdelay(10000);
 
+    if(data.isEmpty()) cm_mdelay(10000);
     QString str = data; data.clear();
     if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false); return false;}
-
+//
     QStringList splitList = str.split(';');
     QSet<QString> seenStrings;
     QStringList result;
@@ -232,6 +288,12 @@ bool Core_Thread::startCalibration()
         }
     }
 
+    // 修复崩溃：检查result是否为空，避免调用last()时崩溃
+    if(result.isEmpty()) {
+        emit msgSig(tr("校准数据为空"), false);
+        return false;
+    }
+    
     if(!result.last().contains("结束",Qt::CaseSensitive))
         res = false;
 
@@ -506,12 +568,20 @@ bool Core_Thread::initFun()
 
 void Core_Thread::run()
 {
+    // 确保UDP socket已正确绑定
+    if (udpSocket && !udpSocket->isOpen()) {
+        if(!udpSocket->bind(QHostAddress::AnyIPv4, 21907, QUdpSocket::ShareAddress)) {
+            qCritical() << "Failed to bind UDP socket:" << udpSocket->errorString();
+        }
+    }
+    
     bool ret = initFun();
     if(ret) ret = searchDev();
     if(ret && fsCheck()) {
         foreach (const auto &ip, m_ips) {
             emit msgSig(tr("目标设备:")+ip, true);
             if(ret) ret = downVer(ip);
+
             if(ret) timeSync();
             if(ret) ret = workDown(ip);
 
@@ -531,4 +601,5 @@ void Core_Thread::run()
         }m_ips.clear();
     }
     emit overSig();
+    quit();
 }

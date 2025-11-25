@@ -55,7 +55,6 @@ void Home_WorkWid::initFunSlot()
 
     connect(mCoreThread, &Core_Thread::msgSigYC, this, &Home_WorkWid::insertTextSlot);
     // connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
-
 }
 
 void Home_WorkWid::logWrite()
@@ -241,7 +240,9 @@ bool Home_WorkWid::inputCheck()
     } else {
         ret = cm_isIPaddress(str); if(!ret) cout << str;
         QStringList ips; ips << str;
-        if(ret) Core_Http::bulid(this)->initHost(str);
+//*        if(ret) Core_Http::bulid(this)->initHost(str);
+        if(ret) Core_Http::bulid(nullptr)->initHost(str);
+
         if(ret) {ret = cm_pingNet(str); mCoreThread->setIps(ips); }
         if(!ret) MsgBox::critical(this, tr("目标设备IP出错！"));
     }
@@ -345,6 +346,7 @@ void Home_WorkWid::timeoutDone()
 
 void Home_WorkWid::on_startBtn_clicked()
 {
+
     // mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     if(isStart == false) {
         if(initWid()) {
