@@ -52,7 +52,7 @@ QNetworkAddressEntry JQNet::getFirstNetworkAddressEntry()
     return list.first().first;
 }
 
-QPair< QNetworkAddressEntry, QNetworkInterface > JQNet::getFirstNetworkAddressEntryAndInterface(const bool &ridVm)
+QPair< QNetworkAddressEntry, QNetworkInterface > JQNet::getFirstNetworkAddressEntryAndInterface(const bool ridVm)
 {
     auto list = JQNet::getNetworkAddressEntryAndInterface( ridVm );
     if ( list.isEmpty() ) { return { }; }
@@ -60,20 +60,21 @@ QPair< QNetworkAddressEntry, QNetworkInterface > JQNet::getFirstNetworkAddressEn
     return list.first();
 }
 
-QList< QPair< QNetworkAddressEntry, QNetworkInterface > > JQNet::getNetworkAddressEntryAndInterface(const bool &ridVm)
+QList< QPair< QNetworkAddressEntry, QNetworkInterface > > JQNet::getNetworkAddressEntryAndInterface(const bool ridVm)
 {
     QList< QPair< QNetworkAddressEntry, QNetworkInterface > > result;
 
     for ( const auto &interface: static_cast< const QList< QNetworkInterface > >( QNetworkInterface::allInterfaces() ) )
     {
         if ( interface.flags() != ( QNetworkInterface::IsUp |
-                                    QNetworkInterface::IsRunning |
-                                    QNetworkInterface::CanBroadcast |
-                                    QNetworkInterface::CanMulticast ) ) { continue; }
+                                  QNetworkInterface::IsRunning |
+                                  QNetworkInterface::CanBroadcast |
+                                  QNetworkInterface::CanMulticast ) ) { continue; }
 
         if ( ridVm && interface.humanReadableName().startsWith( "vm" ) ) { continue; }
 
-        for ( const auto &entry: static_cast< QList<QNetworkAddressEntry> >( interface.addressEntries() ) )
+        const auto entries = interface.addressEntries();
+        for ( const auto &entry: entries )
         {
             if ( entry.ip().toIPv4Address() )
             {
@@ -94,7 +95,7 @@ QString JQNet::getHostName()
 #endif
 }
 
-bool JQNet::tcpReachable(const QString &hostName, const quint16 &port, const int &timeout)
+bool JQNet::tcpReachable(const QString &hostName, const quint16 port, const int timeout)
 {
     QTcpSocket socket;
 
@@ -105,7 +106,7 @@ bool JQNet::tcpReachable(const QString &hostName, const quint16 &port, const int
 }
 
 #ifdef JQFOUNDATION_LIB
-bool JQNet::pingReachable(const QString &address, const int &timeout)
+bool JQNet::pingReachable(const QString &address, const int timeout)
 {
     QPair< int, QByteArray > pingResult = { -1, { } };
 
@@ -123,8 +124,8 @@ bool JQNet::pingReachable(const QString &address, const int &timeout)
 
 // HTTP
 bool JQNet::HTTP::get(
-        const QNetworkRequest &request,
-        QByteArray &receiveBuffer, const int &timeout
+    const QNetworkRequest &request,
+    QByteArray &receiveBuffer, const int timeout
     )
 {
     receiveBuffer.clear();
@@ -153,16 +154,16 @@ bool JQNet::HTTP::get(
             isFail = true;
             eventLoop.exit( 0 );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 void JQNet::HTTP::get(
-        const QNetworkRequest &request,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
-        const int &timeout
+    const QNetworkRequest &request,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
+    const int timeout
     )
 {
     auto reply = manage().get( request );
@@ -176,13 +177,13 @@ void JQNet::HTTP::get(
         {
             onError( { }, QNetworkReply::TimeoutError, { } );
         }
-    );
+        );
 }
 
 bool JQNet::HTTP::deleteResource(
-        const QNetworkRequest &request,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -211,16 +212,16 @@ bool JQNet::HTTP::deleteResource(
             isFail = true;
             eventLoop.exit( 0 );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 void JQNet::HTTP::deleteResource(
-        const QNetworkRequest &request,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
-        const int &timeout
+    const QNetworkRequest &request,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
+    const int timeout
     )
 {
     auto reply = manage().deleteResource( request );
@@ -234,15 +235,15 @@ void JQNet::HTTP::deleteResource(
         {
             onError( { }, QNetworkReply::TimeoutError, { } );
         }
-    );
+        );
 }
 
 bool JQNet::HTTP::post(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        QList< QNetworkReply::RawHeaderPair > &receiveRawHeaderPairs,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    QList< QNetworkReply::RawHeaderPair > &receiveRawHeaderPairs,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -273,16 +274,16 @@ bool JQNet::HTTP::post(
             isFail = true;
             eventLoop.exit( false );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 bool JQNet::HTTP::post(
-        const QNetworkRequest &request,
-        const QSharedPointer< QHttpMultiPart > &multiPart,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QSharedPointer< QHttpMultiPart > &multiPart,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -311,17 +312,17 @@ bool JQNet::HTTP::post(
             isFail = true;
             eventLoop.exit( false );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 void JQNet::HTTP::post(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
+    const int timeout
     )
 {
     auto reply = manage().post( request, body );
@@ -335,14 +336,14 @@ void JQNet::HTTP::post(
         {
             onError( { }, QNetworkReply::TimeoutError, { } );
         }
-    );
+        );
 }
 
 bool JQNet::HTTP::put(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -371,16 +372,16 @@ bool JQNet::HTTP::put(
             isFail = true;
             eventLoop.exit( false );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 bool JQNet::HTTP::put(
-        const QNetworkRequest &request,
-        const QSharedPointer< QHttpMultiPart > &multiPart,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QSharedPointer< QHttpMultiPart > &multiPart,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -409,17 +410,17 @@ bool JQNet::HTTP::put(
             isFail = true;
             eventLoop.exit( false );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 void JQNet::HTTP::put(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
+    const int timeout
     )
 {
     auto reply = manage().put( request, body );
@@ -433,15 +434,15 @@ void JQNet::HTTP::put(
         {
             onError( { }, QNetworkReply::TimeoutError, { } );
         }
-    );
+        );
 }
 
 #if !( defined Q_OS_LINUX ) && ( QT_VERSION >= QT_VERSION_CHECK( 5, 9, 0 ) )
 bool JQNet::HTTP::patch(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        QByteArray &receiveBuffer,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    QByteArray &receiveBuffer,
+    const int timeout
     )
 {
     receiveBuffer.clear();
@@ -470,17 +471,17 @@ bool JQNet::HTTP::patch(
             isFail = true;
             eventLoop.exit( false );
         }
-    );
+        );
 
     return eventLoop.exec() && !isFail;
 }
 
 void JQNet::HTTP::patch(
-        const QNetworkRequest &request,
-        const QByteArray &body,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
-        const int &timeout
+    const QNetworkRequest &request,
+    const QByteArray &body,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &)> &onError,
+    const int timeout
     )
 {
     auto reply = manage().sendCustomRequest( request, "PATCH", body );
@@ -494,11 +495,11 @@ void JQNet::HTTP::patch(
         {
             onError( { }, QNetworkReply::TimeoutError, { } );
         }
-    );
+        );
 }
 #endif
 
-QPair< bool, QByteArray > JQNet::HTTP::get(const QString &url, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::get(const QString &url, const int timeout)
 {
     QNetworkRequest networkRequest( ( QUrl( url ) ) );
     QByteArray receiveBuffer;
@@ -508,7 +509,7 @@ QPair< bool, QByteArray > JQNet::HTTP::get(const QString &url, const int &timeou
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::get(const QNetworkRequest &request, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::get(const QNetworkRequest &request, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -518,7 +519,7 @@ QPair< bool, QByteArray > JQNet::HTTP::get(const QNetworkRequest &request, const
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QString &url, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QString &url, const int timeout)
 {
     QNetworkRequest networkRequest( ( QUrl( url ) ) );
     QByteArray receiveBuffer;
@@ -528,7 +529,7 @@ QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QString &url, const 
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QNetworkRequest &request, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QNetworkRequest &request, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -538,7 +539,7 @@ QPair< bool, QByteArray > JQNet::HTTP::deleteResource(const QNetworkRequest &req
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::post(const QString &url, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::post(const QString &url, const QByteArray &body, const int timeout)
 {
     QNetworkRequest networkRequest( ( QUrl( url ) ) );
     QList< QNetworkReply::RawHeaderPair > rawHeaderPairs;
@@ -551,7 +552,7 @@ QPair< bool, QByteArray > JQNet::HTTP::post(const QString &url, const QByteArray
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, const QByteArray &body, const int timeout)
 {
     QByteArray receiveBuffer;
     QList< QNetworkReply::RawHeaderPair > rawHeaderPairs;
@@ -562,7 +563,7 @@ QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, cons
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QPair< QList< QNetworkReply::RawHeaderPair >, QByteArray > > JQNet::HTTP::post2(const QNetworkRequest &request, const QByteArray &body, const int &timeout)
+QPair< bool, QPair< QList< QNetworkReply::RawHeaderPair >, QByteArray > > JQNet::HTTP::post2(const QNetworkRequest &request, const QByteArray &body, const int timeout)
 {
     QByteArray receiveBuffer;
     QList< QNetworkReply::RawHeaderPair > rawHeaderPairs;
@@ -573,7 +574,7 @@ QPair< bool, QPair< QList< QNetworkReply::RawHeaderPair >, QByteArray > > JQNet:
     return { isSucceed, { rawHeaderPairs, receiveBuffer } };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, const QSharedPointer<QHttpMultiPart> &multiPart, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, const QSharedPointer<QHttpMultiPart> &multiPart, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -583,7 +584,7 @@ QPair< bool, QByteArray > JQNet::HTTP::post(const QNetworkRequest &request, cons
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::put(const QString &url, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::put(const QString &url, const QByteArray &body, const int timeout)
 {
     QNetworkRequest networkRequest( ( QUrl( url ) ) );
     QByteArray receiveBuffer;
@@ -595,7 +596,7 @@ QPair< bool, QByteArray > JQNet::HTTP::put(const QString &url, const QByteArray 
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const QByteArray &body, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -605,7 +606,7 @@ QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const QSharedPointer< QHttpMultiPart > &multiPart, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const QSharedPointer< QHttpMultiPart > &multiPart, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -616,7 +617,7 @@ QPair< bool, QByteArray > JQNet::HTTP::put(const QNetworkRequest &request, const
 }
 
 #if !( defined Q_OS_LINUX ) && ( QT_VERSION >= QT_VERSION_CHECK( 5, 9, 0 ) )
-QPair< bool, QByteArray > JQNet::HTTP::patch(const QString &url, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::patch(const QString &url, const QByteArray &body, const int timeout)
 {
     QNetworkRequest networkRequest( ( QUrl( url ) ) );
     QByteArray receiveBuffer;
@@ -628,7 +629,7 @@ QPair< bool, QByteArray > JQNet::HTTP::patch(const QString &url, const QByteArra
     return { isSucceed, receiveBuffer };
 }
 
-QPair< bool, QByteArray > JQNet::HTTP::patch(const QNetworkRequest &request, const QByteArray &body, const int &timeout)
+QPair< bool, QByteArray > JQNet::HTTP::patch(const QNetworkRequest &request, const QByteArray &body, const int timeout)
 {
     QByteArray receiveBuffer;
     HTTP http;
@@ -640,16 +641,16 @@ QPair< bool, QByteArray > JQNet::HTTP::patch(const QNetworkRequest &request, con
 #endif
 
 void JQNet::HTTP::handle(
-        QNetworkReply *reply,
-        const int &timeout,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
-        const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &data)> &onError,
-        const std::function<void ()> &onTimeout
+    QNetworkReply *reply,
+    const int timeout,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QByteArray &)> &onFinished,
+    const std::function<void (const QList< QNetworkReply::RawHeaderPair > &, const QNetworkReply::NetworkError &, const QByteArray &data)> &onError,
+    const std::function<void ()> &onTimeout
     )
 {
+#if ( QT_VERSION <= QT_VERSION_CHECK( 5, 14, 0 ) )
     auto &manage = this->manage();
 
-#if ( QT_VERSION <= QT_VERSION_CHECK( 5, 14, 0 ) )
     if( manage.networkAccessible() == QNetworkAccessManager::NotAccessible )
     {
         manage.setNetworkAccessible(QNetworkAccessManager::Accessible );
@@ -665,46 +666,46 @@ void JQNet::HTTP::handle(
         timer->setSingleShot(true);
 
         QObject::connect( timer, &QTimer::timeout, [ timer, reply, onTimeout, isCalled ]()
-        {
-            if ( *isCalled ) { return; }
-            *isCalled = true;
+                         {
+                             if ( *isCalled ) { return; }
+                             *isCalled = true;
 
-            onTimeout();
+                             onTimeout();
 
-            if ( timer )
-            {
-                timer->deleteLater();
-            }
-            reply->deleteLater();
-        } );
+                             if ( timer )
+                             {
+                                 timer->deleteLater();
+                             }
+                             reply->deleteLater();
+                         } );
         timer->start( timeout );
     }
 
     QObject::connect( reply, &QNetworkReply::finished, [ reply, timer, onFinished, isCalled ]()
-    {
-        if ( *isCalled ) { return; }
-        *isCalled = true;
+                     {
+                         if ( *isCalled ) { return; }
+                         *isCalled = true;
 
-        const auto &&acceptedData = reply->readAll();
-        const auto &rawHeaderPairs = reply->rawHeaderPairs();
+                         const auto &&acceptedData = reply->readAll();
+                         const auto &rawHeaderPairs = reply->rawHeaderPairs();
 
-        onFinished( rawHeaderPairs, acceptedData );
+                         onFinished( rawHeaderPairs, acceptedData );
 
-        if ( timer )
-        {
-            timer->deleteLater();
-        }
-        reply->deleteLater();
-    } );
+                         if ( timer )
+                         {
+                             timer->deleteLater();
+                         }
+                         reply->deleteLater();
+                     } );
 
 #ifndef QT_NO_SSL
     if ( reply->url().toString().toLower().startsWith( "https" ) )
     {
         QObject::connect( reply, static_cast< void( QNetworkReply::* )( const QList< QSslError > & ) >( &QNetworkReply::sslErrors ), [ reply ](const QList< QSslError > & /*errors*/)
-        {
-//            qDebug() << "HTTP::handle: ignoreSslErrors:" << errors;
-            reply->ignoreSslErrors();
-        } );
+                         {
+                             //            qDebug() << "HTTP::handle: ignoreSslErrors:" << errors;
+                             reply->ignoreSslErrors();
+                         } );
     }
 #endif
 
@@ -713,21 +714,21 @@ void JQNet::HTTP::handle(
 #else
     QObject::connect( reply, static_cast< void( QNetworkReply::* )( QNetworkReply::NetworkError ) >( &QNetworkReply::error ), [ reply, timer, onError, isCalled ](const QNetworkReply::NetworkError &code)
 #endif
-    {
-        if ( *isCalled ) { return; }
-        *isCalled = true;
+                     {
+                         if ( *isCalled ) { return; }
+                         *isCalled = true;
 
-        const auto &&acceptedData = reply->readAll();
-        const auto &rawHeaderPairs = reply->rawHeaderPairs();
+                         const auto &&acceptedData = reply->readAll();
+                         const auto &rawHeaderPairs = reply->rawHeaderPairs();
 
-        onError( rawHeaderPairs, code, acceptedData );
+                         onError( rawHeaderPairs, code, acceptedData );
 
-        if ( timer )
-        {
-            timer->deleteLater();
-        }
-        reply->deleteLater();
-    } );
+                         if ( timer )
+                         {
+                             timer->deleteLater();
+                         }
+                         reply->deleteLater();
+                     } );
 }
 
 QNetworkAccessManager &JQNet::HTTP::manage()

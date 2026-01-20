@@ -25,7 +25,7 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "jqhttpserver.h"
+#include "JQHttpServer"
 
 // Qt lib import
 #include <QEventLoop>
@@ -53,86 +53,85 @@
 #endif
 
 #define JQHTTPSERVER_SESSION_PROTECTION( functionName, ... )                             \
-    auto this_ = this;                                                                   \
+auto this_ = this;                                                                   \
     if ( !this_ || ( contentLength_ < -1 ) || ( waitWrittenByteCount_ < -1 ) )           \
-    {                                                                                    \
+{                                                                                    \
         qDebug().noquote() << QStringLiteral( "JQHttpServer::Session::" ) + functionName \
-                                  + ": current session this is null";                    \
+               + ": current session this is null";                    \
         return __VA_ARGS__;                                                              \
-    }
+}
 
 #define JQHTTPSERVER_SESSION_REPLY_PROTECTION( functionName, ... )                                            \
-    JQHTTPSERVER_SESSION_PROTECTION( functionName, __VA_ARGS__ )                                              \
+JQHTTPSERVER_SESSION_PROTECTION( functionName, __VA_ARGS__ )                                              \
     if ( ( replyHttpCode_ >= 0 ) && ( QThread::currentThread() != this->thread() ) )                          \
-    {                                                                                                         \
+{                                                                                                         \
         qDebug().noquote() << QStringLiteral( "JQHttpServer::Session::" ) + functionName + ": already reply"; \
         return __VA_ARGS__;                                                                                   \
-    }
+}
 
 #define JQHTTPSERVER_SESSION_REPLY_PROTECTION2( functionName, ... )                                    \
-    if ( socket_.isNull() )                                                                            \
+if ( socket_.isNull() )                                                                            \
     {                                                                                                  \
-        qDebug().noquote() << QStringLiteral( "JQHttpServer::Session::" ) + functionName + ": error1"; \
-        this->deleteLater();                                                                           \
-        return __VA_ARGS__;                                                                            \
+            qDebug().noquote() << QStringLiteral( "JQHttpServer::Session::" ) + functionName + ": error1"; \
+            this->deleteLater();                                                                           \
+            return __VA_ARGS__;                                                                            \
     }
 
 static QString replyTextFormat(
-        "HTTP/1.1 %1 OK\r\n"
-        "Content-Type: %2\r\n"
-        "Content-Length: %3\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "\r\n"
-        "%4"
+    "HTTP/1.1 %1 OK\r\n"
+    "Content-Type: %2\r\n"
+    "Content-Length: %3\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "\r\n"
+    "%4"
     );
 
 static QString replyRedirectsFormat(
-        "HTTP/1.1 %1 OK\r\n"
-        "Content-Type: %2\r\n"
-        "Content-Length: %3\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "\r\n"
-        "%4"
+    "HTTP/1.1 %1\r\n"
+    "Location: %2\r\n"
+    "Content-Length: 0\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "\r\n"
     );
 
 static QString replyFileFormat(
-        "HTTP/1.1 %1 OK\r\n"
-        "Content-Disposition: attachment;filename=%2\r\n"
-        "Content-Length: %3\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "\r\n"
+    "HTTP/1.1 %1 OK\r\n"
+    "Content-Disposition: attachment;filename=%2\r\n"
+    "Content-Length: %3\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "\r\n"
     );
 
 static QString replyImageFormat(
-        "HTTP/1.1 %1\r\n"
-        "Content-Type: image/%2\r\n"
-        "Content-Length: %3\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "\r\n"
+    "HTTP/1.1 %1\r\n"
+    "Content-Type: image/%2\r\n"
+    "Content-Length: %3\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "\r\n"
     );
 
 static QString replyBytesFormat(
-        "HTTP/1.1 %1 OK\r\n"
-        "Content-Type: %2\r\n"
-        "Content-Length: %3\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "%4"
-        "\r\n"
+    "HTTP/1.1 %1 OK\r\n"
+    "Content-Type: %2\r\n"
+    "Content-Length: %3\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "%4"
+    "\r\n"
     );
 
 static QString replyOptionsFormat(
-        "HTTP/1.1 200 OK\r\n"
-        "Allow: OPTIONS, GET, POST, PUT, HEAD\r\n"
-        "Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, HEAD\r\n"
-        "Content-Length: 0\r\n"
-        "Access-Control-Allow-Origin: *\r\n"
-        "Access-Control-Allow-Headers: Content-Type,X-Requested-With\r\n"
-        "\r\n"
+    "HTTP/1.1 200 OK\r\n"
+    "Allow: OPTIONS, GET, POST, PUT, HEAD\r\n"
+    "Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, HEAD\r\n"
+    "Content-Length: 0\r\n"
+    "Access-Control-Allow-Origin: *\r\n"
+    "Access-Control-Allow-Headers: *\r\n"
+    "\r\n"
     );
 
 // Session
@@ -143,56 +142,53 @@ JQHttpServer::Session::Session(const QPointer< QTcpSocket > &socket):
     autoCloseTimer_( new QTimer )
 {
     ++remainSession_;
-//    qDebug() << "remainSession:" << remainSession_ << this;
 
     if ( qobject_cast< QAbstractSocket * >( socket ) )
     {
         requestSourceIp_ = ( qobject_cast< QAbstractSocket * >( socket ) )->peerAddress().toString().replace( "::ffff:", "" );
     }
 
-    connect( socket_.data(), &QTcpSocket::readyRead, [ this ]()
-    {
-        autoCloseTimer_->stop();
+    connect(
+        socket_.data(),
+        &QTcpSocket::readyRead,
+        this,
+        [ this ]()
+        {
+            autoCloseTimer_->stop();
 
-        this->receiveBuffer_.append( this->socket_->readAll() );
-        this->analyseBufferSetup1();
+            this->receiveBuffer_.append( this->socket_->readAll() );
+            this->analyseBufferSetup1();
 
-        autoCloseTimer_->start();
-    } );
+            autoCloseTimer_->start();
+        } );
 
-#ifndef QT_NO_SSL
-    if ( qobject_cast< QSslSocket * >( socket ) )
-    {
-        connect( qobject_cast< QSslSocket * >( socket ),
-                 &QSslSocket::encryptedBytesWritten,
-                 std::bind( &JQHttpServer::Session::onBytesWritten, this, std::placeholders::_1 ) );
-    }
-    else
-#endif
-    {
-        connect( socket_.data(),
-                 &QTcpSocket::bytesWritten,
-                 std::bind( &JQHttpServer::Session::onBytesWritten, this, std::placeholders::_1 ) );
-    }
+    connect(
+        socket_.data(),
+        &QTcpSocket::bytesWritten,
+        std::bind( &JQHttpServer::Session::onBytesWritten, this, std::placeholders::_1 ) );
 
     if ( qobject_cast< QTcpSocket * >( socket ) )
     {
-        connect( qobject_cast< QTcpSocket * >( socket ),
-                &QAbstractSocket::stateChanged,
-                std::bind( &JQHttpServer::Session::onStateChanged, this, std::placeholders::_1 ) );
+        connect(
+            qobject_cast< QTcpSocket * >( socket ),
+            &QAbstractSocket::stateChanged,
+            std::bind( &JQHttpServer::Session::onStateChanged, this, std::placeholders::_1 ) );
     }
 
     autoCloseTimer_->setInterval( 30 * 1000 );
     autoCloseTimer_->setSingleShot( true );
     autoCloseTimer_->start();
 
-    connect( autoCloseTimer_.data(), &QTimer::timeout, this, &QObject::deleteLater );
+    connect(
+        autoCloseTimer_.data(),
+        &QTimer::timeout,
+        this,
+        &QObject::deleteLater );
 }
 
 JQHttpServer::Session::~Session()
 {
     --remainSession_;
-//    qDebug() << "remainSession:" << remainSession_ << this;
 
     if ( !socket_.isNull() )
     {
@@ -301,16 +297,16 @@ QMap< QString, QString > JQHttpServer::Session::requestUrlQuery() const
 
     QMap< QString, QString > result;
 
-    auto lines = QUrl::fromEncoded( requestUrl_.mid( indexForQueryStart + 1 ).toUtf8() ).toString().split( "&" );
-
-    for ( const auto &line_: qAsConst( lines ) )
+    const auto lines = QUrl::fromEncoded( requestUrl_.mid( indexForQueryStart + 1 ).toUtf8() ).toString().split( "&" );
+    for ( auto line: lines )
     {
-        auto line = line_;
         line.replace( "%5B", "[" );
         line.replace( "%5D", "]" );
         line.replace( "%7B", "{" );
         line.replace( "%7D", "}" );
         line.replace( "%5E", "^" );
+        line.replace( "%3A", ":" );
+        line.replace( "%2F", "/" );
 
         auto indexOf = line.indexOf( "=" );
         if ( indexOf > 0 )
@@ -347,7 +343,7 @@ QSslCertificate JQHttpServer::Session::peerCertificate() const
 }
 #endif
 
-void JQHttpServer::Session::replyText(const QString &replyData, const int &httpStatusCode)
+void JQHttpServer::Session::replyText(const QString &replyData, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyText" )
 
@@ -379,13 +375,14 @@ void JQHttpServer::Session::replyText(const QString &replyData, const int &httpS
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyRedirects(const QUrl &targetUrl, const int &httpStatusCode)
+void JQHttpServer::Session::replyRedirects(const QUrl &targetUrl, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyRedirects" )
 
     if ( QThread::currentThread() != this->thread() )
     {
         replyHttpCode_ = httpStatusCode;
+        replyBodySize_ = 0;
 
         QMetaObject::invokeMethod( this, "replyRedirects", Qt::QueuedConnection, Q_ARG( QUrl, targetUrl ), Q_ARG( int, httpStatusCode ) );
         return;
@@ -393,22 +390,17 @@ void JQHttpServer::Session::replyRedirects(const QUrl &targetUrl, const int &htt
 
     JQHTTPSERVER_SESSION_REPLY_PROTECTION2( "replyRedirects" )
 
-    const auto &&buffer = QString( "<head>\n<meta http-equiv=\"refresh\" content=\"0;URL=%1/\" />\n</head>" ).arg( targetUrl.toString() );
-    replyBodySize_ = buffer.toUtf8().size();
-
     const auto &&data = replyRedirectsFormat
                             .arg(
                                 QString::number( httpStatusCode ),
-                                "text;charset=UTF-8",
-                                QString::number( replyBodySize_ ),
-                                buffer )
+                                targetUrl.toString() )
                             .toUtf8();
 
     waitWrittenByteCount_ = data.size();
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyJsonObject(const QJsonObject &jsonObject, const int &httpStatusCode)
+void JQHttpServer::Session::replyJsonObject(const QJsonObject &jsonObject, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyJsonObject" )
 
@@ -436,7 +428,7 @@ void JQHttpServer::Session::replyJsonObject(const QJsonObject &jsonObject, const
     socket_->write( buffer );
 }
 
-void JQHttpServer::Session::replyJsonArray(const QJsonArray &jsonArray, const int &httpStatusCode)
+void JQHttpServer::Session::replyJsonArray(const QJsonArray &jsonArray, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyJsonArray" )
 
@@ -464,7 +456,7 @@ void JQHttpServer::Session::replyJsonArray(const QJsonArray &jsonArray, const in
     socket_->write( buffer );
 }
 
-void JQHttpServer::Session::replyFile(const QString &filePath, const int &httpStatusCode)
+void JQHttpServer::Session::replyFile(const QString &filePath, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyFile" )
 
@@ -502,7 +494,7 @@ void JQHttpServer::Session::replyFile(const QString &filePath, const int &httpSt
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyFile(const QString &fileName, const QByteArray &fileData, const int &httpStatusCode)
+void JQHttpServer::Session::replyFile(const QString &fileName, const QByteArray &fileData, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyFile" )
 
@@ -541,7 +533,7 @@ void JQHttpServer::Session::replyFile(const QString &fileName, const QByteArray 
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyImage(const QImage &image, const QString &format, const int &httpStatusCode)
+void JQHttpServer::Session::replyImage(const QImage &image, const QString &format, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyImage" )
 
@@ -587,7 +579,7 @@ void JQHttpServer::Session::replyImage(const QImage &image, const QString &forma
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyImage(const QString &imageFilePath, const int &httpStatusCode)
+void JQHttpServer::Session::replyImage(const QString &imageFilePath, const int httpStatusCode)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyImage" )
 
@@ -625,7 +617,7 @@ void JQHttpServer::Session::replyImage(const QString &imageFilePath, const int &
     socket_->write( data );
 }
 
-void JQHttpServer::Session::replyBytes(const QByteArray &bytes, const QString &contentType, const int &httpStatusCode, const QString &exHeader)
+void JQHttpServer::Session::replyBytes(const QByteArray &bytes, const QString &contentType, const int httpStatusCode, const QString &exHeader)
 {
     JQHTTPSERVER_SESSION_REPLY_PROTECTION( "replyBytes" )
 
@@ -661,7 +653,7 @@ void JQHttpServer::Session::replyBytes(const QByteArray &bytes, const QString &c
             .toUtf8();
 
     waitWrittenByteCount_ = data.size() + buffer->buffer().size();
-    socket_->write(data);
+    socket_->write( data );
 }
 
 void JQHttpServer::Session::replyOptions()
@@ -702,7 +694,7 @@ void JQHttpServer::Session::analyseBufferSetup1()
                 // 没有获取到 method 但是缓冲区内已经有了数据，这可能是一个无效的连接
                 if ( requestMethod_.isEmpty() && ( receiveBuffer_.size() > 4 ) )
                 {
-//                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error0";
+                    //                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error0";
                     this->deleteLater();
                     return;
                 }
@@ -713,7 +705,7 @@ void JQHttpServer::Session::analyseBufferSetup1()
             // 如果未获取到 method 并且已经定位到了分割标记符，那么直接放弃这个连接
             if ( requestMethod_.isEmpty() && ( splitFlagIndex == 0 ) )
             {
-//                qDebug() << "JQHttpServer::Session::inspectionBuffer: error1";
+                //                qDebug() << "JQHttpServer::Session::inspectionBuffer: error1";
                 this->deleteLater();
                 return;
             }
@@ -726,7 +718,7 @@ void JQHttpServer::Session::analyseBufferSetup1()
 
                 if ( requestLineDatas.size() != 3 )
                 {
-//                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error2";
+                    //                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error2";
                     this->deleteLater();
                     return;
                 }
@@ -736,11 +728,11 @@ void JQHttpServer::Session::analyseBufferSetup1()
                 requestCrlf_ = requestLineDatas.at( 2 );
 
                 if ( ( requestMethod_ != "GET" ) &&
-                     ( requestMethod_ != "OPTIONS" ) &&
-                     ( requestMethod_ != "POST" ) &&
-                     ( requestMethod_ != "PUT" ) )
+                    ( requestMethod_ != "OPTIONS" ) &&
+                    ( requestMethod_ != "POST" ) &&
+                    ( requestMethod_ != "PUT" ) )
                 {
-//                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error3:" << requestMethod_;
+                    //                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error3:" << requestMethod_;
                     this->deleteLater();
                     return;
                 }
@@ -752,9 +744,9 @@ void JQHttpServer::Session::analyseBufferSetup1()
                 headerAcceptedFinished_ = true;
 
                 if ( ( requestMethod_.toUpper() == "GET" ) ||
-                     ( requestMethod_.toUpper() == "OPTIONS" ) ||
-                     ( ( requestMethod_.toUpper() == "POST" ) && ( ( contentLength_ > 0 ) ? ( !receiveBuffer_.isEmpty() ) : ( true ) ) ) ||
-                     ( ( requestMethod_.toUpper() == "PUT" ) && ( ( contentLength_ > 0 ) ? ( !receiveBuffer_.isEmpty() ) : ( true ) ) ) )
+                    ( requestMethod_.toUpper() == "OPTIONS" ) ||
+                    ( ( requestMethod_.toUpper() == "POST" ) && ( ( contentLength_ > 0 ) ? ( !receiveBuffer_.isEmpty() ) : ( true ) ) ) ||
+                    ( ( requestMethod_.toUpper() == "PUT" ) && ( ( contentLength_ > 0 ) ? ( !receiveBuffer_.isEmpty() ) : ( true ) ) ) )
                 {
                     this->analyseBufferSetup2();
                 }
@@ -765,7 +757,7 @@ void JQHttpServer::Session::analyseBufferSetup1()
 
                 if ( index <= 0 )
                 {
-//                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error4";
+                    //                    qDebug() << "JQHttpServer::Session::inspectionBuffer: error4";
                     this->deleteLater();
                     return;
                 }
@@ -822,7 +814,7 @@ void JQHttpServer::Session::analyseBufferSetup2()
     handleAcceptedCallback_( this );
 }
 
-void JQHttpServer::Session::onBytesWritten(const qint64 &written)
+void JQHttpServer::Session::onBytesWritten(const qint64 written)
 {
     if ( this->waitWrittenByteCount_ < 0 ) { return; }
 
@@ -869,7 +861,7 @@ void JQHttpServer::Session::onStateChanged(const QAbstractSocket::SocketState &s
 }
 
 // AbstractManage
-JQHttpServer::AbstractManage::AbstractManage(const int &handleMaxThreadCount)
+JQHttpServer::AbstractManage::AbstractManage(const int handleMaxThreadCount)
 {
     handleThreadPool_.reset( new QThreadPool );
     serverThreadPool_.reset( new QThreadPool );
@@ -920,23 +912,28 @@ bool JQHttpServer::AbstractManage::startServerThread()
 {
     QSemaphore semaphore;
 
-    QtConcurrent::run( serverThreadPool_.data(), [ &semaphore, this ]()
-    {
-        QEventLoop eventLoop;
-        QObject::connect( this, &AbstractManage::readyToClose, &eventLoop, &QEventLoop::quit );
+    auto f = QtConcurrent::run( serverThreadPool_.data(), [ &semaphore, this ]()
+                               {
+                                   QEventLoop eventLoop;
+                                   QObject::connect(
+                                       this,
+                                       &AbstractManage::readyToClose,
+                                       &eventLoop,
+                                       &QEventLoop::quit );
 
-        if ( !this->onStart() )
-        {
-            semaphore.release( 1 );
-            return;
-        }
+                                   if ( !this->onStart() )
+                                   {
+                                       semaphore.release( 1 );
+                                       return;
+                                   }
 
-        semaphore.release( 1 );
+                                   semaphore.release( 1 );
 
-        eventLoop.exec();
+                                   eventLoop.exec();
 
-        this->onFinish();
-    } );
+                                   this->onFinish();
+                               } );
+    Q_UNUSED( f );
 
     semaphore.acquire( 1 );
 
@@ -958,31 +955,35 @@ void JQHttpServer::AbstractManage::newSession(const QPointer< Session > &session
     session->setHandleAcceptedCallback( [ this ](const QPointer< JQHttpServer::Session > &session){ this->handleAccepted( session ); } );
 
     auto session_ = session.data();
-    connect( session.data(), &QObject::destroyed, [ this, session_ ]()
-    {
-        this->mutex_.lock();
-        this->availableSessions_.remove( session_ );
-        this->mutex_.unlock();
-    } );
+    connect(
+        session.data(),
+        &QObject::destroyed,
+        [ this, session_ ]()
+        {
+            this->mutex_.lock();
+            this->availableSessions_.remove( session_ );
+            this->mutex_.unlock();
+        } );
     availableSessions_.insert( session.data() );
 }
 
 void JQHttpServer::AbstractManage::handleAccepted(const QPointer< Session > &session)
 {
-    QtConcurrent::run( handleThreadPool_.data(), [ this, session ]()
-    {
-        if ( !this->httpAcceptedCallback_ )
-        {
-            qDebug() << "JQHttpServer::Manage::handleAccepted: error, httpAcceptedCallback_ is nullptr";
-            return;
-        }
+    auto f =QtConcurrent::run( handleThreadPool_.data(), [ this, session ]()
+                               {
+                                   if ( !this->httpAcceptedCallback_ )
+                                   {
+                                       qDebug() << "JQHttpServer::Manage::handleAccepted: error, httpAcceptedCallback_ is nullptr";
+                                       return;
+                                   }
 
-        this->httpAcceptedCallback_( session );
-    } );
+                                   this->httpAcceptedCallback_( session );
+                               } );
+    Q_UNUSED( f )
 }
 
 // TcpServerManage
-JQHttpServer::TcpServerManage::TcpServerManage(const int &handleMaxThreadCount):
+JQHttpServer::TcpServerManage::TcpServerManage(const int handleMaxThreadCount):
     AbstractManage( handleMaxThreadCount )
 { }
 
@@ -994,7 +995,7 @@ JQHttpServer::TcpServerManage::~TcpServerManage()
     }
 }
 
-bool JQHttpServer::TcpServerManage::listen(const QHostAddress &address, const quint16 &port)
+bool JQHttpServer::TcpServerManage::listen(const QHostAddress &address, const quint16 port)
 {
     listenAddress_ = address;
     listenPort_ = port;
@@ -1015,12 +1016,16 @@ bool JQHttpServer::TcpServerManage::onStart()
 
     mutex_.unlock();
 
-    QObject::connect( tcpServer_.data(), &QTcpServer::newConnection, [ this ]()
-    {
-        auto socket = this->tcpServer_->nextPendingConnection();
+    QObject::connect(
+        tcpServer_.data(),
+        &QTcpServer::newConnection,
+        tcpServer_.data(),
+        [ this ]()
+        {
+            auto socket = this->tcpServer_->nextPendingConnection();
 
-        this->newSession( new Session( socket ) );
-    } );
+            this->newSession( new Session( socket ) );
+        } );
 
     if ( !tcpServer_->listen( listenAddress_, listenPort_ ) )
     {
@@ -1068,7 +1073,7 @@ void JQHttpServer::SslServerHelper::incomingConnection(qintptr socketDescriptor)
 
 }
 
-JQHttpServer::SslServerManage::SslServerManage(const int &handleMaxThreadCount):
+JQHttpServer::SslServerManage::SslServerManage(const int handleMaxThreadCount):
     AbstractManage( handleMaxThreadCount )
 { }
 
@@ -1081,53 +1086,42 @@ JQHttpServer::SslServerManage::~SslServerManage()
 }
 
 bool JQHttpServer::SslServerManage::listen(
-        const QHostAddress &address,
-        const quint16 &port,
-        const QString &crtFilePath,
-        const QString &keyFilePath,
-        const QList< QPair< QString, QSsl::EncodingFormat > > &caFileList,
-        const QSslSocket::PeerVerifyMode &peerVerifyMode
-    )
+    const QHostAddress &address,
+    const quint16       port,
+    const QString &     crtFilePath,
+    const QString &     keyFilePath )
 {
     listenAddress_ = address;
     listenPort_ = port;
 
-    QFile fileForCrt( crtFilePath );
-    if ( !fileForCrt.open( QIODevice::ReadOnly ) )
+    QFile crtFile( crtFilePath );
+    if ( !crtFile.open( QIODevice::ReadOnly ) )
     {
         qDebug() << "SslServerManage::listen: error: can not open file:" << crtFilePath;
         return false;
     }
 
-    QFile fileForKey( keyFilePath );
-    if ( !fileForKey.open( QIODevice::ReadOnly ) )
+    QFile keyFile( keyFilePath );
+    if ( !keyFile.open( QIODevice::ReadOnly ) )
     {
         qDebug() << "SslServerManage::listen: error: can not open file:" << keyFilePath;
         return false;
     }
 
-    QSslCertificate sslCertificate( fileForCrt.readAll(), QSsl::Pem );
-    QSslKey sslKey( fileForKey.readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey );
-
+    QSslKey sslKey( keyFile.readAll(), QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey );
+    QList< QSslCertificate > localCertificateChain;
     QList< QSslCertificate > caCertificates;
-    for ( const auto &caFile: caFileList )
-    {
-        QFile fileForCa( caFile.first );
-        if ( !fileForCa.open( QIODevice::ReadOnly ) )
-        {
-            qDebug() << "SslServerManage::listen: error: can not open file:" << caFile.first;
-            return false;
-        }
 
-        caCertificates.push_back( QSslCertificate( fileForCa.readAll(), caFile.second ) );
-    }
+#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 ) )
+    localCertificateChain = QSslCertificate::fromPath( crtFilePath );
+#else
+    localCertificateChain.push_back( QSslCertificate( crtFile.readAll(), QSsl::Pem ) );
+#endif
 
     sslConfiguration_.reset( new QSslConfiguration );
-    sslConfiguration_->setPeerVerifyMode( peerVerifyMode );
-    sslConfiguration_->setPeerVerifyDepth( 1 );
-    sslConfiguration_->setLocalCertificate( sslCertificate );
+    sslConfiguration_->setLocalCertificateChain( localCertificateChain );
     sslConfiguration_->setPrivateKey( sslKey );
-    sslConfiguration_->setProtocol( QSsl::TlsV1_1OrLater );
+    sslConfiguration_->setProtocol( QSsl::TlsV1_2OrLater );
     sslConfiguration_->setCaCertificates( caCertificates );
 
     return this->initialize();
@@ -1148,21 +1142,26 @@ bool JQHttpServer::SslServerManage::onStart()
 
     tcpServer_->onIncomingConnectionCallback_ = [ this ](qintptr socketDescriptor)
     {
-//        qDebug() << "incomming";
-
         auto sslSocket = new QSslSocket;
 
         sslSocket->setSslConfiguration( *sslConfiguration_ );
 
-        QObject::connect( sslSocket, &QSslSocket::encrypted, [ this, sslSocket ]()
-        {
-            this->newSession( new Session( sslSocket ) );
-        } );
+        QObject::connect(
+            sslSocket,
+            &QSslSocket::encrypted,
+            sslSocket,
+            [ this, sslSocket ]()
+            {
+                this->newSession( new Session( sslSocket ) );
+            } );
 
-//        QObject::connect( sslSocket, static_cast< void(QSslSocket::*)(const QList<QSslError> &errors) >(&QSslSocket::sslErrors), [](const QList<QSslError> &errors)
-//        {
-//            qDebug() << "sslErrors:" << errors;
-//        } );
+        // QObject::connect(
+        //     sslSocket,
+        //     static_cast< void(QSslSocket::*)(const QList<QSslError> &errors) >(&QSslSocket::sslErrors),
+        //     [](const QList<QSslError> &errors)
+        //     {
+        //         qDebug() << "sslErrors:" << errors;
+        //     } );
 
         sslSocket->setSocketDescriptor( socketDescriptor );
         sslSocket->startServerEncryption();
@@ -1206,8 +1205,8 @@ QSharedPointer< JQHttpServer::Service > JQHttpServer::Service::createService(con
 
 void JQHttpServer::Service::registerProcessor( const QPointer< QObject > &processor )
 {
-    static QSet< QString > exceptionSlots( { "deleteLater", "_q_reregisterTimers" } );
-    static QSet< QString > allowMethod( { "GET", "POST", "DELETE", "PUT" } );
+    static const QSet< QString > exceptionSlots( { "deleteLater", "_q_reregisterTimers" } );
+    static const QSet< QString > allowMethod( { "GET", "POST", "DELETE", "PUT" } );
 
     QString apiPathPrefix;
     for ( auto index = 0; index < processor->metaObject()->classInfoCount(); ++index )
@@ -1268,7 +1267,7 @@ void JQHttpServer::Service::registerProcessor( const QPointer< QObject > &proces
         api.slotName = QString( metaMethod.name() );
         if ( exceptionSlots.contains( api.slotName ) ) { continue; }
 
-        for ( const auto &methdo: qAsConst( allowMethod ) )
+        for ( const auto &methdo: allowMethod )
         {
             if ( api.slotName.startsWith( methdo.toLower() ) )
             {
@@ -1318,9 +1317,9 @@ QJsonDocument JQHttpServer::Service::extractPostJsonData(const QPointer< JQHttpS
 void JQHttpServer::Service::reply(
     const QPointer< JQHttpServer::Session > &session,
     const QJsonObject &data,
-    const bool &isSucceed,
+    const bool isSucceed,
     const QString &message,
-    const int &httpStatusCode )
+    const int httpStatusCode )
 {
     QJsonObject result;
     result[ "isSucceed" ] = isSucceed;
@@ -1336,9 +1335,9 @@ void JQHttpServer::Service::reply(
 
 void JQHttpServer::Service::reply(
     const QPointer< JQHttpServer::Session > &session,
-    const bool &isSucceed,
+    const bool isSucceed,
     const QString &message,
-    const int &httpStatusCode )
+    const int httpStatusCode )
 {
     reply( session, QJsonObject(), isSucceed, message, httpStatusCode );
 }
@@ -1358,7 +1357,7 @@ void JQHttpServer::Service::httpGetFaviconIco(const QPointer< JQHttpServer::Sess
 
     QPainter painter( &image );
     painter.setPen( Qt::NoPen );
-    painter.setBrush( QColor( "#ff00ff" ) );
+    painter.setBrush( QColor( 255, 0, 255 ) );
     painter.drawEllipse( 16, 16, 224, 224 );
     painter.end();
 
@@ -1373,16 +1372,17 @@ void JQHttpServer::Service::httpOptions(const QPointer< JQHttpServer::Session > 
 bool JQHttpServer::Service::initialize( const QMap< JQHttpServer::ServiceConfigEnum, QVariant > &config )
 {
     if ( config.contains( ServiceProcessor ) &&
-         config[ ServiceProcessor ].canConvert< QPointer< QObject > >() &&
-         !config[ ServiceProcessor ].value< QPointer< QObject > >().isNull() )
+        config[ ServiceProcessor ].canConvert< QPointer< QObject > >() &&
+        !config[ ServiceProcessor ].value< QPointer< QObject > >().isNull() )
     {
         this->registerProcessor( config[ ServiceProcessor ].value< QPointer< QObject > >() );
     }
 
     if ( config.contains( ServiceProcessor ) &&
-         config[ ServiceProcessor ].canConvert< QList< QPointer< QObject > > >() )
+        config[ ServiceProcessor ].canConvert< QList< QPointer< QObject > > >() )
     {
-        for ( const auto &process: config[ ServiceProcessor ].value< QList< QPointer< QObject > > >() )
+        const auto processList = config[ ServiceProcessor ].value< QList< QPointer< QObject > > >();
+        for ( const auto &process: processList )
         {
             if ( !process ) { continue; }
 
@@ -1397,9 +1397,9 @@ bool JQHttpServer::Service::initialize( const QMap< JQHttpServer::ServiceConfigE
         this->httpServerManage_->setHttpAcceptedCallback( std::bind( &JQHttpServer::Service::onSessionAccepted, this, std::placeholders::_1 ) );
 
         if ( !this->httpServerManage_->listen(
-                 QHostAddress::Any,
-                 httpPort
-             ) )
+                QHostAddress::Any,
+                httpPort
+                ) )
         {
             qWarning() << "JQHttpServer::Service: listen port error:" << httpPort;
             return false;
@@ -1412,12 +1412,6 @@ bool JQHttpServer::Service::initialize( const QMap< JQHttpServer::ServiceConfigE
         this->httpsServerManage_.reset( new JQHttpServer::SslServerManage );
         this->httpsServerManage_->setHttpAcceptedCallback( std::bind( &JQHttpServer::Service::onSessionAccepted, this, std::placeholders::_1 ) );
 
-        auto peerVerifyMode = QSslSocket::VerifyNone;
-        if ( config.contains( ServiceSslPeerVerifyMode ) )
-        {
-            peerVerifyMode = static_cast< QSslSocket::PeerVerifyMode >( config[ ServiceSslPeerVerifyMode ].toInt() );
-        }
-
         QString crtFilePath = config[ ServiceSslCrtFilePath ].toString();
         QString keyFilePath = config[ ServiceSslKeyFilePath ].toString();
         if ( crtFilePath.isEmpty() || keyFilePath.isEmpty() )
@@ -1426,23 +1420,12 @@ bool JQHttpServer::Service::initialize( const QMap< JQHttpServer::ServiceConfigE
             return false;
         }
 
-        QList< QPair< QString, QSsl::EncodingFormat > > caFileList;
-        for ( const auto &caFilePath: config[ ServiceSslCAFilePath ].toStringList() )
-        {
-            QPair< QString, QSsl::EncodingFormat > pair;
-            pair.first = caFilePath;
-            pair.second = QSsl::Pem;
-            caFileList.push_back( pair );
-        }
-
         if ( !this->httpsServerManage_->listen(
-                 QHostAddress::Any,
-                 httpsPort,
-                 crtFilePath,
-                 keyFilePath,
-                 caFileList,
-                 peerVerifyMode
-             ) )
+                QHostAddress::Any,
+                httpsPort,
+                crtFilePath,
+                keyFilePath
+                ) )
         {
             qWarning() << "JQHttpServer::Service: listen port error:" << httpsPort;
             return false;
@@ -1463,12 +1446,12 @@ void JQHttpServer::Service::onSessionAccepted(const QPointer< JQHttpServer::Sess
     if ( certificateVerifier_ && qobject_cast< QSslSocket * >( session->socket() ) )
     {
         QMetaObject::invokeMethod(
-                    certificateVerifier_,
-                    "certificateVerifier",
-                    Qt::DirectConnection,
-                    Q_ARG( QSslCertificate, session->peerCertificate() ),
-                    Q_ARG( QPointer<JQHttpServer::Session>, session )
-                );
+            certificateVerifier_,
+            "certificateVerifier",
+            Qt::DirectConnection,
+            Q_ARG( QSslCertificate, session->peerCertificate() ),
+            Q_ARG( QPointer<JQHttpServer::Session>, session )
+            );
 
         if ( session->replyHttpCode() >= 0 ) { return; }
     }
@@ -1493,70 +1476,70 @@ void JQHttpServer::Service::onSessionAccepted(const QPointer< JQHttpServer::Sess
 
             switch ( it->receiveDataType )
             {
-                case NoReceiveDataType:
+            case NoReceiveDataType:
+            {
+                QMetaObject::invokeMethod(
+                    it->processor,
+                    it->slotName.toLatin1().data(),
+                    Qt::DirectConnection,
+                    Q_ARG( QPointer<JQHttpServer::Session>, session )
+                    );
+                return;
+            }
+            case VariantListReceiveDataType:
+            {
+                const auto &&json = this->extractPostJsonData( session );
+                if ( !json.isNull() )
                 {
                     QMetaObject::invokeMethod(
-                                it->processor,
-                                it->slotName.toLatin1().data(),
-                                Qt::DirectConnection,
-                                Q_ARG( QPointer<JQHttpServer::Session>, session )
-                            );
+                        it->processor,
+                        it->slotName.toLatin1().data(),
+                        Qt::DirectConnection,
+                        Q_ARG( QVariantList, json.array().toVariantList() ),
+                        Q_ARG( QPointer<JQHttpServer::Session>, session )
+                        );
                     return;
                 }
-                case VariantListReceiveDataType:
+                break;
+            }
+            case VariantMapReceiveDataType:
+            {
+                const auto &&json = this->extractPostJsonData( session );
+                if ( !json.isNull() )
                 {
-                    const auto &&json = this->extractPostJsonData( session );
-                    if ( !json.isNull() )
-                    {
-                        QMetaObject::invokeMethod(
-                                    it->processor,
-                                    it->slotName.toLatin1().data(),
-                                    Qt::DirectConnection,
-                                    Q_ARG( QVariantList, json.array().toVariantList() ),
-                                    Q_ARG( QPointer<JQHttpServer::Session>, session )
-                                );
-                        return;
-                    }
-                    break;
-                }
-                case VariantMapReceiveDataType:
-                {
-                    const auto &&json = this->extractPostJsonData( session );
-                    if ( !json.isNull() )
-                    {
-                        QMetaObject::invokeMethod(
-                                    it->processor,
-                                    it->slotName.toLatin1().data(),
-                                    Qt::DirectConnection,
-                                    Q_ARG( QVariantMap, json.object().toVariantMap() ),
-                                    Q_ARG( QPointer<JQHttpServer::Session>, session )
-                                );
-                        return;
-                    }
-                    break;
-                }
-                case ListVariantMapReceiveDataType:
-                {
-                    const auto &&json = this->extractPostJsonData( session );
-                    if ( !json.isNull() )
-                    {
-                        QMetaObject::invokeMethod(
-                                    it->processor,
-                                    it->slotName.toLatin1().data(),
-                                    Qt::DirectConnection,
-                                    Q_ARG( QList<QVariantMap>, Service::variantListToListVariantMap( json.array().toVariantList() ) ),
-                                    Q_ARG( QPointer<JQHttpServer::Session>, session )
-                                );
-                        return;
-                    }
-                    break;
-                }
-                default:
-                {
-                    qDebug() << "onSessionAccepted: data type not match:" << it->receiveDataType;
-                    reply( session, false, "data type not match", 404 );
+                    QMetaObject::invokeMethod(
+                        it->processor,
+                        it->slotName.toLatin1().data(),
+                        Qt::DirectConnection,
+                        Q_ARG( QVariantMap, json.object().toVariantMap() ),
+                        Q_ARG( QPointer<JQHttpServer::Session>, session )
+                        );
                     return;
                 }
+                break;
+            }
+            case ListVariantMapReceiveDataType:
+            {
+                const auto &&json = this->extractPostJsonData( session );
+                if ( !json.isNull() )
+                {
+                    QMetaObject::invokeMethod(
+                        it->processor,
+                        it->slotName.toLatin1().data(),
+                        Qt::DirectConnection,
+                        Q_ARG( QList<QVariantMap>, Service::variantListToListVariantMap( json.array().toVariantList() ) ),
+                        Q_ARG( QPointer<JQHttpServer::Session>, session )
+                        );
+                    return;
+                }
+                break;
+            }
+            default:
+            {
+                qDebug() << "onSessionAccepted: data type not match:" << it->receiveDataType;
+                reply( session, false, "data type not match", 404 );
+                return;
+            }
             }
 
             qDebug() << "onSessionAccepted: data error:" << it->receiveDataType;
@@ -1594,7 +1577,7 @@ void JQHttpServer::Service::onSessionAccepted(const QPointer< JQHttpServer::Sess
     reply( session, false, "API not found", 404 );
 }
 
-QString JQHttpServer::Service::snakeCaseToCamelCase(const QString &source, const bool &firstCharUpper)
+QString JQHttpServer::Service::snakeCaseToCamelCase(const QString &source, const bool firstCharUpper)
 {
 #if ( QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 ) )
     const auto &&splitList = source.split( '_', Qt::SkipEmptyParts );
