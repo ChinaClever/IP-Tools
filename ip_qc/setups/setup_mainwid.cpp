@@ -27,11 +27,16 @@ void Setup_MainWid::initFunSlot()
 {
     initLogCount();
     ui->pcNumSpin->setValue(mItem->pcNum);
+
     mUserWid = new UserMainWid(ui->stackedWid);
     ui->stackedWid->addWidget(mUserWid);
     QTimer::singleShot(2*1000,this,SLOT(checkPcNumSlot()));
     QDate buildDate = QLocale(QLocale::English ).toDate( QString(__DATE__).replace("  ", " 0"), "MMM dd yyyy");
     ui->label_date->setText(buildDate.toString("yyyy-MM-dd"));
+
+    ui->LabelPrint->setChecked(mItem->labelPrint == 1);
+    ui->Meta->setText(mItem->meta);
+    ui->IpLine->setText(mItem->ipAddr);
 
     timer = new QTimer(this); timer->start(3*1000);
     connect(timer, SIGNAL(timeout()),this, SLOT(timeoutDone()));
@@ -66,6 +71,7 @@ void Setup_MainWid::initLogCount()
 
     mItem->logCount = value * 10000;
     ui->logCountSpin->setValue(value);
+
 }
 
 
@@ -91,6 +97,10 @@ void Setup_MainWid::on_pcBtn_clicked()
         ret = false;
         writeLogCount();
         mItem->pcNum = ui->pcNumSpin->value();
+        mItem->labelPrint = ui->LabelPrint->isChecked() ? 1 : 0; // 抓取勾选状态
+        mItem->meta = ui->Meta->text();                         // 抓取方法文本
+        mItem->ipAddr = ui->IpLine->text();                     // 抓取IP文本
+
         CfgCom::bulid()->writeCfgCom();
     } else {
         str = tr("保存");
@@ -98,6 +108,10 @@ void Setup_MainWid::on_pcBtn_clicked()
 
     ui->pcBtn->setText(str);
     ui->logCountSpin->setEnabled(ret);
+    ui->LabelPrint->setEnabled(ret);
+    ui->Meta->setEnabled(ret);
+    ui->IpLine->setEnabled(ret);
+
     if(mItem->pcNum) ret = false;
     ui->pcNumSpin->setEnabled(ret);
 }

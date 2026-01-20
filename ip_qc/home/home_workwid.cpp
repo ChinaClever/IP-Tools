@@ -54,7 +54,7 @@ void Home_WorkWid::initFunSlot()
 
 void Home_WorkWid::logWrite()
 {
-    sLogItem logIt; logIt.dev = "IP MAX";
+    sLogItem logIt; logIt.dev = "IP-Pro";
     sCoreItem *it = &Core_Thread::bulid()->coreItem;
     logIt.mac = it->actual.mac; logIt.sn = it->actual.sn;
     logIt.user = ui->userEdit->text();
@@ -93,12 +93,15 @@ void Home_WorkWid::setTextColor(bool pass)
     ui->textEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
 }
 
-void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
+void Home_WorkWid::insertTextSlot(const QString &msg, bool pass, const QString Request, const QString testStep, const QString testItem)
 {
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(pass); ui->textEdit->insertPlainText(str);
     mPro->getPro()->itemName<<msg;
     mPro->getPro()->uploadPass<<pass;
+    mPro->getPro()->testRequest<<Request;
+    mPro->getPro()->testStep<<testStep;
+    mPro->getPro()->testItem<<testItem;
     // setTextColor(mPro->updatePro(str,pass)); ui->textEdit->insertPlainText(mPro->getPro()->itemName);
 }
 
@@ -170,6 +173,7 @@ bool Home_WorkWid::initUser()
     mPro->getPro()->pn = ui->userEdit->text();
 
     int cnt = ui->cntSpin->value();
+    mPro->getPro()->orderNum = QString::number(cnt);
     if(cnt < 1) {MsgBox::critical(this, tr("请先填写订单剩余数量！")); return false;}
     return true;
 }
@@ -284,6 +288,7 @@ void Home_WorkWid::on_startBtn_clicked()
             timer->start(500);
             //mCoreThread->run();
             mCoreThread->start();
+            mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
         }
     } else {
         bool ret = MsgBox::question(this, tr("确定需要提前结束？"));

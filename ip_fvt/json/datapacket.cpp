@@ -24,6 +24,7 @@ void sDataPacket::init()
 
     pro->productType.clear();
     pro->productSN.clear();
+    pro->moduleSn.clear();
     pro->macAddress.clear();
     pro->testTime.clear();
 

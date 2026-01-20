@@ -23,6 +23,7 @@ void sDataPacket::init()
 
     pro->productType.clear();
     pro->productSN.clear();
+    pro->moduleSn.clear();
     pro->macAddress.clear();
     pro->testTime.clear();
 
@@ -34,7 +35,11 @@ void sDataPacket::init()
     pro->no.clear();
     pro->itemName.clear();
     pro->uploadPass.clear();
+    pro->testRequest.clear();
+    pro->testStep.clear();
+    pro->testItem.clear();
     pro->pn.clear();
+    pro->orderNum.clear();
     pro->uploadPassResult = 0;
 }
 

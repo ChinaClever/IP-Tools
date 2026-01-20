@@ -57,8 +57,11 @@ private slots:
     void on_logoBtn_clicked();
     void on_auCheckBox_clicked(bool checked);
     void finishSlot(bool pass, const QString &msg);
-    void insertTextSlot(const QString &msg, bool pass);
-
+    void insertTextSlot(const QString &msg,
+                        bool pass,
+                        const QString Request = "",  // 设置默认参数
+                        const QString testStep = "",
+                        const QString testItem = "");
     void on_ipEdit_textChanged(const QString &arg1);
 
     void on_userEdit_selectionChanged();

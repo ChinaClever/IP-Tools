@@ -105,7 +105,7 @@ void Home_SetWid::updateWid()
     item->loopNum = ui->loopNumBox->value();
     item->devType = ui->typeEdit->text();
     item->fwVer = ui->fwEdit->text();
-
+mPro->getPro()->productType = ui->typeEdit->text();
     item->isTimer = ui->timeBox->isChecked();
     item->isSersor = ui->sersor->isChecked();
     item->isLink = ui->linkBox->isChecked();

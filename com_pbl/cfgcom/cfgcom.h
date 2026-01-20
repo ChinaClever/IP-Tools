@@ -8,6 +8,11 @@ struct sCfgComIt
     sSerial coms;
     int logCount;
     uchar pcNum;
+
+    int labelPrint;
+    QString meta;
+    QString ipAddr;
+
     ushort vol;
     ushort volErr, curErr, powErr; // 电流误差
 

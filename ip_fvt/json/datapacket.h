@@ -209,6 +209,7 @@ struct sProgress
 
     QString productType;
     QString productSN;
+    QString moduleSn;
     QString macAddress;
     QString softwareVersion;
     // QString clientName;
