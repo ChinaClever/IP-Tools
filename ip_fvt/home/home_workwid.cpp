@@ -16,7 +16,7 @@ Home_WorkWid::Home_WorkWid(QWidget *parent) :
     Ssdp_Core::bulid(this);
     mCoreThread = new Core_Thread(this);
     //Yc = Yc_Obj::bulid(this);
-    // mPro=sDataPacket::bulid();
+     mPro=sDataPacket::bulid();
     QTimer::singleShot(450,this,SLOT(initFunSlot()));
     // Core_Http::bulid(this)->initHost("192.168.1.32");
     //Core_Http::bulid(this)->execute("killall cores");
@@ -54,7 +54,7 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
 
     connect(mCoreThread, &Core_Thread::msgSigYC, this, &Home_WorkWid::insertTextSlot);
-    // connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
+  //   connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
 }
 
 void Home_WorkWid::logWrite()
@@ -84,13 +84,13 @@ void Home_WorkWid::finishSlot(bool pass, const QString &msg)
     if(pass && mId>10) {
         mCnt.ok += 1;
         str += tr("成功！");
-        // mPro->getPro()->uploadPassResult = 1;
+         mPro->getPro()->uploadPassResult = 1;
     } else {
         mCnt.err += 1;
         str += tr("失败！");
-        // mPro->getPro()->uploadPassResult = 0;
+         mPro->getPro()->uploadPassResult = 0;
     } mCnt.all += 1;
-    insertTextSlot(str, pass);
+    insertTextSlot(str, pass,"","","");
     updateCntSlot(); logWrite();
 }
 
@@ -107,12 +107,16 @@ void Home_WorkWid::setTextColor(bool pass)
     ui->textEdit->mergeCurrentCharFormat(fmt);//textEdit使用当前的字符格式
 }
 
-void Home_WorkWid::insertTextSlot(const QString &msg, bool pass)
+void Home_WorkWid::insertTextSlot(const QString &msg, bool pass, const QString Request, const QString testStep, const QString testItem)
 {
     QString str = QString::number(mId++) + "、"+ msg + "\n";
     setTextColor(pass); ui->textEdit->insertPlainText(str);
-    // mPro->getPro()->itemName<<msg;
-    // mPro->getPro()->uploadPass<<pass;
+     mPro->getPro()->itemName<<msg;
+     mPro->getPro()->uploadPass<<pass;
+     mPro->getPro()->testRequest<<Request;
+     mPro->getPro()->testStep<<testStep;
+     mPro->getPro()->testItem<<testItem;
+
 }
 
 
@@ -191,7 +195,6 @@ bool Home_WorkWid::initMac()
             MsgBox::critical(this, str);
         }
     }
-
     return ret;
 }
 
@@ -200,9 +203,18 @@ bool Home_WorkWid::initUser()
 {
     QString str = ui->userEdit->text();
     if(str.isEmpty()){MsgBox::critical(this, tr("请先填写工单号！")); return false;}
-    // mPro->getPro()->pn = ui->userEdit->text();
+    if(str.contains("+")) {
+        QStringList parts = ui->userEdit->text().split("+");
+        mPro->getPro()->pn = parts.at(0).trimmed();
+        mPro->getPro()->productSN = parts.at(1).trimmed();
+    } else{
+        mPro->getPro()->pn = str;
+        mPro->getPro()->productSN = "";
+    }
+
 
     int cnt = ui->cntSpin->value();
+    mPro->getPro()->orderNum = QString::number(cnt);
     if(cnt < 1) {MsgBox::critical(this, tr("请先填写订单剩余数量！")); return false;}
     return true;
 }
@@ -264,11 +276,14 @@ void Home_WorkWid::initData()
 
 bool Home_WorkWid::initWid()
 {
-    // mPro->init();
+     mPro->init();
     // bool ret = true;
     bool ret = initMac();
+    cout << ret;
     if(ret) ret = initUser();
+    cout << ret;
     if(ret) ret = inputCheck();
+    cout << ret;
     if(ret) {
         initData();
         setWidEnabled(false);
@@ -281,6 +296,7 @@ bool Home_WorkWid::initWid()
         ui->textEdit->clear();
         isStart = true;
     }
+    cout << ret;
 
     return ret;
 }
@@ -311,7 +327,7 @@ bool Home_WorkWid::updateWid()
     QString str = it.sn;
     if(str.isEmpty()) str = "--- ---";
     ui->snLab->setText(str);
-    // mPro->getPro()->productSN = str;
+        mPro->getPro()->moduleSn = str;
 
     str = it.dev;
     if(str.isEmpty()) str = "--- ---";
@@ -349,7 +365,9 @@ void Home_WorkWid::on_startBtn_clicked()
 
     // mPro->getPro()->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     if(isStart == false) {
+        cout <<123;
         if(initWid()) {
+            cout <<213;
             timer->start(500);
             // mCoreThread->run();
             mCoreThread->start();

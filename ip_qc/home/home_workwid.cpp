@@ -48,6 +48,7 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::finshSig, this, &Home_WorkWid::finishSlot);
     connect(mCoreThread, &Core_Thread::overSig, this, &Home_WorkWid::updateResult);
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
+    //connect(mCoreThread, &Core_Thread::msgSigEn, this, &Home_WorkWid::insertTextSlotEn);
     connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
     //QTimer::singleShot(450,this,SLOT(updateCntSlot()));
 }
@@ -170,7 +171,14 @@ bool Home_WorkWid::initUser()
 {
     QString str = ui->userEdit->text();
     if(str.isEmpty()){MsgBox::critical(this, tr("请先填写工单号！")); return false;}
-    mPro->getPro()->pn = ui->userEdit->text();
+    if(str.contains("+")) {
+        QStringList parts = ui->userEdit->text().split("+");
+        mPro->getPro()->pn = parts.at(0).trimmed();
+        mPro->getPro()->productSN = parts.at(1).trimmed();
+    } else{
+        mPro->getPro()->pn = str;
+        mPro->getPro()->productSN = "";
+    }
 
     int cnt = ui->cntSpin->value();
     mPro->getPro()->orderNum = QString::number(cnt);
@@ -260,7 +268,7 @@ bool Home_WorkWid::updateWid()
     QString str = it->actual.sn;
     if(str.isEmpty()) str = "--- ---";
     ui->snLab->setText(str);
-    mPro->getPro()->productSN = str;
+    mPro->getPro()->moduleSn = str;
 
     str = it->actual.ver.fwVer;
     if(str.isEmpty()) str = "--- ---";

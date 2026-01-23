@@ -32,12 +32,12 @@ bool Yc_Obj::powerOn(int v)
         ret = yc->handShake();
     }
     if(ret) str += tr("成功"); else str += tr("失败");
-    emit msgSig(str, ret);
+    emit msgSig(str, ret,"","","");
 
     str = tr("标准源上电");
     if(ret) ret = yc->powerOn(v);
     if(ret) str += tr("成功"); else str += tr("失败");
-    emit msgSig(str, ret);
+    emit msgSig(str, ret,"","","");
 
     return ret;
 }

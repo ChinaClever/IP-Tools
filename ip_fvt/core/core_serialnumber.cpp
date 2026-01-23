@@ -37,19 +37,35 @@ QString Core_Object::updateMacAddr(int step)
     mPro = sDataPacket::bulid()->getPro();
 
     if(it->mac.size() > 5) {
-#if 1
-        MacAddr *mac = MacAddr::bulid();
-        it->mac = mac->macAdd(it->mac, step);
-        writeMac(it->mac.toLatin1());
-#else
-        QString url = "mac/test?work_order=%1&serial_id=%2";
-        url = url.arg(mPro->pn).arg(mPro->productSN);
-        sleep(1);
-        QString temp = Json_Pack::bulid()->http_get(url,"192.168.1.12");
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(temp.toUtf8());
-        QJsonObject jsonObj = jsonDoc.object();
-        it->mac = jsonObj["mac_address"].toString();
-#endif
+        sCfgComIt *cfg = CfgCom::bulid()->item;
+    if(cfg->ipAddr.isEmpty())
+        {
+            MacAddr *mac = MacAddr::bulid();
+            it->mac = mac->macAdd(it->mac, step);
+            writeMac(it->mac.toLatin1());
+        }
+    else
+        {
+    // QString url = "mac/test?work_order=%1&serial_id=%2";
+    // url = url.arg(mPro->pn).arg(mPro->productSN);
+    // sleep(1);
+    // QString temp = Json_Pack::bulid()->http_get(url,"192.168.1.12");
+    // QJsonDocument jsonDoc = QJsonDocument::fromJson(temp.toUtf8());
+    // QJsonObject jsonObj = jsonDoc.object();
+    // it->mac = jsonObj["mac_address"].toString();
+
+        QJsonObject json;
+        sProgress pro = Json_Pack::bulid()->getPro();
+  //      json.insert("clientName",pro.companyName);
+        json.insert("orderId",pro.pn);
+        json.insert("productSn",pro.productSN);
+        json.insert("moduleSn",pro.moduleSn);
+        QString temp = Json_Pack::bulid()->http_get("admin-api/system/mac/getAddress",cfg->ipAddr, json);
+        cm_mdelay(1000); // sleep(1);
+        it->mac = temp;
+    }
+
+
         CfgCom::bulid()->writeCfg("mac", it->mac, "Mac");
     } else {
         qDebug() << "updateMacAddr err" << it->mac;

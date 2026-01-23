@@ -47,6 +47,7 @@ void CfgCom::writeCfgCom()
     writeCfg("label_print", item->labelPrint, "Label");
     writeCfg("upload_meta", item->meta, "Upload");
     writeCfg("upload_ip", item->ipAddr, "Upload");
+
 }
 
 void CfgCom::initErrData()

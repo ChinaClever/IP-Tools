@@ -97,14 +97,14 @@ bool Core_Thread::fsCheck()
         if(fn.contains(".pem")) continue;
         if(!QFile::exists(fn)) {
             ret = false;
-            emit msgSig(tr("文件未找到")+fn, ret);
+            emit msgSig(tr("文件未找到")+fn, ret,"","","");
         }
         int size = File::fileSize(fn);
         if(!size) {
             ret = false;
-            emit msgSig(tr("文件为空")+fn, ret);
+            emit msgSig(tr("文件为空")+fn, ret,"","","");
         }
-    } if(ret) emit msgSig(tr("文件未检查 OK!"), ret);
+    } if(ret) emit msgSig(tr("文件未检查 OK!"), ret,"","","");
     return ret;
 }
 
@@ -118,13 +118,13 @@ bool Core_Thread::searchDev()
         QString str = tr("未找到任何目标设备"); // cm_mdelay(150);
         if(ips.size()) str = tr("已找到%1个设备").arg(ips.size());
         else {ret = false;} m_ips = ips;
-        emit msgSig(str, ret);
+        emit msgSig(str, ret,"","","");
     } else {
         QString ip = m_ips.first();
         for(int i=0; i<5; ++i) {
             ret = cm_pingNet(ip);
             if(ret == true) {
-                emit msgSig(tr("设备连接成功"), true);
+                emit msgSig(tr("设备连接成功"), true,"","","");
                 break;
             } else cm_mdelay(1*1000);
         }
@@ -143,7 +143,7 @@ void Core_Thread::timeSync()
 {
     QString fmd = "yyyy-MM-dd hh:mm:ss";
     QString t = QDateTime::currentDateTime().toString(fmd);
-    emit msgSig(tr("时间设置：")+t, true);
+    emit msgSig(tr("时间设置：")+t, true,"时间与期望值一致","参数检查","时间检查");
     sCfgItem it; it.type = 43; it.fc =1;
     http->setting(it, t); cm_mdelay(321);
     it.type = 30; it.fc = 9;
@@ -156,7 +156,7 @@ void Core_Thread::enModbusRtu()
     sCfgItem it; it.type = 15; it.fc = 1;
     http->setting(it, 1);
     it.fc = 7; http->setting(it, 1);
-    emit msgSig(tr("设备模式：已开启Modbus-RTU功能"), true);
+    emit msgSig(tr("设备模式：已开启Modbus-RTU功能"), true,"","","");
 
     //it.type = 13; it.fc = 3;
     //Core_Http::bulid(this)->setting(it, 1);
@@ -203,11 +203,11 @@ bool Core_Thread::downVer(const QString &ip)
         writeSnMac(it.sn, mac); //str += "ok\n";
         str = "SN：" + m_sn + "   MAC：" + m_mac;
     } else str =  tr("版本信息读取错误");
-    emit msgSig(str, ret);
+    emit msgSig(str, ret,"mac与期望值一致","参数检查","mac检查");
 
     if(ret) {
         int rtn = DbMacs::bulid()->contains(m_mac, it.sn);
-        if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库已存在").arg(m_mac), ret); }
+        if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库已存在").arg(m_mac), ret,"mac与期望值一致","参数检查","mac检查"); }
         http->execute("rm /appconfigs/pdu/cfg/proc_cnt.conf");
     }
 
@@ -221,7 +221,7 @@ bool Core_Thread::workDown(const QString &ip)
         bool ret = http->uploadFile(fn);
         if(!ret && fn.contains(".pem")) continue;
         if(!ret) res = false;
-        emit msgSig(fn, ret);
+        emit msgSig(fn, ret,"含有pem文件","参数检查","固件检查");
         cm_mdelay(350);
     }
 
@@ -232,30 +232,30 @@ bool Core_Thread::waitForRest()
 {
     // 安全检查：确保http对象和IP列表有效
     if(!http) {
-        emit msgSig(tr("http对象未初始化"), false);
+        emit msgSig(tr("http对象未初始化"), false,"","","");
         return false;
     }
     
     if(m_ips.isEmpty()) {
-        emit msgSig(tr("设备IP列表为空"), false);
+        emit msgSig(tr("设备IP列表为空"), false,"","","");
         return false;
     }
     
     http->execute("sync"); cm_mdelay(1000);
     http->execute("killall -9 cores && sleep 0.3 && cores &");
-    emit msgSig(tr("设备重启，设备有响声"), true); cm_mdelay(9500);
+    emit msgSig(tr("设备重启，设备有响声"), true,"","",""); cm_mdelay(9500);
 
     bool ret = false;
     QString ip = m_ips.first();
     for(int i=0; i<10; ++i) {
         ret = cm_pingNet(ip);
         if(ret == true) {
-            emit msgSig(tr("设备重启成功"), true);
+            emit msgSig(tr("设备重启成功"), true,"","","");
             break;
         } else cm_mdelay(1*1000);
     }
 
-    if(!ret) emit msgSig(tr("设备网络无法连接"), ret);
+    if(!ret) emit msgSig(tr("设备网络无法连接"), ret,"","","");
 
     return ret;
  }
@@ -267,16 +267,16 @@ bool Core_Thread::startCalibration()
 
     // 安全检查：确保http对象有效
     if(!http) {
-        emit msgSig(tr("http对象未初始化"), false);
+        emit msgSig(tr("http对象未初始化"), false,"","","");
         return false;
     }
     
     if(ret) http->calibration(); else return ret;
-    emit msgSig(tr("校准开始"), true); cm_mdelay(16000);
+    emit msgSig(tr("校准开始"), true,"","",""); cm_mdelay(16000);
 
     if(data.isEmpty()) cm_mdelay(10000);
     QString str = data; data.clear();
-    if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false); return false;}
+    if(str.isEmpty()) {emit msgSig(tr("校准返回数据超时"), false,"","",""); return false;}
 //
     QStringList splitList = str.split(';');
     QSet<QString> seenStrings;
@@ -290,7 +290,7 @@ bool Core_Thread::startCalibration()
 
     // 修复崩溃：检查result是否为空，避免调用last()时崩溃
     if(result.isEmpty()) {
-        emit msgSig(tr("校准数据为空"), false);
+        emit msgSig(tr("校准数据为空"), false,"","","");
         return false;
     }
     
@@ -302,13 +302,13 @@ bool Core_Thread::startCalibration()
 
         if(item.contains("通过",Qt::CaseSensitive))
         {
-            ret = true; emit msgSig(item, ret);
+            ret = true; emit msgSig(item, ret,"","","");
         } else if(item.contains("失败",Qt::CaseSensitive) || item.contains("异常",Qt::CaseSensitive))
         {
             ret = false; res = false;
-            emit msgSig(item, ret);
+            emit msgSig(item, ret,"","","");
         }else {
-            emit msgSig(item, true);
+            emit msgSig(item, true,"","","");
         }
     }
 
@@ -362,13 +362,13 @@ bool Core_Thread::powRangeByID(int i, int exValue, int cnt, bool flag)
     bool ret = powErrRange(exValue, pow *100);
     if(ret) {
         str += tr("正常");
-        emit msgSig(str, true);
+        emit msgSig(str, true,"","","");
     } else {
         ret = false; str += tr("错误");
         if(cnt<4){
-            emit msgSig(str, true);
+            emit msgSig(str, true,"","","");
         } else {
-            emit msgSig(str, ret);
+            emit msgSig(str, ret,"","","");
         }
     }
 
@@ -386,14 +386,14 @@ bool Core_Thread::curRangeByID(int i, int exValue, int cnt, bool flag)
     ret = curErrRange(exValue, cur*100);
 
     if(ret) {
-        str += tr("正常"); emit msgSig(str, true);
+        str += tr("正常"); emit msgSig(str, true,"","","");
         ret = powRangeByID(i, exValue, cnt, flag);
     } else {
         ret = false; str += tr("错误");
         if(cnt<4){
-            emit msgSig(str, true);
+            emit msgSig(str, true,"","","");
         } else {
-            emit msgSig(str, ret);
+            emit msgSig(str, ret,"","","");
         }
 
     }
@@ -407,7 +407,7 @@ bool Core_Thread::eachCurCheck(int k, int exValue, bool flag)
     bool ret = true;
     double value = mItem->vol*exValue/AD_CUR_RATE/1000.0 * 0.5;
     QString str = tr("校验数据: 期望电流%1A 功率%2kW").arg(exValue/AD_CUR_RATE).arg(value);
-    emit msgSig(str, true);
+    emit msgSig(str, true,"","","");
 
     for(int i=0; i<5; ++i) {
         readMetaData();
@@ -448,7 +448,7 @@ bool Core_Thread::volErrRangeByID(int i, bool flag)
     QString str = tr("期望电压250V，实际电压%1V 第%2位 电压 ").arg(vol).arg(i+1);
     if((vol >= min) && (vol <= max)) {
         str += tr("正常");
-        emit msgSig(str, true);
+        emit msgSig(str, true,"电压与期望值一致","参数检查","电压检查");
 
     } else {
         ret = false; str += tr("错误");
@@ -476,7 +476,7 @@ bool Core_Thread::volErrRange()
             } else {
                 res = false;
                 QString str = tr("检测到电压 %1 错误").arg(i+1);
-                emit msgSig(str, false); break;
+                emit msgSig(str, false,"电压与期望值一致","参数检查","电压检查"); break;
             }
             // res = false;
         }
@@ -504,11 +504,11 @@ bool Core_Thread::noLoadCurCheck(int cnt)
             if(cnt > 3) {
                 if(actual->loopCur[k]) str += tr("电流有底数");
                 if(actual->loopPow[k]) str += tr("功率有底数");
-                emit msgSig(str, res);
+                emit msgSig(str, res,"底数与期望值一致","参数检查","底数检查");
             }
         } else {
             str += tr("通过");
-            emit msgSig(str, true);
+            emit msgSig(str, true,"底数与期望值一致","参数检查","底数检查");
         }
     }
 
@@ -520,7 +520,7 @@ bool Core_Thread::noLoadCurFun()
     bool ret = true;
     for(int i=0; i<4; ++i) {
         QString str = tr("空载校验: 第%1次检查").arg(i+1);
-        if(i) emit msgSig(str, true); else cm_mdelay(1*1000);
+        if(i) emit msgSig(str, true,"空载校验与期望值一致","参数检查","空载校验检查"); else cm_mdelay(1*1000);
         readMetaData();
         ret = noLoadCurCheck(i);
         if(ret) break; else {cm_mdelay(1*1000);}
@@ -537,10 +537,10 @@ bool Core_Thread::startCheck()
     cm_mdelay(5*1000);
 
     QString str = tr("验证电流：期望电流4A");
-    emit msgSig(str, ret);
+    emit msgSig(str, ret,"电流与期望值一致","参数检查","电流检测");
 
     readMetaData();
-    emit msgSig(tr("校验开始"), true);
+    emit msgSig(tr("校验开始"), true,"电流在期望值范围内","参数检查","电流检查");
 
     if(ret) ret = eachCurEnter(4*AD_CUR_RATE);      //电流、功率校验
     if(ret) ret = mSource->setCur(0, 0);            //标准源电流置为0
@@ -550,7 +550,7 @@ bool Core_Thread::startCheck()
     if(ret) ret = volErrRange();
 
     str = tr("空载验证：设置空载电流");
-    emit msgSig(str, true);
+    emit msgSig(str, true,"电流在期望值范围内","参数检查","电流检查");
     if(ret) ret = noLoadCurFun();                   //空载电流验证
 
     return ret;
@@ -558,7 +558,7 @@ bool Core_Thread::startCheck()
 
 bool Core_Thread::initFun()
 {
-    emit msgSig(tr("即将开始"), true);
+    emit msgSig(tr("即将开始"), true,"","","");
     bool ret = false;
     ret = mYc->powerOn(60);           //标准源上电---220V，6A
     cm_mdelay(3*1000);
@@ -574,18 +574,19 @@ void Core_Thread::run()
             qCritical() << "Failed to bind UDP socket:" << udpSocket->errorString();
         }
     }
-    
+
     bool ret = initFun();
     if(ret) ret = searchDev();
     if(ret && fsCheck()) {
         foreach (const auto &ip, m_ips) {
-            emit msgSig(tr("目标设备:")+ip, true);
+            emit msgSig(tr("目标设备:")+ip, true,"","","");
             if(ret) ret = downVer(ip);
 
             if(ret) timeSync();
-            if(ret) ret = workDown(ip);
 
+            if(ret) ret = workDown(ip);
             if(ret) ret = startCalibration();
+
             if(ret) ret = startCheck();
 
             if(ret) enModbusRtu(); //cm_mdelay(150);
@@ -594,9 +595,21 @@ void Core_Thread::run()
             http->execute("reboot");
             mSource->setVol(0, 0); mSource->setCur(0, 0);
 
-#if 0
-            cm_mdelay(2000);
-            Json_Pack::bulid()->http_post("debugdata/add","192.168.1.12");
+#if 1
+    sCfgComIt *cfg = CfgCom::bulid()->item;
+
+    if(!cfg->ipAddr.isEmpty()) {
+        cm_mdelay(2*1000);
+        Json_Pack *packer = Json_Pack::bulid();
+
+        cout<<1234;
+        QJsonObject json,jsonEn;
+        packer->head(json);
+        packer->head(jsonEn);
+        jsonEn.insert("languageSelect",1);
+        Json_Pack::bulid()->http_post(cfg->meta, json, 0, cfg->ipAddr );
+      //  Json_Pack::bulid()->http_post(cfg->meta, jsonEn, 1 , cfg->ipAddr);
+    }
 #endif
         }m_ips.clear();
     }

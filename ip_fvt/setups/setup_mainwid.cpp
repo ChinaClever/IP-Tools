@@ -36,6 +36,11 @@ void Setup_MainWid::initFunSlot()
     QDate buildDate = QLocale(QLocale::English ).toDate( QString(__DATE__).replace("  ", " 0"), "MMM dd yyyy");
     ui->label_date->setText(buildDate.toString("yyyy-MM-dd"));
 
+
+    ui->LabelPrint->setChecked(mItem->labelPrint == 1);
+    ui->Meta->setText(mItem->meta);
+    ui->IpLine->setText(mItem->ipAddr);
+
     initMac();
     timer = new QTimer(this);
     timer->start(3*1000);
@@ -196,6 +201,15 @@ void Setup_MainWid::on_saveBtn_clicked()
     if(flg++ %2) {
         ret = false;
         updateErrData();
+
+        mItem->pcNum = ui->pcNumSpin->value();
+        mItem->labelPrint = ui->LabelPrint->isChecked() ? 1 : 0; // 抓取勾选状态
+        mItem->meta = ui->Meta->text();                         // 抓取方法文本
+        mItem->ipAddr = ui->IpLine->text();                     // 抓取IP文本
+        // ----------------------------------------------
+
+        CfgCom::bulid()->writeCfgCom(); // 这步才会把新值写进硬盘
+
     } else {
         str = tr("保存");
     }
@@ -204,6 +218,10 @@ void Setup_MainWid::on_saveBtn_clicked()
     ui->volErrBox->setEnabled(ret);
     ui->curErrBox->setEnabled(ret);
     ui->powErrBox->setEnabled(ret);
+    ui->LabelPrint->setEnabled(ret);
+    ui->Meta->setEnabled(ret);
+    ui->IpLine->setEnabled(ret);
+
 }
 
 

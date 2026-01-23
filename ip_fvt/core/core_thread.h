@@ -19,10 +19,10 @@ public:
     bool initFun();
 
 signals:
-    void msgSig(const QString &msg, bool pass);
+    void msgSig(const QString &msg, bool pass, const QString Request, const QString testStep, const QString testItem);
     void finshSig(bool pass, const QString &msg);
     void overSig(); void startSig();
-    void msgSigYC(const QString &msg, bool pass);
+    void msgSigYC(const QString &msg, bool pass, const QString Request, const QString testStep, const QString testItem);
 
     void requestDownVer(const QString &ip);
 

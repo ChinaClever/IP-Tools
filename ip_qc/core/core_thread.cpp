@@ -410,7 +410,15 @@ bool Core_Thread::volErrRange(int i, bool flag)
     QString str = tr("电压 L%1：期望值=%2V，实测值=%3V ").arg(i+1).arg(exValue).arg(value);
     if(ret) str += tr("正常"); else {str += tr("错误");}
 
+    QString statusEn = ret ? "Pass" : "Fail";
+    QString strEn = tr("Voltage L%1: Target=%2V, Actual=%3V %4").arg(i+1).arg(exValue).arg(value).arg(statusEn);
+
     emit msgSig(str, ret,"电压误差在期望值范围内","参数检查","电压误差检查");
+    // emit msgSigEn(strEn,
+    //               ret,
+    //               "Voltage error within target range",
+    //               "Parameter Check",
+    //               "Voltage Error Check");
     return ret;
 }
 

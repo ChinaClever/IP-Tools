@@ -62,6 +62,12 @@ private slots:
                         const QString Request = "",  // 设置默认参数
                         const QString testStep = "",
                         const QString testItem = "");
+    // void insertTextSlotEn(const QString &msg,
+    //                     bool pass,
+    //                     const QString Request = "",  // 设置默认参数
+    //                     const QString testStep = "",
+    //                     const QString testItem = "");
+
     void on_ipEdit_textChanged(const QString &arg1);
 
     void on_userEdit_selectionChanged();

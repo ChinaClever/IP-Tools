@@ -31,7 +31,6 @@ void Json_Pack::head(QJsonObject &obj)
     obj.insert("productType", mPro->productType);
     obj.insert("moduleSn", mPro->moduleSn);
 
-    mPro->productSN = "123456789";
     obj.insert("productSN",mPro->productSN);
 
     obj.insert("macAddress", mPro->macAddress);
@@ -42,7 +41,6 @@ void Json_Pack::head(QJsonObject &obj)
     obj.insert("protocolVersion", mPro->protocolVersion);
     obj.insert("testStartTime", mPro->testStartTime);
     obj.insert("toolName","Ip_qc");
-
     //qDebug()<<mPro->testStartTime<<" "<<mPro->testEndTime<<"   ?";
     obj.insert("testEndTime", mPro->testEndTime);
     obj.insert("testTime", mPro->testTime);

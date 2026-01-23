@@ -18,7 +18,7 @@ public:
     bool setVol(int v, int sec=0);
 
 signals:
-    void msgSig(const QString &msg, bool pass);
+    void msgSig(const QString &msg, bool pass, const QString Request, const QString testStep, const QString testItem);
 
 private:
     YC_Ac92b *mAc;

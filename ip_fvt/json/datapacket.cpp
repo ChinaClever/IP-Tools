@@ -1,68 +1,75 @@
-/*
- *
- *  Created on: 2020年10月1日
- *      Author: Lzy
- */
-#include "datapacket.h"
-#include "print.h"
+    /*
+     *
+     *  Created on: 2020年10月1日
+     *      Author: Lzy
+     */
+    #include "datapacket.h"
+    #include "print.h"
 
-sDataPacket::sDataPacket()
-{
-    dev = new sDevData;
-    pro = new sProgress();
-}
-
-void sDataPacket::init()
-{
-    pro->step = 0;
-    pro->result = 0;
-    pro->pass.clear();
-    pro->itPass.clear();
-    pro->item.clear();
-    pro->status.clear();
-    pro->startTime = QTime::currentTime();
-
-    pro->productType.clear();
-    pro->productSN.clear();
-    pro->moduleSn.clear();
-    pro->macAddress.clear();
-    pro->testTime.clear();
-
-    pro->softwareType = "MPro-Fvt";
-    pro->companyName = "clever";
-    pro->protocolVersion = "V1.0";
-    pro->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-    pro->testEndTime.clear();
-    pro->no.clear();
-    pro->itemName.clear();
-    pro->uploadPass.clear();
-    pro->pn.clear();
-    pro->uploadPassResult = 0;
-
-    memset(&(dev->data),0,sizeof(sObjData));
-}
-
-
-sDataPacket *sDataPacket::bulid()
-{
-    static sDataPacket* sington = nullptr;
-    if(sington == nullptr)
-        sington = new sDataPacket();
-    return sington;
-}
-
-
-bool sDataPacket::delay(int s)
-{
-    bool ret = true;
-    for(int i=0; i<s; ++i) {
-        if((pro->step < Test_Over)  || (pro->step > Test_End)){
-            cm_mdelay(100); // QThread::msleep(100);
-        } else {
-            ret = false;
-            break;
-        }
+    sDataPacket::sDataPacket()
+    {
+        dev = new sDevData;
+        pro = new sProgress();
     }
 
-    return ret;
-}
+    void sDataPacket::init()
+    {
+        pro->step = 0;
+        pro->result = 0;
+        pro->pass.clear();
+        pro->itPass.clear();
+        pro->item.clear();
+        pro->status.clear();
+        pro->startTime = QTime::currentTime();
+
+        pro->productType.clear();
+        pro->productSN.clear();
+        pro->moduleSn.clear();
+        pro->macAddress.clear();
+        pro->testTime.clear();
+
+        pro->itemName.clear();
+        pro->testRequest.clear();
+        pro->testStep.clear();
+        pro->testItem.clear();
+
+        pro->softwareType = "Ip-Fvt";
+        pro->companyName = "clever";
+        pro->protocolVersion = "V1.0";
+        pro->testStartTime = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        pro->testEndTime.clear();
+        pro->no.clear();
+        pro->itemName.clear();
+        pro->uploadPass.clear();
+        pro->pn.clear();
+        pro->uploadPassResult = 0;
+
+        memset(&(dev->data),0,sizeof(sObjData));
+    }
+
+
+    sDataPacket *sDataPacket::bulid()
+    {
+        static QMutex mutex;
+        QMutexLocker locker(&mutex); // 加锁
+        static sDataPacket* sington = nullptr;
+        if(sington == nullptr)
+            sington = new sDataPacket();
+        return sington;
+    }
+
+
+    bool sDataPacket::delay(int s)
+    {
+        bool ret = true;
+        for(int i=0; i<s; ++i) {
+            if((pro->step < Test_Over)  || (pro->step > Test_End)){
+                cm_mdelay(100); // QThread::msleep(100);
+            } else {
+                ret = false;
+                break;
+            }
+        }
+
+        return ret;
+    }

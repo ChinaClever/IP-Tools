@@ -216,10 +216,12 @@ struct sProgress
     QString testTime;
     QString testStartTime;
     QString testEndTime;
-    QStringList no, itemName;
+    QStringList no, itemName,testRequest,testStep,testItem;
+    QStringList itemNameEn,testRequestEn,testStepEn,testItemEn;
+
     QList<bool> uploadPass;
     uchar uploadPassResult;
-    QString pn;
+    QString pn,orderNum;
 
 };
 
