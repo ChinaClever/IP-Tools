@@ -110,9 +110,9 @@ bool SerialPort::isContains(const QString &name)
 void SerialPort::timeoutDone()
 {
     if(mWriteArrays.size()) {
-        writeSlot();
+        if(mSerial) writeSlot();
     } else {
-        recvSlot();
+        if(--mCount>0)recvSlot();
     }
 }
 
@@ -253,7 +253,7 @@ int SerialPort::transmit(const QByteArray &witeArray, QByteArray &readArray, int
 {
     int ret = write(witeArray);
     if(ret > 0) {
-        cm_mdelay(75);
+        cm_mdelay(75); mCount = 4;
         ret = read(readArray, msecs);
         if((ret < 0) || (ret > SERIAL_LEN)) {
             qDebug() << "SerialPort transmit read err"  << ret;
