@@ -45,7 +45,7 @@ protected:
 
     bool curRangeByID(int i, int exValue, int cnt, bool flag);
     bool powRangeByID(int i, int exValue, int cnt, bool flag);
-    bool volErrRangeByID(int i, bool flag);
+    bool volErrRangeByID(int i, bool flag, bool isShow);
     bool volErrRange();
     bool curErrRange(int exValue, int cur);
     bool powErrRange(int exValue, int cur);

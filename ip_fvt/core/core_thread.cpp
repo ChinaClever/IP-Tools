@@ -435,7 +435,7 @@ bool Core_Thread::eachCurEnter(int exValue)
 }
 
 
-bool Core_Thread::volErrRangeByID(int i, bool flag)
+bool Core_Thread::volErrRangeByID(int i, bool flag, bool isShow)
 {
     bool ret = true; double vol = 0;
     sThreshold *actual = &coreItem.actual.value;
@@ -449,10 +449,9 @@ bool Core_Thread::volErrRangeByID(int i, bool flag)
     if((vol >= min) && (vol <= max)) {
         str += tr("正常");
         emit msgSig(str, true);
-
     } else {
         ret = false; str += tr("错误");
-        // emit msgSig(str, false);
+        if(isShow) emit msgSig(str, false);
         qDebug()<<"volErrRangeByID"<<actual->lineVol[i]<<actual->lineCur[i];
     }
 
@@ -468,15 +467,15 @@ bool Core_Thread::volErrRange()
     else {size = it->loopNum; flag = true;}
 
     for(int i=0; i<size; ++i) {
-        res = volErrRangeByID(i, flag);
+        res = volErrRangeByID(i, flag, false);
         if(!res) {
-            if(k++ < 3){
-                i = -1; cm_mdelay(1*1000);
+            if(k++ < 5){
+                i = -1; cm_mdelay(1*2500);
                 readMetaData();
             } else {
-                res = false;
-                QString str = tr("检测到电压 %1 错误").arg(i+1);
-                emit msgSig(str, false); break;
+                res = volErrRangeByID(i, flag, true);
+                //QString str = tr("检测到电压 %1 错误").arg(i+1);
+                //emit msgSig(str, false); break;
             }
             // res = false;
         }
@@ -544,7 +543,7 @@ bool Core_Thread::startCheck()
 
     if(ret) ret = eachCurEnter(4*AD_CUR_RATE);      //电流、功率校验
     if(ret) ret = mSource->setCur(0, 0);            //标准源电流置为0
-    cm_mdelay(5*1000);
+    cm_mdelay(7*1000);
 
     readMetaData();
     if(ret) ret = volErrRange();
