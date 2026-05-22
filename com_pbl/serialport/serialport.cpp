@@ -111,8 +111,8 @@ void SerialPort::timeoutDone()
 {
     if(mWriteArrays.size()) {
         if(mSerial) writeSlot();
-    } else {
-        if(--mCount>0)recvSlot();
+    } else if(--mCount>0) {
+        recvSlot();
     }
 }
 
