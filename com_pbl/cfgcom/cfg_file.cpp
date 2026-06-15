@@ -56,11 +56,38 @@ QString File::md5(const QString &fn)
     return QString();
 }
 
-
 bool File::CheckMd5(const sOtaFile &it)
 {
     QString crc = md5(it.path + it.file);
     return it.md5 == crc;
+}
+
+QString File::sha(const QString &fn)
+{
+    QFile sourceFile(fn);
+    qint64 fileSize = sourceFile.size();
+    const qint64 bufferSize = 100*1024;
+
+    if (sourceFile.open(QIODevice::ReadOnly)) {
+        char buffer[bufferSize]; int bytesRead;
+        int readSize = qMin(fileSize, bufferSize);
+        QCryptographicHash hash(QCryptographicHash::Sha256);
+        while (readSize > 0 && (bytesRead = sourceFile.read(buffer, readSize)) > 0) {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+            fileSize -= bytesRead; hash.addData(buffer, bytesRead);
+            readSize = qMin(fileSize, bufferSize);
+        }
+        sourceFile.close();
+        return QString(hash.result().toHex());
+    }
+
+    return QString();
+}
+
+bool File::CheckSha(const sOtaFile &it)
+{
+    QString crc = sha(it.path + it.file);
+    return it.sha == crc;
 }
 
 bool File::CheckMd5(const QString &fn)

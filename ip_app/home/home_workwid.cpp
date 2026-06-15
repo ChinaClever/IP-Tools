@@ -94,6 +94,7 @@ bool Home_WorkWid::packing(Cfg_App &cfg, const QStringList &apps)
     it.releaseDate = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     QString str = it.dev + it.usr + it.ver + it.releaseDate; // + it.remark + it.oldVersion
     it.md5 = QCryptographicHash::hash(str.toLatin1(),QCryptographicHash::Md5).toHex();
+    it.sha = QCryptographicHash::hash(str.toLatin1(),QCryptographicHash::Sha256).toHex();
     bool ret = cfg.app_pack(it); if(ret) writeLog(it);
     return ret;
 }
@@ -115,6 +116,8 @@ bool Home_WorkWid::rsaSig(const QString &fn)
         QString md5 = File::md5(fn) +"\n";
         filesig.write(md5.toLocal8Bit());
         filesig.write(sig); emit msgSig(md5);
+        QString sha = "\n" + File::sha(fn);
+        filesig.write(sha.toLocal8Bit());
     }filesig.close();
     return sig.size();
 }

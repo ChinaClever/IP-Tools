@@ -9,6 +9,7 @@ struct sOtaFile {
     QString path;
     QString file;
     QString md5;
+    QString sha;
     QString sig;
     uint size;
     ushort crc;
@@ -16,9 +17,11 @@ struct sOtaFile {
 
 namespace File {
     QString md5(const QString &fn);
+    QString sha(const QString &fn);
     QStringList entryList(const QString &fn);
     uint fileSize(const QString &fn);
     bool CheckMd5(const sOtaFile &it);
+    bool CheckSha(const sOtaFile &it);
     bool CheckMd5(const QString &fn);
     bool AppendMd5(const QString &fn);
     QString certFile();

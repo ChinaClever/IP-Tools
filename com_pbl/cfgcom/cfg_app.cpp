@@ -40,6 +40,7 @@ bool Cfg_App::app_pack(sAppVerIt &it)
     writeCfg("hw", it.hw, g);
     writeCfg("usr", it.usr, g);
     writeCfg("md5", it.md5, g);
+    writeCfg("sha", it.sha, g);
     writeCfg("ver", it.ver, g);
     writeCfg("dev", it.dev, g);
     writeCfg("remark", it.remark, g);
@@ -62,12 +63,14 @@ bool Cfg_App::app_unpack(sAppVerIt &it)
     it.hw = readCfg("hw", "", g).toString();
     it.usr = readCfg("usr", "", g).toString();
     it.md5 = readCfg("md5", "", g).toString();
+    it.sha = readCfg("sha", "", g).toString();
     it.ver = readCfg("ver", "", g).toString();
     it.dev = readCfg("dev", "", g).toString();
     it.remark = readCfg("remark", "", g).toString();
     it.oldVersion = readCfg("oldVersion", "", g).toString();
     it.releaseDate = readCfg("releaseDate", "", g).toString();
     QString str = it.dev + it.usr + it.ver + it.releaseDate; // + it.remark + it.oldVersion
+    if(it.sha.size()) return it.sha == QCryptographicHash::hash(str.toLatin1(), QCryptographicHash::Sha256).toHex();
     str = QCryptographicHash::hash(str.toLatin1(),QCryptographicHash::Md5).toHex();
     return  it.md5 == str;
 }
