@@ -580,6 +580,7 @@ void Core_Thread::run()
         foreach (const auto &ip, m_ips) {
             emit msgSig(tr("目标设备:")+ip, true);
             if(ret) ret = downVer(ip);
+            if(ret) timeSync();
 
             if(ret) timeSync();
             if(ret) ret = workDown(ip);
