@@ -149,7 +149,7 @@ int SerialPort::write(const QByteArray &array)
 
 int SerialPort::write(uchar *sent, int len)
 {
-    QByteArray witeArray;
+    QByteArray witeArray; mCount = 4;
     witeArray.append((char *)sent, len);
     return write(witeArray);
 }

@@ -134,8 +134,8 @@ bool Core_Thread::searchDev()
 
 void Core_Thread::readMetaData()
 {
-    http->readJson(0);
-    //cm_mdelay(455);
+    cm_mdelay(455);
+    http->readJson(0);    
     jsonAnalysis();
 }
 

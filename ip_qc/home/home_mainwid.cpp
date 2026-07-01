@@ -62,7 +62,7 @@ void Home_MainWid::setTextColor(const QString &str)
     if(str.size() > 2048) pass = true;
 
     QColor color("black");
-    if(!pass) color = QColor("red");
+    if(!pass && str.size() < 1024) color = QColor("red");
     mEditTabWid->moveCursor(QTextCursor::Start);
 
     QTextCharFormat fmt;//文本字符格式

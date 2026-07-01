@@ -134,41 +134,39 @@ bool Core_Thread::downLogo(const QString &ip)
     return ret;
 }
 
-// 计算两张图片的差异
+// 计算两张图片的差异（允许网络传输带来的压缩/编码差异）
 bool Core_Thread::compareImages()
 {
-    if(File::fileSize(mLogo) != File::fileSize(coreItem.logo))  return false;
-
-    // 加载两个图片文件
     QImage img1(mLogo);
     QImage img2(coreItem.logo);
 
-    // 将两张图片转换为QImage类型，以便进行像素比较
-    //QImage img1 = pix1.toImage();
-    //QImage img2 = pix2.toImage();
-
-    // 检查图片尺寸是否相同
-    if (img1.size() != img2.size()) {
+    if (img1.isNull() || img2.isNull()) {
         return false;
     }
 
-    // 计算不同像素点的数量
-    uint diffCount = 0; uint count = 0;
+    // 尺寸不一致时缩放到相同尺寸再比较
+    if (img1.size() != img2.size()) {
+        img2 = img2.scaled(img1.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
+
+    const int colorTolerance = 30; // 单通道颜色容差
+    uint diffCount = 0;
+    const uint count = img1.width() * img1.height();
+
     for (int y = 0; y < img1.height(); ++y) {
         for (int x = 0; x < img1.width(); ++x) {
-            if (img1.pixelColor(x, y) != img2.pixelColor(x, y)) {
+            const QColor c1 = img1.pixelColor(x, y);
+            const QColor c2 = img2.pixelColor(x, y);
+            if (qAbs(c1.red() - c2.red()) > colorTolerance
+                || qAbs(c1.green() - c2.green()) > colorTolerance
+                || qAbs(c1.blue() - c2.blue()) > colorTolerance) {
                 ++diffCount;
-            } ++count;
+            }
         }
     }
 
-    // 设置一个阈值，判断两张图片是否大致相同
-    const double threshold = 0.1; // 根据实际情况调整阈值
-    if ((diffCount*1.0)/count <= threshold) {
-        return true;
-    } else {
-        return false;
-    }
+    const double threshold = 0.35; // 允许约35%像素存在轻微差异
+    return (diffCount * 1.0) / count <= threshold;
 }
 
 bool Core_Thread::logoCheck(const QString &ip)
