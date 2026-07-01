@@ -14,8 +14,8 @@ Core_Thread::Core_Thread(QObject *parent)
     : Core_Source{parent}
 {
     Ssdp_Core::bulid(this);
-    mLogo = "usr/data/pdu/cfg/logo.png";
-    QString dir = "usr/data/pdu/cfg";
+    QString dir = "appconfigs/pdu/cfg";
+    mLogo = dir+"/logo.png";
     FileMgr::build().mkpath(dir);
     mItem = CfgCom::bulid()->item;
     http = Core_Http::bulid(this);
