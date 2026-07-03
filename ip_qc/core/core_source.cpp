@@ -29,6 +29,7 @@ bool Core_Source::readRk9901()
     obj->lineHz.clear(); sRkItem rkIt;
 
     bool ret = mRk->readPacket(rkIt);
+    if(!ret) ret = mRk->readPacket(rkIt);
     if(ret) {
         for(int i=0; i<3; ++i) {
             obj->lineVol << rkIt.vol/10.0;
@@ -37,7 +38,15 @@ bool Core_Source::readRk9901()
             obj->linePF << rkIt.pf / 1000.0;
             obj->lineHz << rkIt.hz / 100.0;
         }
-    } //cout << obj->lineVol << obj->lineCur <<  obj->linePow << obj->pf << obj->hz;
+    } else {
+            obj->lineVol << 0;
+            obj->lineCur << 0;
+            obj->linePow <<0;
+            obj->linePF << 0;
+            obj->lineHz << 0;
+    }
+
+    //cout << obj->lineVol << obj->lineCur <<  obj->linePow << obj->pf << obj->hz;
 
     return ret;
 }

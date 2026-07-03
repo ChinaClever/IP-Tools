@@ -108,9 +108,10 @@ bool Core_Thread::macCheck()
                                 .arg(v, uuid, mHashMac.value(v)), ret);
             }
         } else {
-            int rtn = DbMacs::bulid()->contains(v, sn);
-            if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库有"), ret); }
-            else mHashMac[v] = uuid;
+            // int rtn = DbMacs::bulid()->contains(v, sn);
+            // if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库有"), ret); }
+            // else mHashMac[v] = uuid;
+            mHashMac[v] = uuid;
         }
     }
 
@@ -369,7 +370,7 @@ bool Core_Thread::volErrRange(int i, bool flag)
     bool ret = true; double value  = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-    double exValue = desire->lineVol.at(i).toDouble();
+    double exValue = desire->lineVol.at(0).toDouble();
     if(flag) value = actual->loopVol.at(i).toDouble();
     else value = actual->lineVol.at(i).toDouble();
     double err = mItem->volErr;
@@ -391,7 +392,7 @@ bool Core_Thread::curErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-     exValue = desire->lineCur.at(i).toDouble();
+    exValue = desire->lineCur.at(0).toDouble();
     if(flag) value = actual->loopCur.at(i).toDouble();
     else value = actual->lineCur.at(i).toDouble();
     double err = mItem->curErr * 10.0;
@@ -413,7 +414,7 @@ bool Core_Thread::powErrRange(int i, bool flag)
     double value  = 0; double exValue = 0;
     sPdudata *actual = &coreItem.actual.value;
     sPdudata *desire = &coreItem.desire.value;
-     exValue = desire->linePow.at(i).toDouble();
+     exValue = desire->linePow.at(0).toDouble();
     if(flag) value = actual->loopPow.at(i).toDouble();
     else value = actual->linePow.at(i).toDouble();
     double err = mItem->powErr * exValue *10.0 ;
@@ -442,9 +443,7 @@ bool Core_Thread::checkSquare(double sValue, double pValue, double qValue, doubl
     double err = qSqrt(qAbs(appow - sum));
     if((err < (sValue*errRange))&&(sum)) ret = true;
     else cout << sValue  << pValue << qValue;
-
-
-//    cout << rated << err << sValue*errRange << pValue << qValue; /////======
+    // cout << rated << err << sValue*errRange << pValue << qValue;
 
     return ret;
 }
@@ -454,7 +453,6 @@ bool Core_Thread::eleErrRange()
     sMonitorData *actual = &coreItem.actual.data;
     bool ret = false; double value = actual->tg_ele;
     QString str = tr("总有功电能：实测值=%1kWh ").arg(value);
-
     if((value >0)&&(value <10)) {ret = true; str += tr("正常");}
     else {ret = false; str += tr("电能值过大");}
 
@@ -663,12 +661,12 @@ bool Core_Thread::readDev()
 bool Core_Thread::workDown(const QString &ip)
 {
     emit msgSig(tr("目标设备:")+ip, true);
-    bool ret = readDev();
+    bool ret = readDev(); cout << ret;
     if(!ret) emit msgSig("数据读取失败！", ret);
     //--------------------------采集检测---------------------------//
     if(ret) ret = errRangeCheck();
     if(ret) ret = cpuCheck();                           //cpu温度检查
-    if(ret) ret = alarmCheck();                         //报警检查
+    if(ret) ret = alarmCheck();                           //报警检查
 
     //---------------------------接口检测--------------------------//
     if(ret && mItem->isSersor) ret = envCheck();

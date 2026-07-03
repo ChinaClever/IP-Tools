@@ -282,8 +282,8 @@ void Home_WorkWid::on_startBtn_clicked()
     if(isStart == false) {
         if(initWid()) {
             timer->start(500);
-            //mCoreThread->run();
-            mCoreThread->start();
+            mCoreThread->run();
+            // mCoreThread->start();
         }
     } else {
         bool ret = MsgBox::question(this, tr("确定需要提前结束？"));
