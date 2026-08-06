@@ -50,6 +50,10 @@ void Home_WorkWid::initFunSlot()
     connect(mCoreThread, &Core_Thread::msgSig, this, &Home_WorkWid::insertTextSlot);
     connect(Json_Pack::bulid(this), &Json_Pack::httpSig, this, &Home_WorkWid::insertTextSlot);
     //QTimer::singleShot(450,this,SLOT(updateCntSlot()));
+
+    sCfgComIt *item = CfgCom::bulid()->item;
+    ui->cntSpin->setValue(item->testDevCnt);
+    ui->userEdit->setText(item->user);
 }
 
 void Home_WorkWid::logWrite()
@@ -110,7 +114,7 @@ void Home_WorkWid::updateCntSlot()
     ui->errLcd->display(cnt->err);
 
     int num = ui->cntSpin->value()-1;
-    if(num) ui->cntSpin->setValue(num);
+    ui->cntSpin->setValue(num);
 
     QString str = "0"; if(cnt->all) {
         double value = cnt->ok*100.0 / cnt->all;
@@ -171,6 +175,9 @@ bool Home_WorkWid::initUser()
 
     int cnt = ui->cntSpin->value();
     if(cnt < 1) {MsgBox::critical(this, tr("请先填写订单剩余数量！")); return false;}
+
+    sCfgComIt *item = CfgCom::bulid()->item;
+    item->user  = str; item->testDevCnt = cnt;
     return true;
 }
 
@@ -195,7 +202,7 @@ bool Home_WorkWid::inputCheck()
         ret = cm_isIPaddress(str);
         QStringList ips; ips << str;
         if(ret) Core_Http::bulid(this)->initHost(str);
-        if(ret) {ret = cm_pingNet(str); mCoreThread->setIps(ips);}
+        if(ret) {/*ret = cm_pingNet(str);*/ mCoreThread->setIps(ips);}
         if(!ret) MsgBox::critical(this, tr("目标设备IP出错！"));
     }
 

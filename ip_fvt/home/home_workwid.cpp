@@ -273,7 +273,7 @@ bool Home_WorkWid::initWid()
         initData();
         setWidEnabled(false);
         ui->startBtn->setText(tr("终 止"));
-        QTimer::singleShot(9100,this,&Home_WorkWid::updateWid);
+        QTimer::singleShot(13100,this,&Home_WorkWid::updateWid);
         startTime = QTime::currentTime(); emit startSig();
         QString str = startTime.toString("hh:mm:ss");
         ui->startLab->setText(str);

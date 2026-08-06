@@ -64,6 +64,7 @@ void CfgCom::initCfgData()
     item->loopNum = readCfg("loopNum", 0,"Params").toInt();
     item->language = readCfg("language", 0,"Params").toInt();
     item->isBreaker = readCfg("isBreaker", 1,"Params").toInt();
+    item->testDevCnt = readCfg("testDevCnt", 0,"Params").toInt();
     item->oldProtocol = readCfg("oldProtocol", 0,"Params").toInt();
     item->standNeutral = readCfg("standNeutral", 0,"Params").toInt();
     item->devType = readCfg("devType", "IP-PDU","Params").toString();
@@ -73,6 +74,7 @@ void CfgCom::initCfgData()
     item->isLink = readCfg("isLink", false,"Params").toBool();
     item->isMac = readCfg("isMac", true,"Params").toBool();
     item->isEle = readCfg("isEle", true,"Params").toBool();
+    item->user = readCfg("user", "","Params").toString();
 
     item->snPrint = readCfg("snPrint", false,"Params").toBool();
     item->fwPrint = readCfg("fwPrint", false,"Params").toBool();
@@ -88,8 +90,10 @@ void CfgCom::initCfgData()
 void CfgCom::writeParams()
 {
     writeCfg("vh", item->vh, "Params");
+    writeCfg("user", item->user, "Params");
     writeCfg("lineNum", item->lineNum, "Params");
     writeCfg("devSpec", item->devSpec, "Params");
+    writeCfg("testDevCnt", item->testDevCnt, "Params");
     writeCfg("standNeutral", item->standNeutral, "Params");
     writeCfg("oldProtocol", item->oldProtocol, "Params");
     writeCfg("isBreaker", item->isBreaker, "Params");

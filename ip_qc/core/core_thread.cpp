@@ -46,11 +46,12 @@ bool Core_Thread::searchDev()
     }else {
         QString ip = m_ips.first();
         for(int i=0; i<5; ++i) {
+            cm_mdelay(1*1000);
             ret = cm_pingNet(ip);
             if(ret == true) {
                 emit msgSig(tr("设备连接成功"), true);
                 break;
-            } else cm_mdelay(1*1000);
+            }
         }
     }
     return ret;
@@ -108,10 +109,13 @@ bool Core_Thread::macCheck()
                                 .arg(v, uuid, mHashMac.value(v)), ret);
             }
         } else {
-            // int rtn = DbMacs::bulid()->contains(v, sn);
-            // if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库有"), ret); }
-            // else mHashMac[v] = uuid;
+#if 0
+            int rtn = DbMacs::bulid()->contains(v, sn);
+            if(rtn) { ret = false; emit msgSig(tr("MAC：%1已被分配, 在数据库有"), ret); }
+            else mHashMac[v] = uuid;
+#else
             mHashMac[v] = uuid;
+#endif
         }
     }
 
@@ -661,7 +665,7 @@ bool Core_Thread::readDev()
 bool Core_Thread::workDown(const QString &ip)
 {
     emit msgSig(tr("目标设备:")+ip, true);
-    bool ret = readDev(); cout << ret;
+    bool ret = readDev(); //cout << ret;
     if(!ret) emit msgSig("数据读取失败！", ret);
     //--------------------------采集检测---------------------------//
     if(ret) ret = errRangeCheck();

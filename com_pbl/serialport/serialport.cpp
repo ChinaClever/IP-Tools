@@ -19,6 +19,7 @@ SerialPort::SerialPort(QObject *parent) : QThread(parent)
     timer = new QTimer(this);
     timer->start(SERIAL_TIMEOUT);
     connect(timer, SIGNAL(timeout()),this, SLOT(timeoutDone()));
+    mSerial = new QSerialPort(this);       //串口号，一定要对应好，大写！！！
 }
 
 SerialPort::~SerialPort()
@@ -39,7 +40,7 @@ bool SerialPort::open(const QString &name,qint32 baudRate)
 
     if(!isOpen)
     {
-        mSerial = new QSerialPort(name);       //串口号，一定要对应好，大写！！！
+        mSerial->setPortName(name);       //串口号，一定要对应好，大写！！！
         ret = mSerial->open(QIODevice::ReadWrite);      //读写打开
         if(ret) {
             mSerial->setBaudRate(baudRate);  //波特率
@@ -149,6 +150,7 @@ int SerialPort::write(const QByteArray &array)
 
 int SerialPort::write(uchar *sent, int len)
 {
+    mSerial->open(QIODevice::ReadWrite);
     QByteArray witeArray; mCount = 4;
     witeArray.append((char *)sent, len);
     return write(witeArray);
@@ -178,10 +180,8 @@ void SerialPort::recvSlot()
         /* 处理所有还没有被处理的各类事件，主要是不用用户感觉到ka */
         // QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-        QByteArray dataTemp;
-        while (!mSerial->atEnd()) {
-            dataTemp += mSerial->readAll();     //因为串口是不稳定的，也许读到的是部分数据而已，但也可能是全部数据
-        }
+        // 禁止 while(!atEnd())：串口是流设备，atEnd 可能一直为 false，导致死循环卡死
+        QByteArray dataTemp = mSerial->readAll();
 
         if(dataTemp.size()) {
             //if(dataTemp.at(0) == (char)0x9F) dataTemp.clear();
@@ -212,7 +212,7 @@ int SerialPort::read(QByteArray &array, int secs)
                 QWriteLocker locker(&mRwLock);
                 array += mSerialData;
                 mSerialData.clear();
-                break;
+                mCount = 0; break;
             } else {
                 if(i) cm_mdelay(SERIAL_TIMEOUT); else cm_mdelay(365);
             }

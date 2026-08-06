@@ -11,6 +11,7 @@ struct sCfgComIt
     ushort vol;
     ushort volErr, curErr, powErr; // 电流误差
 
+    int testDevCnt; // 测试设备数量
     uint devSpec; // 设备规格 0-互感器 1-32A小锰铜 2-直流
     uint language; // 0 中文 1 英文
     uint isBreaker; // 0没有断路器 1有断路器

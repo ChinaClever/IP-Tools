@@ -104,8 +104,9 @@ void Core_Object::relayDelay(int sec, int id)
 
 void Core_Object::readMetaData()
 {
+    cm_mdelay(355);
     mHttp->readJson(0);
-    //cm_mdelay(455);
+    cm_mdelay(155);
 }
 
 void Core_Object::timeSync()
