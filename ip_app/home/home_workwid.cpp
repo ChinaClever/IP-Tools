@@ -73,7 +73,7 @@ void Home_WorkWid::writeVerHistory(const sAppVerIt &app)
         return;
     }
 
-    QString fn = dir + "/history.txt";
+    QString fn = dir + "/readme.txt";
     QString oldText;
     QFile rf(fn);
     if (rf.open(QIODevice::ReadOnly)) {
