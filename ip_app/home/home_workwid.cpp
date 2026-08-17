@@ -66,6 +66,36 @@ bool Home_WorkWid::checkInput()
     return true;
 }
 
+void Home_WorkWid::writeVerHistory(const sAppVerIt &app)
+{
+    QString dir = ui->pathEdit->text();
+    if (dir.isEmpty()) {
+        return;
+    }
+
+    QString fn = dir + "/版本说明.txt";
+    QString oldText;
+    QFile rf(fn);
+    if (rf.open(QIODevice::ReadOnly)) {
+        oldText = QString::fromUtf8(rf.readAll());
+        rf.close();
+    }
+
+    QString entry;
+    entry += QStringLiteral("========================================\n");
+    entry += QStringLiteral("版本号：%1\n").arg(app.ver);
+    entry += QStringLiteral("发布时间：%1\n").arg(app.releaseDate);
+    entry += QStringLiteral("更改内容：\n%1\n").arg(app.remark);
+    entry += QStringLiteral("========================================\n\n");
+
+    QFile wf(fn);
+    if (wf.open(QIODevice::WriteOnly)) {
+        wf.write(entry.toUtf8());
+        wf.write(oldText.toUtf8());
+        wf.close();
+    }
+}
+
 void Home_WorkWid::writeLog(const sAppVerIt &app)
 {
     sLogItem it;
@@ -80,6 +110,7 @@ void Home_WorkWid::writeLog(const sAppVerIt &app)
     QString fmd = "%1_%2";
     it.fn = fmd.arg(it.user, it.sw);
     DbLogs::bulid()->insertItem(it);
+    writeVerHistory(app);
 }
 
 bool Home_WorkWid::packing(Cfg_App &cfg, const QStringList &apps)

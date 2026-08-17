@@ -28,6 +28,7 @@ private:
     bool startZip();
     bool rsaSig(const QString &fn);
     void writeLog(const sAppVerIt &app);
+    void writeVerHistory(const sAppVerIt &app);
     bool packing(Cfg_App &cfg, const QStringList &apps);
 
 private slots:
