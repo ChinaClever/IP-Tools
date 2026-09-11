@@ -196,7 +196,7 @@ void Home_MainWid::netAddr()
 
         v = ui->dnsEdit->text();
         if(v.size()) {it.fc = 6; send(it, v);}
-    }
+    } it.fc = 1;  send(it, id);
 }
 
 void Home_MainWid::integrate()
