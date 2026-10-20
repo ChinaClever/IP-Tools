@@ -4,7 +4,6 @@
 #define XLSXGLOBAL_H
 
 #include <cstdio>
-#include <iostream>
 #include <string>
 
 #include <QByteArray>
