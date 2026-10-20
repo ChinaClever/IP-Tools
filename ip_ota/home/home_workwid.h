@@ -42,6 +42,9 @@ protected:
     void initCnt(int dst, int slave);
     bool readRsaSig(const QString &name);
     QStringList getIpList();
+    bool loadExcelIps(const QString &fn);
+    void markExcelUpgrade();
+    void saveExcelResult(bool finalize = true);
 
 private slots:
     void timeoutDone();
@@ -72,6 +75,14 @@ private:
     Ssdp_Core *mSsdp;
     sOtaFile mFileIt;
     Core_Sender *mSender;
+    bool mExcelArmed;
+    bool mExcelAbort;
+    bool mExcelSaved;
+    QString mExcelFile;
+    QStringList mExcelIps;
+    QHash<QString, QString> mExcelStart;
+    QHash<QString, QString> mExcelEnd;
+    QHash<QString, QString> mExcelResult;
 
 };
 

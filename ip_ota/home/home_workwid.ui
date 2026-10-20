@@ -612,6 +612,9 @@
       </item>
       <item row="4" column="0" colspan="2">
        <widget class="QPushButton" name="excelBtn">
+        <property name="visible">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Excel导入IP列表</string>
         </property>
