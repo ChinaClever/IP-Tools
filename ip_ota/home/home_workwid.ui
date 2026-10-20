@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1002</width>
-    <height>490</height>
+    <width>1015</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -459,7 +459,7 @@
      <property name="maximumSize">
       <size>
        <width>245</width>
-       <height>245</height>
+       <height>300</height>
       </size>
      </property>
      <property name="font">
@@ -471,15 +471,6 @@
       <string>设置区</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <property name="topMargin">
-       <number>5</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>6</number>
-      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_6">
         <property name="minimumSize">
@@ -599,6 +590,11 @@
         </item>
         <item>
          <property name="text">
+          <string>导入Excel</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>指定机房</string>
          </property>
         </item>
@@ -611,6 +607,13 @@
           <width>16777215</width>
           <height>30</height>
          </size>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QPushButton" name="excelBtn">
+        <property name="text">
+         <string>Excel导入IP列表</string>
         </property>
        </widget>
       </item>

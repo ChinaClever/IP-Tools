@@ -1,8 +1,16 @@
 #ifndef EXCEL_SAVETHREAD_H
 #define EXCEL_SAVETHREAD_H
 
-#include "qexcel.h"
 #include <QtCore>
+
+/*
+ * 导出实现由编译宏切换，外部接口不变：
+ *   EXCEL_USE_QXLSX  使用 QXlsx（默认，见 excel.pri）
+ *   EXCEL_USE_OLE    使用 Windows QExcel / OLE
+ */
+#if !defined(EXCEL_USE_QXLSX) && !defined(EXCEL_USE_OLE)
+#define EXCEL_USE_QXLSX
+#endif
 
 class Excel_SaveThread : public QThread
 {

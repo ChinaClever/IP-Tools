@@ -58,6 +58,8 @@ private slots:
     void insertTextSlot(bool pass, const QString &msg);
     void upgradeError(const QString &host, const QString &msg);
 
+    void on_excelBtn_clicked();
+
 private:
     Ui::Home_WorkWid *ui;
 
