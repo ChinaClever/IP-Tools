@@ -14,6 +14,7 @@ Home_MainWid::Home_MainWid(QWidget *parent) :
     ui->setupUi(this); //initWid();
     groupBox_background_icon(this); mSsdp = Ssdp_Core::bulid(this);
     connect(mSsdp, &Ssdp_Core::sendMsgSig, this, &Home_MainWid::onDown);
+    ui->label_15->setHidden(true); ui->ctrlBox->setHidden(true);
 }
 
 Home_MainWid::~Home_MainWid()
@@ -112,7 +113,11 @@ void Home_MainWid::devMode()
         it.fc = 2;
     }
 
+    int slaveNum = 0;
     v = ui->addrBox->value(); send(it, v);
+    if(v == 0 && (ui->modeBox->currentIndex() <3))
+        slaveNum = ui->slaveBox->value();
+    it.type = 12; it.fc = 5; send(it, slaveNum);
 }
 
 void Home_MainWid::incrementAddr()
