@@ -8,6 +8,7 @@
 *.so
 *.so.*
 *.dll
+!com_pbl/openssl/*.dll
 *.dylib
 
 # Qt-es

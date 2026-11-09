@@ -243,6 +243,7 @@ bool Home_WorkWid::inputCheck()
 //*        if(ret) Core_Http::bulid(this)->initHost(str);
         if(ret) Core_Http::bulid(nullptr)->initHost(str);
 
+        mCoreThread->m_lcdvh = ui->vhBox->currentIndex();
         if(ret) {ret = cm_pingNet(str); mCoreThread->setIps(ips); }
         if(!ret) MsgBox::critical(this, tr("目标设备IP出错！"));
     }

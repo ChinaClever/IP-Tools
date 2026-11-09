@@ -167,6 +167,16 @@ void Core_Thread::enModbusRtu()
     //emit msgSig(tr("启用扩展口：已开启传感器盒子功能"), true);
 }
 
+void Core_Thread::setLcdvh()
+{
+    sCfgItem it; it.type = 13; it.fc = 12;
+    http->setting(it, m_lcdvh);
+    QString str = tr("垂直");
+    if(m_lcdvh) str = tr("水平");
+    emit msgSig(tr("屏幕方向：")+str, true);
+}
+
+
 void Core_Thread::writeSnMac(const QString &sn, const QString &mac)
 {
     QString dir = "appconfigs/pdu/cfg/"; QFile file(dir + "mac.conf");
@@ -225,6 +235,7 @@ bool Core_Thread::workDown(const QString &ip)
         cm_mdelay(350);
     }
 
+    if(res) setLcdvh();
     return res;
 }
 

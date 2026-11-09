@@ -17,6 +17,7 @@ public:
     QStringList getFs();
     void run();
     bool initFun();
+    int m_lcdvh;
 
 signals:
     void msgSig(const QString &msg, bool pass);
@@ -53,6 +54,7 @@ protected:
     bool noLoadCurFun();
     bool noLoadCurCheck(int cnt);
     bool waitForRest();
+    void setLcdvh();
 
 private:
     bool searchDev();
