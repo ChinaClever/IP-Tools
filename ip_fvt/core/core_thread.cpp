@@ -176,7 +176,7 @@ void Core_Thread::setLcdvh()
     case 0: str = tr("垂直"); break;
     case 1: str = tr("水平"); break;
     case 2: str = tr("垂直翻转"); break;
-    case 3: str = tr("垂直翻转"); break;
+    case 3: str = tr("水平翻转"); break;
     default:str = tr("垂直"); break;
     }
 
