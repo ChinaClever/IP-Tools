@@ -362,6 +362,16 @@
         <string>水平</string>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>垂直翻转</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>水平翻转</string>
+       </property>
+      </item>
      </widget>
      <widget class="QLabel" name="label">
       <property name="geometry">

@@ -172,7 +172,14 @@ void Core_Thread::setLcdvh()
     sCfgItem it; it.type = 13; it.fc = 12;
     http->setting(it, m_lcdvh);
     QString str = tr("垂直");
-    if(m_lcdvh) str = tr("水平");
+    switch (m_lcdvh) {
+    case 0: str = tr("垂直"); break;
+    case 1: str = tr("水平"); break;
+    case 2: str = tr("垂直翻转"); break;
+    case 3: str = tr("垂直翻转"); break;
+    default:str = tr("垂直"); break;
+    }
+
     emit msgSig(tr("屏幕方向：")+str, true);
 }
 
