@@ -6,10 +6,11 @@
 #include <windows.h>
 
 struct sBarTend {
-    QString pn;
-    QString hw;
-    QString fw;
-    QString sn;
+    QString pn;//"物料编码"
+    QString hw;//"硬件版本"
+    QString fw;//"软件版本"
+    QString sn;//"暂时不用"
+    QString code;//"暂时不用"
 };
 
 class Printer_BarTender : public QObject
@@ -19,22 +20,21 @@ class Printer_BarTender : public QObject
 public:
     static Printer_BarTender *bulid(QObject *parent = nullptr);
     bool printer(sBarTend &it);
-    // 添加以下两个函数声明（靠近 public 区域即可）
-    bool printMAC(QString cmd);          // 打印 MAC 条码
-    bool printerInfo(sBarTend &it);      // 打印标签（PN, HW, FW）
+    QString createOrder(sBarTend &it);
+    bool printMAC(QString cmd, int xCodeOffset, int yCodeOffset, int xMacOffset, int yMacOffset);
+    bool printerInfo(sBarTend &it);
 
 protected:
     void delay(int msec);
     bool recvResponse(int sec);
-    QString createOrder(sBarTend &it);
+
     int sendMsg(const QByteArray &msg, quint16 port,
                 const QHostAddress &host=QHostAddress::LocalHost);
-
-
     bool RawDataToPrinter(LPSTR szPrinterName, LPBYTE lpData, DWORD dwCount);
 
 protected slots:
     void recvSlot();
+
 
 private:
     bool mRes;

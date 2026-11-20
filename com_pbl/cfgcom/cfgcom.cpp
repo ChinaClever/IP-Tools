@@ -12,6 +12,7 @@ CfgCom::CfgCom(const QString &fn, QObject *parent)  : CfgSerial(fn, parent)
     initCfgCom();
     initErrData();
     initCfgData();
+    initOffset();
     item->coms.ser = nullptr;
     item->coms.sp = nullptr;
     item->coms.src = nullptr;
@@ -119,4 +120,20 @@ void CfgCom::writeThresholds()
     writeCfg("loopVol", item->loopVol, "Thresholds");
     writeCfg("loopCur", item->loopCur, "Thresholds");
     writeCfg("loopPow", item->loopPow, "Thresholds");
+}
+
+void CfgCom::initOffset()
+{
+    item->xCodeOffset = readCfg("xcodeoffset", 20, "Sys").toInt();
+    item->yCodeOffset = readCfg("ycodeoffset", 5, "Sys").toInt();
+    item->xMacOffset = readCfg("xmacoffset", 225, "Sys").toInt();
+    item->yMacOffset = readCfg("ymacoffset", 75, "Sys").toInt();
+}
+
+void CfgCom::writeOffset()
+{
+    writeCfg("xcodeoffset", item->xCodeOffset, "Sys");
+    writeCfg("ycodeoffset", item->yCodeOffset, "Sys");
+    writeCfg("xmacoffset", item->xMacOffset, "Sys");
+    writeCfg("ymacoffset", item->yMacOffset, "Sys");
 }

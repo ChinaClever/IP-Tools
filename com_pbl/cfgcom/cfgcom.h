@@ -43,6 +43,11 @@ struct sCfgComIt
     double loopVol;
     double loopCur;
     double loopPow;
+
+    int xCodeOffset;
+    int yCodeOffset;
+    int xMacOffset;
+    int yMacOffset;
 };
 
 class CfgCom : public CfgSerial
@@ -55,11 +60,13 @@ public:
     void writeErrData();
     void writeParams();
     void writeThresholds();
+    void writeOffset();
 
 private:
     void initCfgCom();
     void initErrData();
     void initCfgData();
+    void initOffset();
 };
 
 #endif // CFGCOM_H

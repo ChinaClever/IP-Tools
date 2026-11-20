@@ -17,6 +17,7 @@ Home_WorkWid::Home_WorkWid(QWidget *parent) :
     mCoreThread = Core_Thread::bulid(this);
     QTimer::singleShot(450,this,SLOT(initFunSlot()));
     mPro=sDataPacket::bulid();
+    mPrintDlg = new Home_PrintDlg(this);
     //Core_Http::bulid(this)->initHost("192.168.1.89");
     //Core_Http::bulid(this)->execute("killall cores");
 
@@ -348,4 +349,10 @@ void Home_WorkWid::on_userEdit_selectionChanged()
     ui->userEdit->setClearButtonEnabled(1);
 }
 
+
+
+void Home_WorkWid::on_printBtn_clicked()
+{
+    mPrintDlg->exec();
+}
 

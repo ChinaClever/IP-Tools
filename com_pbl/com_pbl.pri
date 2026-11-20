@@ -35,7 +35,7 @@ FORMS += \
 RESOURCES += \
     $$PWD/images/image.qrc
 
-win32: LIBS += -liphlpapi -lws2_32
+win32: LIBS += -liphlpapi -lws2_32 -lwinspool
 
 DISTFILES += \
     $$PWD/json/Json协议/test.json \

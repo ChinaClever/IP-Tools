@@ -4,14 +4,15 @@
  *      Author: Lzy
  */
 #include "printer_bartender.h"
-#include "print.h"
+#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintDialog>
 #include <QtPrintSupport/QPrinterInfo>
 
 Printer_BarTender::Printer_BarTender(QObject *parent) : QObject(parent)
 {
-    mSocket = new QUdpSocket(this);
-    mSocket->bind(QHostAddress::Any, 37755);
-    connect(mSocket,SIGNAL(readyRead()),this,SLOT(recvSlot()));
+//    mSocket = new QUdpSocket(this);
+//    mSocket->bind(QHostAddress::AnyIPv4, 47755);
+//    connect(mSocket,SIGNAL(readyRead()),this,SLOT(recvSlot()));
 }
 
 Printer_BarTender *Printer_BarTender::bulid(QObject *parent)
@@ -24,12 +25,10 @@ Printer_BarTender *Printer_BarTender::bulid(QObject *parent)
 
 QString Printer_BarTender::createOrder(sBarTend &it)
 {
-    QString str = "PN,HW,FW,Date,SN,QR\n";
+    QString str = "PN,HW,FW,Date\n";
     str += it.pn + ","; str += it.hw + ","; str += it.fw + ",";
-    QString date = QDate::currentDate().toString("yy") + "W";
-    date += QString("%1").arg(QDate::currentDate().weekNumber(), 2, 10, QLatin1Char('0'));
-    str += date+","; str += "SN " + it.sn + ","; //it.sn = it.sn.remove(QRegExp("\\s"));
-    str += QString("G$K:%1%$S:%2%M:%3$HW:%4$FW%5").arg(it.pn).arg(it.sn).arg(date).arg(it.hw).arg(it.fw);
+    QString date = QDate::currentDate().toString("yyyy-MM-dd");
+    str += date;
     return str;
 }
 
@@ -52,20 +51,19 @@ bool Printer_BarTender::recvResponse(int sec)
 
 bool Printer_BarTender::printer(sBarTend &it)
 {
-    int port = 1044;
-    QHostAddress addr = QHostAddress::Broadcast;
-    QString order = createOrder(it);
-    sendMsg(order.toLocal8Bit(), port+1, addr);
+    int port = 30044;
+    QHostAddress host = QHostAddress::Broadcast;
+    sendMsg("start", port, host);
 
-    sendMsg("start", port, addr);
-    return recvResponse(3);
+    QString order = createOrder(it);
+    sendMsg(order.toLocal8Bit(), port+1, host);
+    return recvResponse(10);
 }
 
 int Printer_BarTender::sendMsg(const QByteArray &msg, quint16 port, const QHostAddress &host)
 {
     int ret = mSocket->writeDatagram(msg, host, port);
-    if(ret > 0) {mSocket->flush(); delay(100);}
-    else qDebug() << mSocket->errorString();
+    if(ret > 0) mSocket->flush(); delay(100);
     return ret;
 }
 
@@ -78,7 +76,12 @@ void Printer_BarTender::recvSlot()
 }
 
 /**
- * @brief 发送原始数据到打印机（ZPL 命令）
+ * @brief Print::RawDataToPrinter
+ * 发送ZPL指令直接与打印机通信
+ * @param szPrinterName 打印机名称
+ * @param lpData  ZPL指令
+ * @param dwCount
+ * @return ZPL指令发送成功，返回true，ZPL指令发送失败，返回false
  */
 bool Printer_BarTender::RawDataToPrinter(LPSTR szPrinterName, LPBYTE lpData, DWORD dwCount)
 {
@@ -88,7 +91,7 @@ bool Printer_BarTender::RawDataToPrinter(LPSTR szPrinterName, LPBYTE lpData, DWO
     DWORD       dwJob = 0L;
     DWORD       dwBytesWritten = 0L;
 
-    // 打开打印机
+    // 打开打印机的手柄，这里使用OpenPrinterA()而不是OpenPrinter()是因为当前Qt编码是ANSI
     bStatus = OpenPrinterA(szPrinterName, &hPrinter, NULL);
     if (bStatus)
     {
@@ -96,6 +99,7 @@ bool Printer_BarTender::RawDataToPrinter(LPSTR szPrinterName, LPBYTE lpData, DWO
         DocInfo.pDocName = (LPSTR)"Raw Document";
         DocInfo.pOutputFile = NULL;
         DocInfo.pDatatype = (LPSTR)"RAW";
+
 
         // 通知后台处理程序文档正在开始
         dwJob = StartDocPrinterA(hPrinter, 1, (LPBYTE)&DocInfo);
@@ -107,52 +111,51 @@ bool Printer_BarTender::RawDataToPrinter(LPSTR szPrinterName, LPBYTE lpData, DWO
             {
                 // 发送数据到打印机
                 bStatus = WritePrinter(hPrinter, lpData, dwCount, &dwBytesWritten);
-                EndPagePrinter(hPrinter);
+                EndPagePrinter (hPrinter);
             }
+            // 通知后台处理程序文档正在结束
             EndDocPrinter(hPrinter);
         }
+        // 关闭打印机手柄
         ClosePrinter(hPrinter);
     }
-
-    if (!bStatus || (dwBytesWritten != dwCount)) {
-        return false;
+    // 检查是否写入了正确的字节数
+    if (!bStatus || (dwBytesWritten != dwCount))
+    {
+        bStatus = false;
     }
-
-    return true;
+    else
+    {
+        bStatus = true;
+    }
+    return bStatus;
 }
 
-
-/**
- * @brief 打印 MAC 条码标签
- * @param cmd MAC地址（例如：D0:12:34:56:78:9A）
- */
-bool Printer_BarTender::printMAC(QString cmd)
+bool Printer_BarTender::printMAC(QString cmd , int xCodeOffset , int yCodeOffset , int xMacOffset , int yMacOffset)
 {
-    QString zpl = tr("^XA^PW2000^LL800^LH0,0^MD13^PR2"
-                     "^FO20,5^BY2.5,3,65^BCN,65,N,,,^FD%1^FS"
-                     "^FO225,75^A0,40,40^FD%1^FS^XZ")
-                     .arg("MAC:" + cmd);
-
+//    QString cmd1 = tr("^XA^PW1000^LL800^LH0,0^MD13^PR2^FO250,30^A0,55,55^FD%1^FS^XZ").arg("MAC:"+cmd);
+//    QString cmd1 = tr("^XA^PW2000^LL800^LH0,0^MD13^PR2^FO20,5^BY2.5,3,65^BCN,65,N,,,^FD%1^FS^FO225,75^A0,40,40^FD%1^FS^XZ").arg("MAC:"+cmd);
+//    int x = 20 , y = 5 , x1 = 225 , y1 = 75;
+    int x = xCodeOffset , y = yCodeOffset , x1 = xMacOffset , y1 = yMacOffset;
+    QString cmd1 = tr("^XA^PW2000^LL800^LH0,0^MD13^PR2");
+    QString cmd2 = tr("^FO%2,%3^BY2.5,3,65^BCN,65,N,,,^FD%1^FS^FO%4,%5^A0,40,40^FD%1^FS^XZ").arg("MAC:"+cmd).arg(x).arg(y).arg(x1).arg(y1);
+    cmd1 += cmd2;
+    int length = cmd1.length();
     QString printerName = QPrinterInfo::defaultPrinterName();
-    return RawDataToPrinter((LPSTR)printerName.toLocal8Bit().data(),
-                            (LPBYTE)zpl.toLocal8Bit().data(), zpl.length());
+    bool ret = RawDataToPrinter((LPSTR)printerName.toLocal8Bit().data(),
+                            (LPBYTE)cmd1.toLocal8Bit().data(), (DWORD)length);
+    return ret;
 }
-
-
-/**
- * @brief 打印 FW 标签
- */
 
 bool Printer_BarTender::printerInfo(sBarTend &it)
 {
     QString cmd = "^XA^PW1000^LL800^LH0,0^MD13^PR2";
-    cmd += QString("^FO10,50^A0,45,45^FDPN:%1     Date:%2^FS")
-               .arg(it.pn)
-               .arg(QDate::currentDate().toString("yyyy-MM-dd"));
-    cmd += QString("^FO10,120^A0,45,45^FDFW:%1     HW:%2^FS").arg(it.fw).arg(it.hw);
+    cmd += QString("^FO10,50^A0,45,45^FDPN:%1           Date:%2^FS").arg(it.pn).arg(QDate::currentDate().toString("yyyy-MM-dd"));
+    cmd += QString("^FO10,120^A0,45,45^FDFW:%1           HW:%2^FS").arg(it.fw).arg(it.hw);
     cmd += "^XZ";
-
+    int length = cmd.length();
     QString printerName = QPrinterInfo::defaultPrinterName();
-    return RawDataToPrinter((LPSTR)printerName.toLocal8Bit().data(),
-                            (LPBYTE)cmd.toLocal8Bit().data(), cmd.length());
+    bool ret = RawDataToPrinter((LPSTR)printerName.toLocal8Bit().data(),
+                            (LPBYTE)cmd.toLocal8Bit().data(), (DWORD)length);
+    return ret;
 }

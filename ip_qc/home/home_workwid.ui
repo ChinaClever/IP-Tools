@@ -680,6 +680,13 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="printBtn">
+        <property name="text">
+         <string>打印</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

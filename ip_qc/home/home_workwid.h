@@ -6,6 +6,7 @@
 #include "datapacket.h"
 #include "json_pack.h"
 #include "home_envtabwid.h"
+#include "home_printdlg.h"
 
 namespace Ui {
 class Home_WorkWid;
@@ -60,8 +61,8 @@ private slots:
     void insertTextSlot(const QString &msg, bool pass);
 
     void on_ipEdit_textChanged(const QString &arg1);
-
     void on_userEdit_selectionChanged();
+    void on_printBtn_clicked();
 
 private:
     Ui::Home_WorkWid *ui;
@@ -73,6 +74,7 @@ private:
     sCount mCnt;
     int mId=1;
     sDataPacket *mPro;
+    Home_PrintDlg *mPrintDlg;
 };
 
 #endif // HOME_WORKWID_H

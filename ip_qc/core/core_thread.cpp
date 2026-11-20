@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QPixmap>
 #include "dbmacs.h"
+#include "printer_bartender.h"
 
 #define RATED 10000.0
 
@@ -699,6 +700,19 @@ bool Core_Thread::workDown(const QString &ip)
         cm_mdelay(1000);
         emit msgSig("恢复出厂设置", true);
         factoryRestore(); cm_mdelay(100);
+        bool flag = false;
+        if(mItem->macPrint){
+            flag = Printer_BarTender::bulid()->printMAC(coreItem.actual.mac , mItem->xCodeOffset , mItem->yCodeOffset, mItem->xMacOffset , mItem->yMacOffset);
+            if(!flag) flag = Printer_BarTender::bulid()->printMAC(coreItem.actual.mac, mItem->xCodeOffset , mItem->yCodeOffset, mItem->xMacOffset , mItem->yMacOffset);
+            if(flag) emit msgSig(tr("MAC标签打印成功"), flag);
+            else emit msgSig(tr("MAC标签打印失败"), flag);
+        }
+        if(mItem->snPrint){
+            flag =  Printer_BarTender::bulid()->printMAC(coreItem.actual.sn , mItem->xCodeOffset , mItem->yCodeOffset, mItem->xMacOffset , mItem->yMacOffset);
+            if(!flag) flag = Printer_BarTender::bulid()->printMAC(coreItem.actual.sn, mItem->xCodeOffset , mItem->yCodeOffset, mItem->xMacOffset , mItem->yMacOffset);
+            if(flag) emit msgSig(tr("SN标签打印成功"), flag);
+            else emit msgSig(tr("SN标签打印失败"), flag);
+        }
     }
 
     return ret;
